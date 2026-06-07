@@ -9,7 +9,7 @@ const Home = lazy(() => import("./pages/Home"));
 const Register = lazy(() => import("./pages/Register"));
 const Login = lazy(() => import("./pages/Login"));
 const Profile = lazy(() => import("./pages/Profile"));
-const Useinfor = lazy(() => import("./pages/Userinfor"));
+const UserInfoPage = lazy(() => import("./pages/UserInfo"));
 const Scholarships = lazy(() => import("./pages/Scholarships"));
 const Recommendation = lazy(() => import("./pages/Recommendation"));
 const CalendarPage = lazy(() => import("./pages/Calendar"));
@@ -20,7 +20,7 @@ const NoticeDetail = lazy(() => import("./pages/NoticeDetail"));
 const MessagesList = lazy(() => import("./pages/MessagesList"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Introduction = lazy(() => import("./pages/Introduction"));
-const Wishlist = lazy(() => import("./components/Wishlist"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
 
 import "antd/dist/reset.css";
 export default function App() {
@@ -127,8 +127,8 @@ export default function App() {
               element={<PrivateRoute isLoggedIn={isLoggedIn}><CalendarPage /></PrivateRoute>}
             />
             <Route
-              path="/Userinfor"
-              element={<PrivateRoute isLoggedIn={isLoggedIn}><Useinfor /></PrivateRoute>}
+              path="/userinfor"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><UserInfoPage /></PrivateRoute>}
             />
             <Route
               path="/community"

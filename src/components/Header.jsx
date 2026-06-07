@@ -66,7 +66,7 @@ export default function Header({ isLoggedIn, setIsLoggedIn, goToSection }) {
     <Link to="/recommendation"  className="nav-btn">추천 장학금</Link>
     <Link to="/interest"        className="nav-btn">관심 장학금</Link>
     <Link to="/calendar"        className="nav-btn">나의 장학 캘린더</Link>
-    <Link to="/Userinfor"       className="nav-btn">나의 장학 정보</Link>
+    <Link to="/userinfor"       className="nav-btn">나의 장학 정보</Link>
   </nav>
 
         {/* 오른쪽 */}

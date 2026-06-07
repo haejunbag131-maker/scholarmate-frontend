@@ -9,9 +9,9 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #213547;
+  background-color: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -27,6 +27,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  color: #213547;
+  background-color: #ffffff;
 }
 h1 {
   font-size: 3.2em;
@@ -39,7 +41,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #f9f9f9;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -142,6 +144,7 @@ button:focus-visible { outline: 4px auto -webkit-focus-ring-color; }
   border-color: #111;
 }
 .header {
+  width:100%;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -150,6 +153,9 @@ button:focus-visible { outline: 4px auto -webkit-focus-ring-color; }
   height:auto;
   min-height:72px;         
   padding:10px 24px;
+  background:#fff;
+  border-bottom:1px solid #ddd;
+  box-shadow:0 4px 6px rgba(0, 0, 0, 0.05);
   box-sizing:border-box;
 }
 .header .header-left {
@@ -166,13 +172,49 @@ button:focus-visible { outline: 4px auto -webkit-focus-ring-color; }
   flex:1 1 auto;
   min-width:0;
 }
-.header .nav .nav-btn { white-space:nowrap; }
+.header .nav-btn {
+  color:#2c3e50;
+  text-decoration:none;
+  font-size:1rem;
+  padding:8px 15px;
+  border-radius:5px;
+  transition:0.3s;
+  white-space:nowrap;
+}
+.header .nav-btn:hover {
+  background:#3498db;
+  color:#fff;
+}
 .header .header-right {
   display:flex !important;
   align-items:center !important;
   gap:10px !important;
   flex-shrink:0;
   white-space:nowrap;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction:column;
+    padding:10px;
+  }
+  .header .nav {
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-top:10px;
+  }
+  .header .header-right {
+    justify-content:flex-end;
+    gap:8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header .nav-btn {
+    font-size:0.9rem;
+    padding:8px 12px;
+  }
 }
 .community-swiper .swiper-pagination {
   position: relative !important;
@@ -225,22 +267,5 @@ button:focus-visible { outline: 4px auto -webkit-focus-ring-color; }
 .card-swiper .swiper-pagination-bullet-active {
   background-color: #2563eb; /* 활성 점 파란색 */
 }
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover { color: #747bff; }
-  button { background-color: #f9f9f9; }
-}
-
-
-
-
-
-
-
-
 
 

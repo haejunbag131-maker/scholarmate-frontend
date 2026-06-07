@@ -207,8 +207,8 @@ export default function Wishlist() {
 
       {/* 상세 모달 */}
       {isModalOpen && selectedScholarship && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="scholarship-modal-overlay" onClick={closeModal}>
+          <div className="scholarship-modal-content" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               className="absolute right-4 top-3 text-xs font-bold rounded !bg-black !text-white px-2 py-1"
@@ -219,7 +219,7 @@ export default function Wishlist() {
             </button>
 
             <h2>{selectedScholarship.name} 상세 정보</h2>
-            <div className="modal-body">
+            <div className="scholarship-modal-body">
               <p>
                 <strong>성적 기준:</strong>{" "}
                 {selectedScholarship.grade_criteria_details}

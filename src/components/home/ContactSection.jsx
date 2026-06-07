@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../api/axios"; 
+import api from "../../api/axios";
 
 export default function ContactSection() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -32,7 +32,7 @@ export default function ContactSection() {
       console.error(
         "[Contact submit error]",
         err?.response?.status,
-        err?.response?.data || err.message
+        err?.response?.data || err.message,
       );
       setStatus({
         type: "error",
@@ -53,7 +53,11 @@ export default function ContactSection() {
               문의하기
             </h2>
 
-            <form className="space-y-5 sm:space-y-6" onSubmit={onSubmit} noValidate>
+            <form
+              className="space-y-5 sm:space-y-6"
+              onSubmit={onSubmit}
+              noValidate
+            >
               <div>
                 <label
                   className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2 text-left"
@@ -149,16 +153,20 @@ export default function ContactSection() {
                 <div className="flex items-start">
                   <i className="fas fa-map-marker-alt text-custom text-base sm:text-xl mt-1"></i>
                   <div className="ml-3 sm:ml-4 text-left">
-                    <h3 className="text-sm sm:text-lg font-medium text-gray-900">주소</h3>
+                    <h3 className="text-sm sm:text-lg font-medium text-gray-900">
+                      주소
+                    </h3>
                     <p className="mt-1 sm:mt-2 text-xs sm:text-base text-gray-600">
-                      경기도 안성시 한경국립대학교 3층 318호
+                      경기도 수원시 장학컴퍼니 3층 318호
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <i className="fas fa-phone text-custom text-base sm:text-xl mt-1"></i>
                   <div className="ml-3 sm:ml-4 text-left">
-                    <h3 className="text-sm sm:text-lg font-medium text-gray-900">전화</h3>
+                    <h3 className="text-sm sm:text-lg font-medium text-gray-900">
+                      전화
+                    </h3>
                     <p className="mt-1 sm:mt-2 text-xs sm:text-base text-gray-600">
                       031-1234-5678
                     </p>
@@ -167,9 +175,11 @@ export default function ContactSection() {
                 <div className="flex items-start">
                   <i className="fas fa-envelope text-custom text-base sm:text-xl mt-1"></i>
                   <div className="ml-3 sm:ml-4 text-left">
-                    <h3 className="text-sm sm:text-lg font-medium text-gray-900">이메일</h3>
+                    <h3 className="text-sm sm:text-lg font-medium text-gray-900">
+                      이메일
+                    </h3>
                     <p className="mt-1 sm:mt-2 text-xs sm:text-base text-gray-600">
-                      contact@hknu.com
+                      contact@naver.com
                     </p>
                   </div>
                 </div>
@@ -183,7 +193,9 @@ export default function ContactSection() {
                 onClick={() => setAccordionOpen(!accordionOpen)}
               >
                 <span className="font-medium text-gray-900">연락처 정보</span>
-                <span className="text-lg font-bold">{accordionOpen ? "-" : "+"}</span>
+                <span className="text-lg font-bold">
+                  {accordionOpen ? "-" : "+"}
+                </span>
               </button>
 
               <div
@@ -195,7 +207,9 @@ export default function ContactSection() {
                   <div className="flex items-start">
                     <i className="fas fa-map-marker-alt text-custom text-base mt-1"></i>
                     <div className="ml-3 text-left">
-                      <h3 className="text-sm font-medium text-gray-900">주소</h3>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        주소
+                      </h3>
                       <p className="mt-1 text-xs text-gray-600">
                         경기도 안성시 한경국립대학교 3층 318호
                       </p>
@@ -204,15 +218,23 @@ export default function ContactSection() {
                   <div className="flex items-start">
                     <i className="fas fa-phone text-custom text-base mt-1"></i>
                     <div className="ml-3 text-left">
-                      <h3 className="text-sm font-medium text-gray-900">전화</h3>
-                      <p className="mt-1 text-xs text-gray-600">031-1234-5678</p>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        전화
+                      </h3>
+                      <p className="mt-1 text-xs text-gray-600">
+                        031-1234-5678
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <i className="fas fa-envelope text-custom text-base mt-1"></i>
                     <div className="ml-3 text-left">
-                      <h3 className="text-sm font-medium text-gray-900">이메일</h3>
-                      <p className="mt-1 text-xs text-gray-600">contact@hknu.com</p>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        이메일
+                      </h3>
+                      <p className="mt-1 text-xs text-gray-600">
+                        contact@hknu.com
+                      </p>
                     </div>
                   </div>
                 </div>

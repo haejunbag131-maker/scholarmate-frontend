@@ -326,11 +326,11 @@ export default function Scholarships() {
 
       {/* 상세 모달 */}
       {isModalOpen && selectedScholarship && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="modal-close" onClick={closeModal}>✕</button>
+        <div className="scholarship-modal-overlay" onClick={closeModal}>
+          <div className="scholarship-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="scholarship-modal-close" onClick={closeModal}>✕</button>
             <h2>{selectedScholarship.name} 상세 정보</h2>
-            <div className="modal-body">
+            <div className="scholarship-modal-body">
               <p><strong>성적기준:</strong> {selectedScholarship.grade_criteria_details}</p>
               <p><strong>소득기준:</strong> {selectedScholarship.income_criteria_details}</p>
               <p><strong>지원내역:</strong> {selectedScholarship.support_details}</p>

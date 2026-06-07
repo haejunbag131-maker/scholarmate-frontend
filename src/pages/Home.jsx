@@ -1,13 +1,13 @@
 import "../assets/css/Home.css";
 
-import Slider from "../components/Slider"; 
-import CommunityNotice from "../components/CommunityNotice";
-import FeatureSection from '../components/FeatureSection';
-import CardSection from "../components/CardSection";
-import WorkSection from "../components/WorkSection";
-import LatestNewsSection from "../components/LatestNewsSection";
-import ContactSection from "../components/ContactSection";
-import Footer from "../components/Footer"; 
+import Slider from "../components/home/Slider"; 
+import CommunityNotice from "../components/home/CommunityNotice";
+import FeatureSection from "../components/home/FeatureSection";
+import CardSection from "../components/home/CardSection";
+import WorkSection from "../components/home/WorkSection";
+import LatestNewsSection from "../components/home/LatestNewsSection";
+import ContactSection from "../components/home/ContactSection";
+import Footer from "../components/home/Footer"; 
 
 export default function Home() {
   return (

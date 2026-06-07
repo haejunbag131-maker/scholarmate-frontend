@@ -8,7 +8,17 @@ import "../assets/css/userinfor.css";
 import regions from "../data/regions";
 import majorFields from "../data/majorFields";
 import universities from "../data/universities";
-import universitiesWithDepartments from "../data/universities_with_departments";
+
+let universitiesWithDepartmentsPromise;
+
+const loadUniversitiesWithDepartments = () => {
+  if (!universitiesWithDepartmentsPromise) {
+    universitiesWithDepartmentsPromise = import("../data/universities_with_departments").then(
+      ({ default: universitiesWithDepartments }) => universitiesWithDepartments
+    );
+  }
+  return universitiesWithDepartmentsPromise;
+};
 
 // 상수 정의
 const incomeLevels = Array.from({ length: 10 }, (_, i) => `${i + 1}분위`);
@@ -17,7 +27,7 @@ const semesters = ["신입생", "1학기", "2학기", "3학기", "4학기", "5�
 const genders = ["남성", "여성", "선택안함"];
 const univCategories = ["4년제(5~6년제포함)", "전문대(2~3년제)", "해외대학"];
 
-const Userinfor = () => {
+const UserInfo = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const existingData = location.state?.scholarshipData || {};
@@ -54,6 +64,7 @@ const Userinfor = () => {
   const [filteredUniversities, setFilteredUniversities] = useState(universities);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [departments, setDepartments] = useState([]);
+  const [isDepartmentsLoading, setIsDepartmentsLoading] = useState(false);
 
   useEffect(() => {
     document.body.classList.add("userinfor-page");
@@ -62,11 +73,34 @@ const Userinfor = () => {
 
   // 학과 목록 업데이트
   useEffect(() => {
-    if (selectedUniversityName && universitiesWithDepartments[selectedUniversityName]) {
-      setDepartments(universitiesWithDepartments[selectedUniversityName]);
-    } else {
+    let isActive = true;
+
+    if (!selectedUniversityName) {
       setDepartments([]);
+      setIsDepartmentsLoading(false);
+      return undefined;
     }
+
+    setDepartments([]);
+    setIsDepartmentsLoading(true);
+
+    loadUniversitiesWithDepartments()
+      .then((universitiesWithDepartments) => {
+        if (!isActive) return;
+        setDepartments(universitiesWithDepartments[selectedUniversityName] || []);
+      })
+      .catch(() => {
+        if (!isActive) return;
+        setDepartments([]);
+      })
+      .finally(() => {
+        if (!isActive) return;
+        setIsDepartmentsLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
   }, [selectedUniversityName]);
 
   const handleSearch = (e) => {
@@ -83,6 +117,7 @@ const Userinfor = () => {
 
   const handleSelectUniversity = (university) => {
     setSelectedUniversityName(university);
+    setSelectedDepartment("");
     setIsModalOpen(false);
     setSearchQuery("");
   };
@@ -296,10 +331,10 @@ const Userinfor = () => {
 
         {/* 대학교 검색 모달 */}
         {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal">
+          <div className="user-info-modal-overlay">
+            <div className="user-info-modal">
               <h3>대학교 검색</h3>
-              <button className="close-btn" onClick={() => setIsModalOpen(false)}>
+              <button className="user-info-close-btn" onClick={() => setIsModalOpen(false)}>
                 닫기
               </button>
 
@@ -310,7 +345,7 @@ const Userinfor = () => {
                 value={searchQuery}
                 onChange={handleSearch}
               />
-              <ul className="dropdown-list">
+              <ul className="user-info-dropdown-list">
                 {filteredUniversities.length > 0 ? (
                   filteredUniversities.map((uni) => (
                     <li key={uni} onClick={() => handleSelectUniversity(uni)}>
@@ -333,9 +368,15 @@ const Userinfor = () => {
               className="form-select"
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
-              disabled={!departments.length}
+              disabled={isDepartmentsLoading || !departments.length}
             >
-              <option value="">학과 선택</option>
+              <option value="">
+                {isDepartmentsLoading
+                  ? "학과 목록 불러오는 중..."
+                  : selectedUniversityName
+                    ? "학과 선택"
+                    : "대학교를 먼저 선택하세요"}
+              </option>
               {departments.map((dept, index) => (
                 <option key={index} value={dept}>
                   {dept}
@@ -459,4 +500,4 @@ const Userinfor = () => {
   );
 };
 
-export default Userinfor;
+export default UserInfo;

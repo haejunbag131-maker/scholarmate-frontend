@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import Slider from "react-slick";
-import sliderImage1 from "../assets/img/메인1.jpg";
-import sliderImage2 from "../assets/img/메인2.jpg";
-import "../assets/css/slider.css";
+import sliderImage1 from "../../assets/img/메인1.jpg";
+import sliderImage2 from "../../assets/img/메인2.jpg";
+import "../../assets/css/slider.css";
 
 function NextArrow(props) {
   const { onClick } = props;
