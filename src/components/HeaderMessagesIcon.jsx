@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { message as antdMessage } from "antd";
 import api from "../api/axios";
@@ -55,7 +55,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
     })();
   }, [isLoggedIn]);
 
-  async function sync() {
+  const sync = useCallback(async () => {
     if (!isLoggedIn) {
       setCount(0);
       setPreview([]);
@@ -104,7 +104,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
     } catch {
       /* 조용히 무시 */
     }
-  }
+  }, [isLoggedIn, me.id, me.username]);
 
   // 최초 + 주기적 동기화
   useEffect(() => {
@@ -120,15 +120,15 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [intervalMs, isLoggedIn]);
+  }, [intervalMs, sync]);
 
   useEffect(() => {
     if (me.id != null || me.username) sync();
-  }, [me.id, me.username]);
+  }, [me.id, me.username, sync]);
 
   useEffect(() => {
     if (pathname.startsWith("/messages")) sync();
-  }, [pathname]);
+  }, [pathname, sync]);
 
   // 외부 클릭 닫기
   useEffect(() => {

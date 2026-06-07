@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axios from "../api/axios";
@@ -102,7 +102,7 @@ const CommunityNotice = () => {
           }))
           .sort((a, b) => b.score - a.score)[0];
         if (alive) setPopularItem(best || null);
-      } catch (e) {
+      } catch {
         if (alive) setPopularItem(null);
       } finally {
         if (alive) setPopularLoading(false);

@@ -1,6 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import api from "../api/axios";
 import "../assets/css/scholarships.css";
+
+const TYPE_KR = {
+  regional: "지역연고",
+  academic: "성적우수",
+  income_based: "소득구분",
+  special_talent: "특기자",
+  other: "기타",
+};
+
+const parseListResponse = (data) => {
+  if (Array.isArray(data)) return { items: data, count: data.length };
+  if (data && Array.isArray(data.results))
+    return { items: data.results, count: data.count ?? data.results.length };
+  if (data && Array.isArray(data.data)) {
+    const count = data.total ?? data.count ?? data.data.length;
+    return { items: data.data, count };
+  }
+  return { items: [], count: 0 };
+};
 
 export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
@@ -21,15 +40,6 @@ export default function Scholarships() {
 
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // ====== (1) 코드값 → 백엔드 한글값 매핑 ======
-  const TYPE_KR = {
-    regional: "지역연고",
-    academic: "성적우수",
-    income_based: "소득구분",
-    special_talent: "특기자",
-    other: "기타",
-  };
 
   // ====== 토스트 ======
   const [toast, setToast] = useState({ open: false, message: "", type: "success" });
@@ -60,20 +70,8 @@ export default function Scholarships() {
     }
   };
 
-  // ====== 응답 파서 (배열 / DRF / 커스텀) ======
-  const parseListResponse = (data) => {
-    if (Array.isArray(data)) return { items: data, count: data.length };
-    if (data && Array.isArray(data.results))
-      return { items: data.results, count: data.count ?? data.results.length };
-    if (data && Array.isArray(data.data)) {
-      const count = data.total ?? data.count ?? data.data.length;
-      return { items: data.data, count };
-    }
-    return { items: [], count: 0 };
-  };
-
   // ====== (2) API 호출 ======
-  const fetchScholarships = async () => {
+  const fetchScholarships = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -100,9 +98,9 @@ export default function Scholarships() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, perPage, searchQuery, selectedType, sortOrder]);
 
-  const fetchFavorites = async () => {
+  const fetchFavorites = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -112,14 +110,14 @@ export default function Scholarships() {
       const ids = (data || []).map((item) => item.scholarship.product_id);
       setFavorites(new Set(ids));
     } catch { /* 무시 */ }
-  };
+  }, []);
 
   useEffect(() => {
     document.body.classList.add("scholarships-page");
     return () => document.body.classList.remove("scholarships-page");
   }, []);
-  useEffect(() => { fetchScholarships(); }, [page, perPage, selectedType, sortOrder, searchQuery]);
-  useEffect(() => { fetchFavorites(); }, []);
+  useEffect(() => { fetchScholarships(); }, [fetchScholarships]);
+  useEffect(() => { fetchFavorites(); }, [fetchFavorites]);
 
   // ====== UI 핸들러 ======
   const openModal = (scholarship) => { setSelectedScholarship(scholarship); setIsModalOpen(true); };

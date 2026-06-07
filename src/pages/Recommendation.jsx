@@ -1,28 +1,7 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { FaStar } from "react-icons/fa"; 
-
-const DUMMY_RECOMMENDATIONS = [
-  {
-    id: 1,
-    product_id: 1,
-    name: "국가장학금 1유형",
-    foundation_name: "한국장학재단",
-    recruitment_start: "2025-06-01",
-    recruitment_end: "2025-06-20",
-    url: "https://www.kosaf.go.kr/",
-  },
-  {
-    id: 2,
-    product_id: 2,
-    name: "미래드림 장학금",
-    foundation_name: "미래재단",
-    recruitment_start: "2025-07-01",
-    recruitment_end: "2025-07-15",
-    url: "https://example.org/",
-  },
-];
 
 export default function Recommendation() {
   const [recommendations, setRecommendations] = useState([]);
@@ -117,7 +96,7 @@ export default function Recommendation() {
         });
 
         const recs = Array.isArray(data?.scholarships) ? data.scholarships : [];
-        setRecommendations(recs.length ? recs : DUMMY_RECOMMENDATIONS);
+        setRecommendations(recs);
       } catch (err) {
         const status = err?.response?.status;
         const detail =
@@ -161,7 +140,9 @@ export default function Recommendation() {
         });
         const ids = (data || []).map((w) => w.scholarship.product_id);
         setFavorites(new Set(ids));
-      } catch {}
+      } catch {
+        // 관심 목록 조회 실패 시 빈 목록으로 계속 렌더링합니다.
+      }
     };
     loadFavorites();
   }, []);

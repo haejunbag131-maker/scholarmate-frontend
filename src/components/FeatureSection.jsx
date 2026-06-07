@@ -1,4 +1,3 @@
-import React from "react";
 import { FaChartLine, FaUsers, FaClock, FaBookmark } from "react-icons/fa";
 
 export default function FeatureSection() {

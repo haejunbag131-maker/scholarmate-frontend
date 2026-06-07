@@ -43,7 +43,7 @@ export default function MessagesList() {
     try {
       try {
         await api.delete(`/community/conversations/${id}/`);
-      } catch (e) {
+      } catch {
         await api.post(`/community/conversations/${id}/leave/`);
       }
       setItems((prev) => prev.filter((c) => String(c.id) !== String(id)));

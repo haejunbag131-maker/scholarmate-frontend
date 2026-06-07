@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { fetchNotice, updateNotice, deleteNotice } from "../api/notices";
 import { fetchMe } from "../api/user";
@@ -30,7 +30,7 @@ export default function NoticeDetail() {
   }, []);
 
   // 상세 로드 (view_count 증가)
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const data = await fetchNotice(id);
@@ -41,11 +41,11 @@ export default function NoticeDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     load();
-  }, [id]);
+  }, [load]);
 
   const openEdit = () => {
     if (!item) return;

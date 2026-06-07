@@ -151,8 +151,6 @@ function ResetPwByCodeModal({ onClose, inputCls }) {
 
   const [pw1, setPw1] = useState("");
   const [pw2, setPw2] = useState("");
-  const [showPw, setShowPw] = useState(false);
-
   const [submitting, setSubmitting] = useState(false);
   const [info, setInfo] = useState("");
   const [err, setErr] = useState("");
@@ -256,12 +254,12 @@ function ResetPwByCodeModal({ onClose, inputCls }) {
       </div>
       <div className="mt-4">
         <label className="block text-xs text-gray-600 mb-1">새 비밀번호</label>
-        <input type={showPw ? "text" : "password"} value={pw1} onChange={(e) => setPw1(e.target.value)}
+        <input type="password" value={pw1} onChange={(e) => setPw1(e.target.value)}
           className={inputCls} disabled={!verified} />
       </div>
       <div className="mt-3">
         <label className="block text-xs text-gray-600 mb-1">새 비밀번호 확인</label>
-        <input type={showPw ? "text" : "password"} value={pw2} onChange={(e) => setPw2(e.target.value)}
+        <input type="password" value={pw2} onChange={(e) => setPw2(e.target.value)}
           className={inputCls} disabled={!verified} />
       </div>
       {info && <p className="text-xs text-emerald-600 mt-2">{info}</p>}

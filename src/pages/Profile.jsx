@@ -11,76 +11,81 @@ export default function Profile() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true); // 로딩 상태
 
-  // 토큰 갱신
-  const refreshAccessToken = async () => {
-    try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (!refreshToken) throw new Error("리프레시 토큰이 없습니다.");
-
-      const response = await axios.post("/auth/jwt/refresh/", {
-        refresh: refreshToken,
-      });
-
-      const newAccessToken = response.data.access;
-      localStorage.setItem("token", newAccessToken);
-      console.log("🔄 액세스 토큰 갱신 성공");
-      return newAccessToken;
-    } catch (err) {
-      console.error("🚨 액세스 토큰 갱신 실패:", err);
-      setError("세션이 만료되었습니다. 다시 로그인해주세요.");
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
-      navigate("/login");
-      return null;
-    }
-  };
-
-  // 사용자 기본 정보
-  const fetchUserData = async () => {
-    try {
-      const response = await axios.get("/auth/users/me/");
-      setUserData(response.data);
-    } catch (err) {
-      if (err.response?.status === 401) {
-        const newToken = await refreshAccessToken();
-        if (newToken) fetchUserData();
-      } else {
-        setError("사용자 정보를 불러오지 못했습니다.");
-      }
-    }
-  };
-
-  // 장학 정보
-  const fetchScholarshipData = async () => {
-    try {
-      const response = await axios.get("/userinfor/scholarship/get/");
-      setScholarshipData(response.data);
-    } catch (err) {
-      if (err.response?.status === 401) {
-        const newToken = await refreshAccessToken();
-        if (newToken) fetchScholarshipData();
-      } else if (err.response?.status === 404) {
-        setScholarshipData({});
-      } else {
-        setError("장학 정보를 불러오지 못했습니다.");
-      }
-    }
-  };
-
   useEffect(() => {
     document.body.classList.add("profile-page");
     return () => document.body.classList.remove("profile-page");
   }, []);
 
   useEffect(() => {
+    let alive = true;
+
+    // 토큰 갱신
+    const refreshAccessToken = async () => {
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) throw new Error("리프레시 토큰이 없습니다.");
+
+        const response = await axios.post("/auth/jwt/refresh/", {
+          refresh: refreshToken,
+        });
+
+        const newAccessToken = response.data.access;
+        localStorage.setItem("token", newAccessToken);
+        console.log("🔄 액세스 토큰 갱신 성공");
+        return newAccessToken;
+      } catch (err) {
+        console.error("🚨 액세스 토큰 갱신 실패:", err);
+        if (alive) setError("세션이 만료되었습니다. 다시 로그인해주세요.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        navigate("/login");
+        return null;
+      }
+    };
+
+    // 사용자 기본 정보
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/auth/users/me/");
+        if (alive) setUserData(response.data);
+      } catch (err) {
+        if (err.response?.status === 401) {
+          const newToken = await refreshAccessToken();
+          if (newToken) await fetchUserData();
+        } else if (alive) {
+          setError("사용자 정보를 불러오지 못했습니다.");
+        }
+      }
+    };
+
+    // 장학 정보
+    const fetchScholarshipData = async () => {
+      try {
+        const response = await axios.get("/userinfor/scholarship/get/");
+        if (alive) setScholarshipData(response.data);
+      } catch (err) {
+        if (err.response?.status === 401) {
+          const newToken = await refreshAccessToken();
+          if (newToken) await fetchScholarshipData();
+        } else if (err.response?.status === 404) {
+          if (alive) setScholarshipData({});
+        } else if (alive) {
+          setError("장학 정보를 불러오지 못했습니다.");
+        }
+      }
+    };
+
     const loadData = async () => {
       setLoading(true);
       await fetchUserData();
       await fetchScholarshipData();
-      setLoading(false);
+      if (alive) setLoading(false);
     };
     loadData();
-  }, []);
+    return () => {
+      alive = false;
+    };
+  }, [navigate]);
 
   // UI 처리 
   if (loading) {

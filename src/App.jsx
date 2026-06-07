@@ -1,26 +1,26 @@
-import { useState, useEffect, useRef } from "react";
+import { lazy, Suspense, useState, useEffect, useRef } from "react";
 import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
 import isTokenExpired from "./api/auth";
 
 import Header from "./components/Header";
 import PrivateRoute from "./components/PrivateRoute";
-import Wishlist from "./components/Wishlist";
 
-import Home from "./pages/Home";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
-import Profile from "./pages/Profile";
-import Useinfor from "./pages/Userinfor";
-import Scholarships from "./pages/Scholarships";
-import Recommendation from "./pages/Recommendation";
-import CalendarPage from "./pages/Calendar";
-import CommunityPage from "./pages/CommunityPage";
-import CommunityDetail from "./pages/CommunityDetail";
-import NoticeList from "./pages/NoticeList";
-import NoticeDetail from "./pages/NoticeDetail";
-import MessagesList from "./pages/MessagesList";
-import Messages from "./pages/Messages";
-import Introduction from "./pages/Introduction";
+const Home = lazy(() => import("./pages/Home"));
+const Register = lazy(() => import("./pages/Register"));
+const Login = lazy(() => import("./pages/Login"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Useinfor = lazy(() => import("./pages/Userinfor"));
+const Scholarships = lazy(() => import("./pages/Scholarships"));
+const Recommendation = lazy(() => import("./pages/Recommendation"));
+const CalendarPage = lazy(() => import("./pages/Calendar"));
+const CommunityPage = lazy(() => import("./pages/CommunityPage"));
+const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
+const NoticeList = lazy(() => import("./pages/NoticeList"));
+const NoticeDetail = lazy(() => import("./pages/NoticeDetail"));
+const MessagesList = lazy(() => import("./pages/MessagesList"));
+const Messages = lazy(() => import("./pages/Messages"));
+const Introduction = lazy(() => import("./pages/Introduction"));
+const Wishlist = lazy(() => import("./components/Wishlist"));
 
 import "antd/dist/reset.css";
 export default function App() {
@@ -70,13 +70,6 @@ export default function App() {
     navigate("/", { replace: true });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    setIsLoggedIn(false);
-    navigate("/", { replace: true });
-  };
-
   // 홈 섹션으로 이동
   const goToSection = (sectionId) => {
     setSidebarOpen(false);
@@ -114,57 +107,59 @@ export default function App() {
       />
 
       <main className="content">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/scholarships"
-            element={<PrivateRoute isLoggedIn={isLoggedIn}><Scholarships /></PrivateRoute>}
-          />
-          <Route
-            path="/recommendation"
-            element={<PrivateRoute isLoggedIn={isLoggedIn}><Recommendation /></PrivateRoute>}
-          />
-          <Route
-            path="/interest"
-            element={<PrivateRoute isLoggedIn={isLoggedIn}><Wishlist /></PrivateRoute>}
-          />
-          <Route
-            path="/calendar"
-            element={<PrivateRoute isLoggedIn={isLoggedIn}><CalendarPage /></PrivateRoute>}
-          />
-          <Route
-            path="/Userinfor"
-            element={<PrivateRoute isLoggedIn={isLoggedIn}><Useinfor /></PrivateRoute>}
-          />
-          <Route
-            path="/community"
-            element={<PrivateRoute isLoggedIn={isLoggedIn}><CommunityPage /></PrivateRoute>}
-          />
-          <Route
-            path="/profile"
-            element={isLoggedIn ? <Profile /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/login"
-            element={isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
-          />
-          <Route
-            path="/register"
-            element={isLoggedIn ? <Navigate to="/" /> : <Register />}
-          />
-          <Route path="/introduction" element={<Introduction />} />
-          <Route path="/notice" element={<NoticeList />} />
-          <Route path="/notice/:id" element={<NoticeDetail />} />
-          <Route path="/community/:id" element={<CommunityDetail />} />
-          <Route
-            path="/messages"
-            element={<PrivateRoute isLoggedIn={isLoggedIn}><MessagesList /></PrivateRoute>}
-          />
-          <Route
-            path="/messages/:conversationId"
-            element={<PrivateRoute isLoggedIn={isLoggedIn}><Messages /></PrivateRoute>}
-          />
-        </Routes>
+        <Suspense fallback={<div className="py-16 text-center text-sm text-gray-500">로딩 중...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route
+              path="/scholarships"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><Scholarships /></PrivateRoute>}
+            />
+            <Route
+              path="/recommendation"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><Recommendation /></PrivateRoute>}
+            />
+            <Route
+              path="/interest"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><Wishlist /></PrivateRoute>}
+            />
+            <Route
+              path="/calendar"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><CalendarPage /></PrivateRoute>}
+            />
+            <Route
+              path="/Userinfor"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><Useinfor /></PrivateRoute>}
+            />
+            <Route
+              path="/community"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><CommunityPage /></PrivateRoute>}
+            />
+            <Route
+              path="/profile"
+              element={isLoggedIn ? <Profile /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/login"
+              element={isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
+            />
+            <Route
+              path="/register"
+              element={isLoggedIn ? <Navigate to="/" /> : <Register />}
+            />
+            <Route path="/introduction" element={<Introduction />} />
+            <Route path="/notice" element={<NoticeList />} />
+            <Route path="/notice/:id" element={<NoticeDetail />} />
+            <Route path="/community/:id" element={<CommunityDetail />} />
+            <Route
+              path="/messages"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><MessagesList /></PrivateRoute>}
+            />
+            <Route
+              path="/messages/:conversationId"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><Messages /></PrivateRoute>}
+            />
+          </Routes>
+        </Suspense>
       </main>
     </>
   );

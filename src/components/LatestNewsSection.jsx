@@ -1,4 +1,3 @@
-import React from "react";
 import koreaImg from "../assets/img/한국.png";
 import dreamsponImg from "../assets/img/드림스폰.png";
 

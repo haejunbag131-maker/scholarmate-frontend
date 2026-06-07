@@ -82,7 +82,9 @@ export async function unbookmarkPost(id) {
 export async function incView(id) {
   try {
     await axios.post(`/community/posts/${id}/increment_view/`);
-  } catch (_) {}
+  } catch {
+    // 조회수 반영 실패는 화면 동작을 막지 않습니다.
+  }
 }
 
 

@@ -1,8 +1,4 @@
-import React from "react";
-
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 
 import 전체장학금 from "../assets/img/전체.png";
 import 맞춤형추천 from "../assets/img/맞춤.png";

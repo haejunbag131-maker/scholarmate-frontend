@@ -94,7 +94,7 @@ export default function CommunityDetail() {
 
   const viewedOnceRef = useRef(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       try {
@@ -120,12 +120,12 @@ export default function CommunityDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     viewedOnceRef.current = false;
     load();
-  }, [id]);
+  }, [id, load]);
 
   // 최상위 댓글 등록
   const submit = async () => {

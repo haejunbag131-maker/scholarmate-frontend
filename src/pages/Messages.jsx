@@ -43,9 +43,9 @@ export default function Messages() {
   const endRef = useRef(null);
 
   // 스크롤 
-  const scrollToBottom = (behavior = "auto") => {
+  const scrollToBottom = useCallback((behavior = "auto") => {
     endRef.current?.scrollIntoView({ behavior, block: "end" });
-  };
+  }, []);
 
   // 자신 
   useEffect(() => {
@@ -64,7 +64,9 @@ export default function Messages() {
           const { data } = await api.get("/auth/users/me/");
           myUsername = data?.username ?? myUsername;
           myId = data?.id ?? myId;
-        } catch {}
+        } catch {
+          // 사용자 정보 조회 실패 시 토큰/로컬 정보로 계속 진행합니다.
+        }
       }
       if (!myUsername) myUsername = localStorage.getItem("username") || null;
 
@@ -78,7 +80,7 @@ export default function Messages() {
   }, []);
 
   // 자신인지 판별 
-  const isMineMessage = (m) => {
+  const isMineMessage = useCallback((m) => {
     if (m.__mine || m.__optimistic) return true;
     const myU = meRef.current.username;
     const myId = meRef.current.id;
@@ -87,8 +89,8 @@ export default function Messages() {
     if (myId && sid) return String(myId) === String(sid);
     if (myU && u) return u === myU;
     return false;
-  };
-  const tagMine = (msg) => ({ ...msg, __mine: isMineMessage(msg) });
+  }, []);
+  const tagMine = useCallback((msg) => ({ ...msg, __mine: isMineMessage(msg) }), [isMineMessage]);
 
   // 읽음 처리 
   const markRead = useCallback(async () => {
@@ -98,7 +100,9 @@ export default function Messages() {
       setMsgs((prev) =>
         prev.map((m) => (m.__mine ? m : { ...m, is_read: true }))
       );
-    } catch {}
+    } catch {
+      // 읽음 처리 실패는 메시지 표시를 막지 않습니다.
+    }
   }, [conversationId]);
 
   // 로드
@@ -144,7 +148,7 @@ export default function Messages() {
         inFlight.current = false;
       }
     },
-    [conversationId, markRead]
+    [conversationId, markRead, scrollToBottom, tagMine]
   );
 
   // polling & 대화방 전환 
@@ -157,7 +161,7 @@ export default function Messages() {
 
     const t = setInterval(() => load("poll"), 5000);
     return () => clearInterval(t);
-  }, [conversationId]);
+  }, [conversationId, load]);
 
   // 보내기 
   const send = async () => {
