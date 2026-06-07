@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Modal, Form, Input, Select, message } from "antd";
-import { createPost } from "../api/community";
+import { createPost } from "../../api/community";
 
 const { TextArea } = Input;
 

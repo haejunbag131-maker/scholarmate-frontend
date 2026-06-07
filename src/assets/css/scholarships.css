@@ -106,7 +106,7 @@
   cursor:not-allowed;
   opacity:.5;
 }
-.modal-overlay{
+.scholarship-modal-overlay{
   position:fixed;
   inset:0;
   background:var(--overlay);
@@ -117,7 +117,7 @@
   padding-top:var(--modal-top-pad);
   padding-bottom:24px;
 }
-.modal-content{
+.scholarship-modal-content{
   position:relative;
   width:min(720px, 92vw);
   margin:0 var(--modal-side-pad);
@@ -130,7 +130,7 @@
   max-height:calc(100vh - (var(--modal-top-pad) + 24px));
   overflow-y:auto;
 }
-.modal-content h2{
+.scholarship-modal-content h2{
   margin:0 0 12px 0;
   padding-right:48px;
   text-align:center;
@@ -138,12 +138,12 @@
   font-size:1.15rem;
   color:var(--brand-blue);
 }
-.modal-body{
+.scholarship-modal-body{
   padding-right:4px;
   line-height:1.6;
   font-size:.95rem;
 }
-.modal-close{
+.scholarship-modal-close{
   position:absolute;
   top:10px;
   right:10px;
@@ -161,7 +161,7 @@
   cursor:pointer;
   z-index:2;
 }
-.modal-close:hover{ background:#d1d5db; }
+.scholarship-modal-close:hover{ background:#d1d5db; }
 
 /* ---------- Wishlist ---------- */
 .wishlist-wrapper{
@@ -369,10 +369,10 @@
   .details-btn{ font-size:.8rem; padding:4px 8px; }
   .favorite-btn{ font-size:1rem; }
   .pagination button{ font-size:.8rem; padding:6px 10px; }
-  .modal-overlay{ padding-top:100px; }
-  .modal-content{ margin:0 8px; padding:12px; }
-  .modal-content h2{ font-size:1rem; }
-  .modal-body{ font-size:.85rem; }
+  .scholarship-modal-overlay{ padding-top:100px; }
+  .scholarship-modal-content{ margin:0 8px; padding:12px; }
+  .scholarship-modal-content h2{ font-size:1rem; }
+  .scholarship-modal-body{ font-size:.85rem; }
   .wishlist-table th, .wishlist-table td{ font-size:.8rem; padding:6px; }
 }
 
@@ -411,9 +411,9 @@
   }
   .details-btn{ font-size:.65rem; padding:2px 4px; }
   .pagination button{ padding:3px 5px; font-size:.65rem; min-width:26px; height:26px; }
-  .modal-content{ padding:6px; border-radius:6px; }
-  .modal-content h2{ font-size:.85rem; }
-  .modal-body{ font-size:.7rem; }
+  .scholarship-modal-content{ padding:6px; border-radius:6px; }
+  .scholarship-modal-content h2{ font-size:.85rem; }
+  .scholarship-modal-body{ font-size:.7rem; }
   .wishlist-wrapper{ min-height:320px; }
   .wishlist-table-container{ max-height:180px; }
   .wishlist-table th, .wishlist-table td{ font-size:.7rem; padding:3px; }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import axios from "../api/axios";
+import axios from "../../api/axios";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";

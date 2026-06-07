@@ -11,7 +11,6 @@ import {
   BookOutlined, BookFilled, LoadingOutlined,
 } from "@ant-design/icons";
 
-import "../assets/css/community.css";
 
 import {
   listPosts,
@@ -24,7 +23,7 @@ import {
 
 import { fetchMe } from "../api/user";
 
-import PostComposeModal from "../components/PostComposeModal";
+import PostComposeModal from "../components/community/PostComposeModal";
 
 export default function CommunityPage() {
   const [searchParams, setSearchParams] = useSearchParams();

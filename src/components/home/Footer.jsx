@@ -8,7 +8,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <h2 className="text-lg sm:text-xl font-bold mb-2">ScholarMate</h2>
             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-              AI 기반 개별 추천 장학금을 제공하는 플랫폼입니다.
+              AI 기반 개별 추천 장학금을 제공하는 <br></br>플랫폼입니다.
             </p>
           </div>
 
@@ -24,7 +24,9 @@ export default function Footer() {
 
           {/* 플랫폼 소개 */}
           <div>
-            <h3 className="text-sm sm:text-base font-semibold mb-2">플랫폼 소개</h3>
+            <h3 className="text-sm sm:text-base font-semibold mb-2">
+              플랫폼 소개
+            </h3>
             <ul className="space-y-1 text-xs sm:text-sm text-gray-300">
               <li>플랫폼 개요</li>
               <li>개발 배경 및 목표</li>
@@ -34,7 +36,9 @@ export default function Footer() {
 
           {/* 소셜 미디어 */}
           <div>
-            <h3 className="text-sm sm:text-base font-semibold mb-2">소셜 미디어</h3>
+            <h3 className="text-sm sm:text-base font-semibold mb-2">
+              소셜 미디어
+            </h3>
             <div className="flex space-x-3 text-base sm:text-lg text-gray-400">
               <a href="#" aria-label="Facebook" className="hover:text-white">
                 <i className="fab fa-facebook-f"></i>
