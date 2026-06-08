@@ -1,9 +1,11 @@
 import axios from "axios";
 import isTokenExpired from "./auth";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+
 // Axios 공통 인스턴스 (JWT Bearer + 자동 리프레시)
 const instance = axios.create({
-  baseURL: "/api",
+  baseURL: API_BASE_URL,
   timeout: 60000,
   withCredentials:
     String(import.meta.env.VITE_WITH_CREDENTIALS || "").toLowerCase() === "true",
@@ -149,7 +151,7 @@ instance.interceptors.response.use(
 
         original.headers = original.headers || {};
         original.headers.Authorization = `Bearer ${newAccess}`;
-        return instance(original); // baseURL '/api' 유지
+        return instance(original);
       } catch (e) {
         return Promise.reject(e);
       }

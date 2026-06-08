@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light;
@@ -23,10 +23,18 @@ a {
   text-decoration: inherit;
 }
 a:hover { color: #535bf2; }
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  font-family: inherit;
   color: #213547;
   background-color: #ffffff;
 }
@@ -81,6 +89,7 @@ button:focus-visible { outline: 4px auto -webkit-focus-ring-color; }
   left: 0;
   height: 100%;
   width: 280px;
+  max-width: calc(100vw - 40px);
   background: #fff;
   border-right: 1px solid #e5e7eb;
   box-shadow: 0 10px 25px rgba(0,0,0,0.12);
@@ -143,6 +152,15 @@ button:focus-visible { outline: 4px auto -webkit-focus-ring-color; }
   color: #fff;
   border-color: #111;
 }
+.scrollbar-hide,
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 .header {
   width:100%;
   display:flex;
@@ -165,7 +183,7 @@ button:focus-visible { outline: 4px auto -webkit-focus-ring-color; }
   flex-shrink:0;
 }
 .header .nav {
-  display:flex;
+  display:none;
   align-items:center;
   justify-content:center;
   gap:24px;
@@ -190,20 +208,32 @@ button:focus-visible { outline: 4px auto -webkit-focus-ring-color; }
   align-items:center !important;
   gap:10px !important;
   flex-shrink:0;
+  margin-left:auto;
   white-space:nowrap;
 }
 
-@media (max-width: 768px) {
-  .header {
-    flex-direction:column;
-    padding:10px;
-  }
+@media (min-width: 1024px) {
   .header .nav {
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:10px;
-    margin-top:10px;
+    display:flex;
   }
+
+  .sidebar-toggle-btn {
+    display:none;
+  }
+
+  .drawer.open {
+    display:none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .header {
+    flex-direction:row;
+    flex-wrap:nowrap;
+    gap:10px;
+    padding:10px 12px;
+  }
+
   .header .header-right {
     justify-content:flex-end;
     gap:8px !important;

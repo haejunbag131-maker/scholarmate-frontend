@@ -1,9 +1,7 @@
-@import url('https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css');
-
 .home-container:not(.scholarships-container) {
-  font-family: 'Pretendard', sans-serif;
   text-align: center;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
