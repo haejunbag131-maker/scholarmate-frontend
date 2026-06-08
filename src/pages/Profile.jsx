@@ -29,7 +29,6 @@ export default function Profile() {
 
         const newAccessToken = response.data.access;
         localStorage.setItem("token", newAccessToken);
-        console.log("🔄 액세스 토큰 갱신 성공");
         return newAccessToken;
       } catch (err) {
         console.error("🚨 액세스 토큰 갱신 실패:", err);

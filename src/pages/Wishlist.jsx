@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";  
+import { message, Modal } from "antd";
 import ScholarshipDetailModal from "../features/scholarships/components/ScholarshipDetailModal";
 import useBodyClass from "../shared/hooks/useBodyClass";
 import { getScholarshipUrl } from "../shared/utils/urls";
@@ -30,17 +31,26 @@ export default function Wishlist() {
     fetchWishlist();
   }, []);
 
-  const handleDelete = async (scholarshipId) => {
-    if (!window.confirm("정말로 관심 장학금에서 삭제하시겠습니까?")) return;
-
-    try {
-      await api.delete(`/scholarships/wishlist/delete/${scholarshipId}/`);
-      setWishlist((prev) =>
-        prev.filter((item) => item.scholarship.id !== scholarshipId)
-      );
-    } catch (e) {
-      alert(e?.message || "삭제 중 오류가 발생했습니다.");
-    }
+  const handleDelete = (scholarshipId) => {
+    Modal.confirm({
+      title: "관심 장학금에서 삭제하시겠습니까?",
+      okText: "삭제",
+      cancelText: "취소",
+      okButtonProps: {
+        danger: true,
+      },
+      async onOk() {
+        try {
+          await api.delete(`/scholarships/wishlist/delete/${scholarshipId}/`);
+          setWishlist((prev) =>
+            prev.filter((item) => item.scholarship.id !== scholarshipId)
+          );
+          message.success("관심 장학금에서 삭제되었습니다.");
+        } catch (e) {
+          message.error(e?.message || "삭제 중 오류가 발생했습니다.");
+        }
+      },
+    });
   };
 
   const openModal = (scholarship) => {

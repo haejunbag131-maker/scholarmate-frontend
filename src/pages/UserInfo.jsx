@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../api/axios"; 
+import { message } from "antd";
 import useBodyClass from "../shared/hooks/useBodyClass";
 import UniversitySearchModal from "../features/userInfo/components/UniversitySearchModal";
 import {
@@ -87,7 +88,7 @@ const UserInfo = () => {
   const handleSave = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("로그인이 필요합니다.");
+      message.warning("로그인이 필요합니다.");
       navigate("/login");
       return;
     }
@@ -105,14 +106,14 @@ const UserInfo = () => {
           localStorage.setItem("userName", form.name);
         }
 
-        alert("장학 정보가 성공적으로 저장되었습니다.");
+        message.success("장학 정보가 성공적으로 저장되었습니다.");
         navigate("/profile");
       } else {
-        alert(`저장 실패: ${response.data?.error || "알 수 없는 오류"}`);
+        message.error(`저장 실패: ${response.data?.error || "알 수 없는 오류"}`);
       }
     } catch (error) {
       console.error("서버 오류 발생:", error);
-      alert(`서버 오류 발생: ${error.response?.data?.error || error.message}`);
+      message.error(`서버 오류 발생: ${error.response?.data?.error || error.message}`);
     }
   };
 
