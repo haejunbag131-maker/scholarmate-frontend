@@ -1,6 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import useToast from "../shared/hooks/useToast";
+import { getScholarshipUrl } from "../shared/utils/urls";
 import { FaStar } from "react-icons/fa"; 
 
 export default function Recommendation() {
@@ -23,25 +25,7 @@ export default function Recommendation() {
   const [userName, setUserName] = useState("");
 
   const navigate = useNavigate();
-
-  // URL 정규화
-  const resolveUrl = (u) => {
-    if (!u) return null;
-    const v = String(u).trim();
-    const invalid = new Set([
-      "", "#", "-", "null", "none", "n/a", "N/A", "해당없음", "없음", "미정", "준비중",
-    ]);
-    if (invalid.has(v) || invalid.has(v.toLowerCase())) return null;
-    const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v.replace(/^\/+/, "")}`;
-    try {
-      const url = new URL(withScheme);
-      if (!url.hostname || !url.hostname.includes(".")) return null;
-      return url.toString();
-    } catch {
-      return null;
-    }
-  };
-  const urlFor = (obj) => resolveUrl(obj?.url || obj?.homepage_url || obj?.link);
+  const { toast, showToast } = useToast();
 
   // 헤더 높이 반영
   useLayoutEffect(() => {
@@ -57,19 +41,6 @@ export default function Recommendation() {
     window.addEventListener("resize", updatePad);
     return () => window.removeEventListener("resize", updatePad);
   }, []);
-
-  // 토스트
-  const [toast, setToast] = useState({ open: false, message: "", type: "success" });
-  const toastTimerRef = useRef(null);
-  const showToast = (message, type = "success", duration = 2000) => {
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-    setToast({ open: true, message, type });
-    toastTimerRef.current = setTimeout(() => {
-      setToast((t) => ({ ...t, open: false }));
-      toastTimerRef.current = null;
-    }, duration);
-  };
-  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current); }, []);
 
   useEffect(() => {
     const storedName = localStorage.getItem("userName");
@@ -333,7 +304,7 @@ export default function Recommendation() {
         {recommendations.slice(0, visibleCount).map((s) => {
           const id = s.product_id ?? s.id;
           const isFav = favorites.has(id);
-          const homepage = urlFor(s);
+          const homepage = getScholarshipUrl(s);
           return (
             <article
               key={id}
@@ -459,9 +430,9 @@ export default function Recommendation() {
               <p><strong>제출서류:</strong> {selected.required_documents_details || "-"}</p>
               <p>
                 <strong>홈페이지:</strong>{" "}
-                {urlFor(selected) ? (
+                {getScholarshipUrl(selected) ? (
                   <a
-                    href={urlFor(selected)}
+                    href={getScholarshipUrl(selected)}
                     target="_blank"
                     rel="noreferrer noopener"
                     className="text-blue-600 underline"
@@ -475,9 +446,9 @@ export default function Recommendation() {
             </div>
 
             <div className="mt-6 flex flex-col sm:flex-row justify-end gap-2">
-              {urlFor(selected) ? (
+              {getScholarshipUrl(selected) ? (
                 <a
-                  href={urlFor(selected)}
+                  href={getScholarshipUrl(selected)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-sky-500 text-white rounded-md hover:bg-sky-600 text-center"

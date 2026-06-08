@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "../api/axios";
 import Calendar from "react-calendar";
+import { message } from "antd";
+import useBodyClass from "../shared/hooks/useBodyClass";
 import "react-calendar/dist/Calendar.css";
 
 export default function CalendarPage() {
@@ -20,12 +22,7 @@ export default function CalendarPage() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  useEffect(() => {
-    document.body.classList.add("calendar-page");
-    return () => {
-      document.body.classList.remove("calendar-page");
-    };
-  }, []);
+  useBodyClass("calendar-page");
 
   useEffect(() => {
     axios
@@ -43,7 +40,7 @@ export default function CalendarPage() {
     });
 
     d1Alerts.forEach((e) => {
-      alert(`⏰ [알림] 내일 마감: ${e.title}`);
+      message.warning(`⏰ [알림] 내일 마감: ${e.title}`);
     });
   }, [events, alertIds]);
 
@@ -181,7 +178,7 @@ export default function CalendarPage() {
     const updated = submittedIds.filter((id) => id !== selectedEvent.id);
     setSubmittedIds(updated);
     localStorage.setItem("submittedScholarships", JSON.stringify(updated));
-    alert("❎ 제출 완료가 취소되었습니다.");
+    message.info("❎ 제출 완료가 취소되었습니다.");
   };
 
   const handleAlertRegister = () => {
@@ -189,7 +186,7 @@ export default function CalendarPage() {
       const updated = [...alertIds, selectedEvent.id];
       setAlertIds(updated);
       localStorage.setItem("alertScholarships", JSON.stringify(updated));
-      alert("🔔 마감 알림이 등록되었습니다!");
+      message.success("🔔 마감 알림이 등록되었습니다!");
     }
   };
 
@@ -197,7 +194,7 @@ export default function CalendarPage() {
     const updated = alertIds.filter((id) => id !== selectedEvent.id);
     setAlertIds(updated);
     localStorage.setItem("alertScholarships", JSON.stringify(updated));
-    alert("🔕 알림이 취소되었습니다.");
+    message.info("🔕 알림이 취소되었습니다.");
   };
 
   return (
@@ -247,9 +244,9 @@ export default function CalendarPage() {
               <button
                 onClick={() => {
                   const text = selectedEvent.required_documents_details?.trim();
-                  if (!text) return alert("복사할 제출 서류가 없습니다.");
+                  if (!text) return message.warning("복사할 제출 서류가 없습니다.");
                   navigator.clipboard.writeText(text);
-                  alert("✅ 제출 서류가 복사되었습니다!");
+                  message.success("✅ 제출 서류가 복사되었습니다!");
                 }}
                 className="rounded-md bg-sky-600 px-3 py-2 text-white hover:bg-sky-700"
               >

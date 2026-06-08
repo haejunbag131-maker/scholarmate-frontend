@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
+import { message } from "antd";
 
 export default function Register() {
   const [form, setForm] = useState({ username:"", password:"", confirmPassword:"", email:"", code:"" });
@@ -57,7 +58,7 @@ export default function Register() {
     try {
       await axios.post("/auth/email/verify-code/", { email, code });
       await axios.post("/auth/users/", { username, password, email });
-      alert("회원가입 성공! 로그인 페이지로 이동합니다.");
+      message.success("회원가입 성공! 로그인 페이지로 이동합니다.");
       navigate("/login");
     } catch (error) {
       const detail = error?.response?.data?.detail;

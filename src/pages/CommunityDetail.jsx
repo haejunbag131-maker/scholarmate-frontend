@@ -1,19 +1,8 @@
-import { useEffect, useMemo, useRef, useState, useCallback, memo } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { fetchMe } from "../api/user";
 
-import {
-  Card,
-  Avatar,
-  Tag,
-  Button,
-  Input,
-  message,
-  Spin,
-  Empty,
-  Popconfirm,
-  Modal,
-} from "antd";
+import { message, Spin, Empty } from "antd";
 
 import {
   getPost,
@@ -28,49 +17,9 @@ import {
   deletePost,
 } from "../api/community";
 
-
-// ReplyEditor: 독립 컴포넌트 (IME 안전)
-const ReplyEditor = memo(function ReplyEditor({ onSubmit, onCancel, autoFocus = true }) {
-  const [value, setValue] = useState("");
-  const composingRef = useRef(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (autoFocus) ref.current?.focus?.();
-  }, [autoFocus]);
-
-  const handleKeyDown = (e) => {
-    if (composingRef.current) return; // 한글 조합 중 Enter 무시
-    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      if (value.trim()) onSubmit(value.trim(), () => setValue(""));
-    }
-  };
-
-  return (
-    <div className="pl-12 pb-3">
-      <Input.TextArea
-        ref={ref}
-        rows={2}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="답글을 입력하세요 (Ctrl/⌘+Enter 전송)"
-        onCompositionStart={() => (composingRef.current = true)}
-        onCompositionEnd={() => (composingRef.current = false)}
-        onKeyDown={handleKeyDown}
-      />
-      <div className="mt-2 flex gap-2">
-        <Button
-          className="!bg-black !border-black !text-white hover:!bg-gray-800"
-          onClick={() => value.trim() && onSubmit(value.trim(), () => setValue(""))}
-        >
-          등록
-        </Button>
-        <Button onClick={onCancel}>취소</Button>
-      </div>
-    </div>
-  );
-});
+import CommentSection from "../features/community/components/CommentSection";
+import PostDetailCard from "../features/community/components/PostDetailCard";
+import PostEditModal from "../features/community/components/PostEditModal";
 
 export default function CommunityDetail() {
   const { id } = useParams();
@@ -252,6 +201,20 @@ export default function CommunityDetail() {
     }
   };
 
+  const toggleReply = useCallback((commentId) => {
+    const key = String(commentId);
+    setReplyOpen((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
+
+  const closeReply = useCallback((commentId) => {
+    const key = String(commentId);
+    setReplyOpen((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }, []);
+
   // 답글(대댓글) 
   const submitReply = useCallback(
     async (parent, value, resetInput) => {
@@ -259,11 +222,7 @@ export default function CommunityDetail() {
         await addReply({ postId: Number(id), parentId: parent.id, content: value });
         message.success("답글이 등록되었습니다.");
         resetInput?.();
-        setReplyOpen((prev) => {
-          const next = { ...prev };
-          delete next[String(parent.id)];
-          return next;
-        });
+        closeReply(parent.id);
         const cs = await listComments({ postId: id });
         setComments(cs);
       } catch (e) {
@@ -273,7 +232,7 @@ export default function CommunityDetail() {
         );
       }
     },
-    [id]
+    [id, closeReply]
   );
 
   // 포스트 수정/삭제
@@ -315,120 +274,6 @@ export default function CommunityDetail() {
     }
   };
 
-  // 트리 구성 
-  const roots = useMemo(() => comments.filter((c) => !c.parent), [comments]);
-  const childrenMap = useMemo(() => {
-    const acc = {};
-    for (const c of comments) {
-      if (!c.parent) continue;
-      const key = String(c.parent);
-      (acc[key] ||= []).push(c);
-    }
-    return acc;
-  }, [comments]);
-
-  // 댓글 아이템 
-  const CommentItem = ({ c, depth = 0 }) => {
-    const cAuthorId = c.author?.id ?? c.author_id ?? c.user?.id ?? null;
-    const cAuthorUsername =
-      c.author?.username ?? c.author_username ?? c.username ?? c.user?.username ?? null;
-
-    const isMine =
-      !!me &&
-      ((cAuthorId != null && Number(cAuthorId) === Number(me.id)) ||
-        (cAuthorUsername && cAuthorUsername === me.username));
-
-    const k = String(c.id);
-    const isReplyOpen = !!replyOpen[k];
-
-    return (
-      <div className={`w-full ${depth ? "pl-6 border-l border-gray-200" : ""}`}>
-        <div className="flex">
-          <Avatar>{cAuthorUsername?.[0]?.toUpperCase() || "U"}</Avatar>
-          <div className="ml-3 flex-1">
-            <div className="font-semibold">{cAuthorUsername ?? "익명"}</div>
-            {editingId === c.id ? (
-              <div className="mt-2 space-y-2">
-                <Input.TextArea
-                  rows={2}
-                  value={editingText}
-                  onChange={(e) => setEditingText(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <Button
-                    className="!bg-black !border-black !text-white hover:!bg-gray-800"
-                    onClick={submitEdit}
-                  >
-                    저장
-                  </Button>
-                  <Button onClick={cancelEdit}>취소</Button>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-1 whitespace-pre-wrap">{c.content}</div>
-            )}
-            <div className="mt-1 flex items-center gap-2 text-sm">
-              <span className="text-xs text-gray-400">
-                {c.created_at ? new Date(c.created_at).toLocaleString() : ""}
-              </span>
-              <Button
-                size="small"
-                type="link"
-                className="!p-0 !h-auto"
-                onClick={() => setReplyOpen((prev) => ({ ...prev, [k]: !prev[k] }))}
-              >
-                {isReplyOpen ? "답글 취소" : "답글"}
-              </Button>
-              {isMine && (
-                <>
-                  <Button
-                    size="small"
-                    type="link"
-                    className="!p-0 !h-auto !text-black"
-                    onClick={() => beginEdit(c)}
-                  >
-                    수정
-                  </Button>
-                  <Popconfirm
-                    title="삭제하시겠어요?"
-                    okText="삭제"
-                    cancelText="취소"
-                    okButtonProps={{
-                      className: "!bg-black !border-black !text-white hover:!bg-gray-800",
-                    }}
-                    cancelButtonProps={{
-                      className: "!border-gray-400 hover:!border-gray-600",
-                    }}
-                    onConfirm={() => removeComment(c)}
-                  >
-                    <Button size="small" type="link" danger className="!p-0 !h-auto">
-                      삭제
-                    </Button>
-                  </Popconfirm>
-                </>
-              )}
-            </div>
-            {isReplyOpen && (
-              <ReplyEditor
-                onSubmit={(val, reset) => submitReply(c, val, reset)}
-                onCancel={() =>
-                  setReplyOpen((prev) => {
-                    const next = { ...prev };
-                    delete next[k];
-                    return next;
-                  })
-                }
-              />
-            )}
-          </div>
-        </div>
-        {(childrenMap[String(c.id)] || []).map((cc) => (
-          <CommentItem key={cc.id} c={cc} depth={depth + 1} />
-        ))}
-      </div>
-    );
-  };
-
   return (
     <main className="pt-6 pb-6 w-[min(92vw,900px)] mx-auto">
       <Link className="text-[#0B2D6B] underline" to="/community">
@@ -445,119 +290,45 @@ export default function CommunityDetail() {
         </div>
       ) : (
         <>
-          <Card className="mt-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold">
-                {post.title || post.scholarship_name}
-              </h1>
-              <div className="flex flex-wrap gap-2">
-                {me && Number(authorId) !== Number(me.id) && (
-                  <Button
-                    className="!bg-black !border-black !text-white hover:!bg-gray-800"
-                    onClick={startDM}
-                  >
-                    작성자에게 쪽지
-                  </Button>
-                )}
-                {canEditPost && (
-                  <>
-                    <Button
-                      className="!bg-black !border-black !text-white hover:!bg-gray-800"
-                      onClick={openPostEdit}
-                    >
-                      수정
-                    </Button>
-                    <Popconfirm
-                      title="글을 삭제하시겠어요?"
-                      okText="삭제"
-                      cancelText="취소"
-                      okButtonProps={{
-                        className: "!bg-black !border-black !text-white hover:!bg-gray-800",
-                      }}
-                      cancelButtonProps={{
-                        className: "!border-gray-400 hover:!border-gray-600",
-                      }}
-                      onConfirm={handleDeletePost}
-                    >
-                      <Button danger>삭제</Button>
-                    </Popconfirm>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center mt-3">
-              <Avatar>{(authorUsername || "U")[0].toUpperCase()}</Avatar>
-              <div className="ml-3">
-                <div className="font-semibold">{authorUsername}</div>
-                <div className="text-sm text-gray-500">
-                  {post.created_at ? new Date(post.created_at).toLocaleString() : ""}
-                </div>
-              </div>
-            </div>
-            <div className="mt-5 whitespace-pre-wrap leading-7">{post.content}</div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {(post.tags || []).map((t, i) => (
-                <Tag key={`${t}-${i}`} color="blue">
-                  #{t}
-                </Tag>
-              ))}
-            </div>
-          </Card>
-          <Card title={`댓글 ${comments.length}개`} className="mt-6">
-            {comments.length === 0 ? (
-              <Empty description="아직 댓글이 없습니다." />
-            ) : (
-              <div className="space-y-3">
-                {roots.map((c) => (
-                  <CommentItem key={c.id} c={c} />
-                ))}
-              </div>
-            )}
-            <div className="mt-5 flex flex-col sm:flex-row gap-2">
-              <Input.TextArea
-                rows={2}
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={onKeyDown}
-                placeholder="댓글을 입력하세요 (Ctrl/⌘+Enter 전송)"
-              />
-              <Button
-                onClick={submit}
-                loading={sending}
-                className="self-end sm:self-auto !bg-black !border-black !text-white hover:!bg-gray-800"
-              >
-                등록
-              </Button>
-            </div>
-          </Card>
-          <Modal
-            title="글 수정"
+          <PostDetailCard
+            post={post}
+            me={me}
+            authorId={authorId}
+            authorUsername={authorUsername}
+            canEditPost={canEditPost}
+            onStartDM={startDM}
+            onOpenEdit={openPostEdit}
+            onDeletePost={handleDeletePost}
+          />
+          <CommentSection
+            comments={comments}
+            text={text}
+            sending={sending}
+            me={me}
+            editingId={editingId}
+            editingText={editingText}
+            replyOpen={replyOpen}
+            onTextChange={setText}
+            onTextKeyDown={onKeyDown}
+            onSubmitComment={submit}
+            onEditingTextChange={setEditingText}
+            onBeginEdit={beginEdit}
+            onCancelEdit={cancelEdit}
+            onSubmitEdit={submitEdit}
+            onRemoveComment={removeComment}
+            onToggleReply={toggleReply}
+            onCancelReply={closeReply}
+            onSubmitReply={submitReply}
+          />
+          <PostEditModal
             open={postEditOpen}
+            title={postTitle}
+            content={postContent}
+            onTitleChange={setPostTitle}
+            onContentChange={setPostContent}
             onCancel={() => setPostEditOpen(false)}
-            onOk={handleSavePost}
-            okText="저장"
-            cancelText="취소"
-            okButtonProps={{
-              className: "!bg-black !border-black !text-white hover:!bg-gray-800",
-            }}
-            cancelButtonProps={{
-              className: "!border-gray-400 hover:!border-gray-600",
-            }}
-          >
-            <div className="space-y-3">
-              <Input
-                placeholder="제목"
-                value={postTitle}
-                onChange={(e) => setPostTitle(e.target.value)}
-              />
-              <Input.TextArea
-                rows={8}
-                placeholder="내용"
-                value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
-              />
-            </div>
-          </Modal>
+            onSave={handleSavePost}
+          />
         </>
       )}
     </main>

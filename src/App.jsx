@@ -25,7 +25,6 @@ const Wishlist = lazy(() => import("./pages/Wishlist"));
 import "antd/dist/reset.css";
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const pendingHashRef = useRef(null);
@@ -72,8 +71,6 @@ export default function App() {
 
   // 홈 섹션으로 이동
   const goToSection = (sectionId) => {
-    setSidebarOpen(false);
-
     if (location.pathname !== "/") {
       pendingHashRef.current = sectionId;
       navigate(`/#${sectionId}`);
@@ -101,8 +98,6 @@ export default function App() {
       <Header
         isLoggedIn={isLoggedIn}
         setIsLoggedIn={setIsLoggedIn}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
         goToSection={goToSection}
       />
 

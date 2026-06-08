@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";  
+import { message, Modal } from "antd";
+import ScholarshipDetailModal from "../features/scholarships/components/ScholarshipDetailModal";
+import useBodyClass from "../shared/hooks/useBodyClass";
+import { getScholarshipUrl } from "../shared/utils/urls";
 
 import "../assets/css/scholarships.css";
 
@@ -10,34 +14,7 @@ export default function Wishlist() {
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // URL 정규화/가드 
-  const normalizeUrl = (u) => {
-    if (!u || typeof u !== "string") return null;
-    const v = u.trim();
-    const invalid = new Set([
-      "", "#", "-", "null", "none", "n/a", "N/A",
-      "해당없음", "없음", "미정", "준비중",
-    ]);
-    if (invalid.has(v) || invalid.has(v.toLowerCase())) return null;
-    const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v.replace(/^\/+/, "")}`;
-    try {
-      const url = new URL(withScheme);
-      if (!url.hostname || !url.hostname.includes(".")) return null;
-      return url.toString();
-    } catch {
-      return null;
-    }
-  };
-  const urlFor = (s) => normalizeUrl(s?.url || s?.homepage_url || s?.link);
- 
-
-  // body 중앙정렬 클래스
-  useEffect(() => {
-    document.body.classList.add("wishlist-page");
-    return () => {
-      document.body.classList.remove("wishlist-page");
-    };
-  }, []);
+  useBodyClass("wishlist-page");
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -54,17 +31,26 @@ export default function Wishlist() {
     fetchWishlist();
   }, []);
 
-  const handleDelete = async (scholarshipId) => {
-    if (!window.confirm("정말로 관심 장학금에서 삭제하시겠습니까?")) return;
-
-    try {
-      await api.delete(`/scholarships/wishlist/delete/${scholarshipId}/`);
-      setWishlist((prev) =>
-        prev.filter((item) => item.scholarship.id !== scholarshipId)
-      );
-    } catch (e) {
-      alert(e?.message || "삭제 중 오류가 발생했습니다.");
-    }
+  const handleDelete = (scholarshipId) => {
+    Modal.confirm({
+      title: "관심 장학금에서 삭제하시겠습니까?",
+      okText: "삭제",
+      cancelText: "취소",
+      okButtonProps: {
+        danger: true,
+      },
+      async onOk() {
+        try {
+          await api.delete(`/scholarships/wishlist/delete/${scholarshipId}/`);
+          setWishlist((prev) =>
+            prev.filter((item) => item.scholarship.id !== scholarshipId)
+          );
+          message.success("관심 장학금에서 삭제되었습니다.");
+        } catch (e) {
+          message.error(e?.message || "삭제 중 오류가 발생했습니다.");
+        }
+      },
+    });
   };
 
   const openModal = (scholarship) => {
@@ -106,7 +92,7 @@ export default function Wishlist() {
               <tbody>
                 {wishlist.map((item) => {
                   const s = item.scholarship;
-                  const href = urlFor(s);
+                  const href = getScholarshipUrl(s);
                   return (
                     <tr key={s.id}>
                       <td>{s.foundation_name}</td>
@@ -154,7 +140,7 @@ export default function Wishlist() {
           <div className="md:hidden space-y-4">
             {wishlist.map((item) => {
               const s = item.scholarship;
-              const href = urlFor(s);
+              const href = getScholarshipUrl(s);
               return (
                 <div
                   key={s.id}
@@ -205,79 +191,8 @@ export default function Wishlist() {
         </>
       )}
 
-      {/* 상세 모달 */}
-      {isModalOpen && selectedScholarship && (
-        <div className="scholarship-modal-overlay" onClick={closeModal}>
-          <div className="scholarship-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="absolute right-4 top-3 text-xs font-bold rounded !bg-black !text-white px-2 py-1"
-              onClick={closeModal}
-              aria-label="닫기"
-            >
-              닫기
-            </button>
-
-            <h2>{selectedScholarship.name} 상세 정보</h2>
-            <div className="scholarship-modal-body">
-              <p>
-                <strong>성적 기준:</strong>{" "}
-                {selectedScholarship.grade_criteria_details}
-              </p>
-              <p>
-                <strong>소득 기준:</strong>{" "}
-                {selectedScholarship.income_criteria_details}
-              </p>
-              <p>
-                <strong>지원 내용:</strong>{" "}
-                {selectedScholarship.support_details}
-              </p>
-              <p>
-                <strong>특정 자격:</strong>{" "}
-                {selectedScholarship.specific_qualification_details}
-              </p>
-              <p>
-                <strong>지역 조건:</strong>{" "}
-                {selectedScholarship.residency_requirement_details}
-              </p>
-              <p>
-                <strong>선발 방법:</strong>{" "}
-                {selectedScholarship.selection_method_details}
-              </p>
-              <p>
-                <strong>선발 인원:</strong>{" "}
-                {selectedScholarship.number_of_recipients_details}
-              </p>
-              <p>
-                <strong>자격 제한:</strong>{" "}
-                {selectedScholarship.eligibility_restrictions}
-              </p>
-              <p>
-                <strong>추천 필요 여부:</strong>{" "}
-                {selectedScholarship.recommendation_required ? "필요" : "불필요"}
-              </p>
-              <p>
-                <strong>제출 서류:</strong>{" "}
-                {selectedScholarship.required_documents_details}
-              </p>
-              <p>
-                <strong>홈페이지:</strong>{" "}
-                {urlFor(selectedScholarship) ? (
-                  <a
-                    href={urlFor(selectedScholarship)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    이동하기
-                  </a>
-                ) : (
-                  <span className="text-gray-500">주소 없음</span>
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
+      {isModalOpen && (
+        <ScholarshipDetailModal scholarship={selectedScholarship} onClose={closeModal} />
       )}
     </div>
   );
