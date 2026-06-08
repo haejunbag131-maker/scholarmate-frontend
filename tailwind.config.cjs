@@ -6,6 +6,19 @@ module.exports = {
     "./src/assets/css/**/*.css", 
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: [
+          "Pretendard",
+          "Noto Sans KR",
+          "Apple SD Gothic Neo",
+          "Malgun Gothic",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif",
+        ],
+      },
+    },
   },
 };

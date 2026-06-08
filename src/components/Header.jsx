@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/img/로고.png";
 import HeaderMessagesIcon from "./HeaderMessagesIcon";
 
-export default function Header({ isLoggedIn, setIsLoggedIn, goToSection }) {
+export default function Header({ isLoggedIn, setIsLoggedIn }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -30,67 +30,59 @@ export default function Header({ isLoggedIn, setIsLoggedIn, goToSection }) {
     navigate("/");
   };
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    navigate("/");
+  const handleLoginClick = () => {
+    setSidebarOpen(false);
+    navigate("/login");
   };
 
   return (
     <>
       {/*  헤더  */}
       <header className="header flex flex-wrap justify-between items-center px-4 py-3 bg-white shadow-md sticky top-0 z-50">
-  {/* 왼쪽 */}
-  <div className="flex items-center mb-2 md:mb-0 shrink-0">
-    <Link to="/" className="flex items-center">
-      <img src={logo} alt="Logo" className="logo h-10 w-auto" />
-      <h1 className="text-xl md:text-2xl font-bold ml-2">ScholarMate</h1>
-    </Link>
-  </div>
+        {/* 왼쪽 */}
+        <div className="flex min-w-0 flex-1 items-center lg:flex-none">
+          <Link to="/" className="flex min-w-0 items-center" aria-label="ScholarMate 홈">
+            <img src={logo} alt="ScholarMate" className="logo h-12 w-auto sm:h-14" />
+          </Link>
+        </div>
 
-  {/* 네비게이션 */}
-  <nav
-    className="
-      nav flex flex-1 min-w-0 gap-2
-      overflow-x-auto md:overflow-x-hidden     /* 모바일: 스크롤, md↑: 스크롤 제거 */
-      whitespace-nowrap md:whitespace-normal    /* 모바일: 한 줄, md↑: 줄바꿈 허용 */
-      md:flex-wrap                              /* md↑: 필요 시 두 줄로 감싸기 */
-      text-xs sm:text-sm md:text-base
-      mb-2 md:mb-0
-      w-full md:w-auto
-      justify-start md:justify-center
-      px-2 md:px-0
-      scrollbar-hide
-    "
-  >
-    <Link to="/scholarships"    className="nav-btn">전체 장학금</Link>
-    <Link to="/recommendation"  className="nav-btn">추천 장학금</Link>
-    <Link to="/interest"        className="nav-btn">관심 장학금</Link>
-    <Link to="/calendar"        className="nav-btn">나의 장학 캘린더</Link>
-    <Link to="/userinfor"       className="nav-btn">나의 장학 정보</Link>
-  </nav>
+        {/* 네비게이션 */}
+        <nav className="nav hidden flex-1 min-w-0 gap-2 text-base lg:flex lg:flex-wrap lg:justify-center">
+          <Link to="/scholarships" className="nav-btn">전체 장학금</Link>
+          <Link to="/recommendation" className="nav-btn">추천 장학금</Link>
+          <Link to="/interest" className="nav-btn">관심 장학금</Link>
+          <Link to="/calendar" className="nav-btn">나의 장학 캘린더</Link>
+          <Link to="/userinfor" className="nav-btn">나의 장학 정보</Link>
+        </nav>
 
         {/* 오른쪽 */}
         <div className="header-right flex flex-row gap-2 items-center whitespace-nowrap">
-          <Link to="/messages" className="nav-btn text-xs sm:text-sm md:text-base">쪽지함</Link>
           <HeaderMessagesIcon />
 
           {isLoggedIn ? (
             <>
-              <button className="px-3 py-1 bg-black text-white rounded text-xs sm:text-sm md:text-base hover:bg-gray-800 transition" onClick={() => navigate("/profile")}>
+              <button className="hidden px-3 py-1 bg-black text-white rounded text-xs sm:text-sm lg:inline-flex lg:text-base hover:bg-gray-800 transition" onClick={() => navigate("/profile")}>
                 마이페이지
               </button>
-              <button className="px-3 py-1 bg-white border border-gray-400 rounded text-xs sm:text-sm md:text-base hover:bg-gray-100 transition" onClick={handleLogout}>
+              <button className="hidden px-3 py-1 bg-white border border-gray-400 rounded text-xs sm:text-sm lg:inline-flex lg:text-base hover:bg-gray-100 transition" onClick={handleLogout}>
                 로그아웃
               </button>
             </>
           ) : (
-            <button className="px-3 py-1 bg-black text-white rounded text-xs sm:text-sm md:text-base hover:bg-gray-800 transition" onClick={() => navigate("/login")}>
+            <button className="hidden px-3 py-1 bg-black text-white rounded text-xs sm:text-sm lg:inline-flex lg:text-base hover:bg-gray-800 transition" onClick={() => navigate("/login")}>
               로그인
             </button>
           )}
 
           {/* 햄버거 버튼 */}
-          <button type="button" className="sidebar-toggle-btn text-xl sm:text-2xl" onClick={() => setSidebarOpen((v) => !v)}>
+          <button
+            type="button"
+            className="sidebar-toggle-btn text-xl sm:text-2xl"
+            aria-label="메뉴 열기"
+            aria-controls="left-drawer"
+            aria-expanded={sidebarOpen}
+            onClick={() => setSidebarOpen((v) => !v)}
+          >
             ☰
           </button>
         </div>
@@ -105,14 +97,13 @@ export default function Header({ isLoggedIn, setIsLoggedIn, goToSection }) {
           </div>
 
           <div className="drawer-links p-2">
-            <DrawerItem to="/community" onClick={() => setSidebarOpen(false)}>커뮤니티</DrawerItem>
-            <DrawerItem to="/notice" onClick={() => setSidebarOpen(false)}>공지사항</DrawerItem>
-            <DrawerItem to="/introduction" onClick={() => setSidebarOpen(false)}>서비스 소개</DrawerItem>
+            <DrawerItem to="/scholarships" onClick={() => setSidebarOpen(false)}>전체 장학금</DrawerItem>
+            <DrawerItem to="/recommendation" onClick={() => setSidebarOpen(false)}>추천 장학금</DrawerItem>
+            <DrawerItem to="/interest" onClick={() => setSidebarOpen(false)}>관심 장학금</DrawerItem>
+            <DrawerItem to="/calendar" onClick={() => setSidebarOpen(false)}>나의 장학 캘린더</DrawerItem>
+            <DrawerItem to="/userinfor" onClick={() => setSidebarOpen(false)}>나의 장학 정보</DrawerItem>
             <hr className="drawer-sep my-2" />
-            <DrawerItem onClick={() => goToSection("features")}>시스템 특징</DrawerItem>
-            <DrawerItem onClick={() => goToSection("functions")}>주요 기능</DrawerItem>
-            <DrawerItem onClick={() => goToSection("how-to")}>이용 방법</DrawerItem>
-            <DrawerItem onClick={() => goToSection("contact")}>문의하기</DrawerItem>
+            <DrawerItem to="/community" onClick={() => setSidebarOpen(false)}>커뮤니티</DrawerItem>
           </div>
 
           <div className="drawer-actions p-4 border-t">
@@ -126,7 +117,7 @@ export default function Header({ isLoggedIn, setIsLoggedIn, goToSection }) {
                 </button>
               </>
             ) : (
-              <button className="drawer-btn primary w-full" onClick={() => { setSidebarOpen(false); handleLogin(); }}>
+              <button className="drawer-btn primary w-full" onClick={handleLoginClick}>
                 로그인
               </button>
             )}

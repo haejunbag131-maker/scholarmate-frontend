@@ -71,15 +71,15 @@ export default function SliderSection() {
       title: "ScholarMate",
       desc: (
         <>
-          ScholarMate는 장학금 지원 기회를 놓치는 문제를 해결하고, <br />
-          더 많은 학생들에게 교육의 평등성을 제공하는 것을 목표로 합니다.
+          ScholarMate는 장학금 지원 기회를 놓치는 문제를 해결하고, <br />더 많은
+          학생들에게 교육의 평등성을 제공하는 것을 목표로 합니다.
         </>
       ),
       cta: { label: "자세히 알아보기", to: "/introduction" },
     },
     {
       img: sliderImage2,
-      title: "AI 기반 추천",
+      title: "사용자 맞춤 추천",
       desc: (
         <>
           당신에게 맞는 장학금을 찾아보세요! <br />

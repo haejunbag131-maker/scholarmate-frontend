@@ -27,7 +27,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || "/";
+  const from = location.state?.from || location.state?.fromProtected || "/";
 
   const inputCls =
     "w-full h-10 sm:h-11 border border-gray-300 rounded-md px-3 sm:px-4 text-sm outline-none focus:border-black focus:ring-2 focus:ring-black/30 bg-white placeholder-gray-400";
@@ -39,9 +39,8 @@ export default function Login() {
     const token = localStorage.getItem("token");
     if (saved && token) {
       axios
-        .post("/auth/jwt/verify/", { token })
+        .get("/auth/users/me/")
         .then(() => {
-          axios.defaults.headers.common.Authorization = `Bearer ${token}`;
           navigate(from, { replace: true });
         })
         .catch(() => {
@@ -149,12 +148,12 @@ export default function Login() {
   };
 
   return (
-    <div className="w-full bg-white flex flex-col text-gray-900">
-      <div className="flex items-start justify-center pt-[calc(var(--header-offset,64px)+4px)] pb-4 -mt-10 sm:-mt-12">
-        <div className="w-[520px] max-w-[95%] sm:max-w-[92vw] rounded-xl border border-gray-200 shadow-sm bg-white">
+    <div className="flex w-full flex-col bg-white text-gray-900">
+      <div className="flex items-start justify-center px-4 py-6 sm:py-8">
+        <div className="w-full max-w-[520px] rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="px-6 sm:px-10 pt-8 sm:pt-10 pb-6 sm:pb-8">
             <div className="w-full flex flex-col items-center mb-6 sm:mb-8">
-              <img src={logo} alt="로고" className="h-24 sm:h-40 object-contain" />
+              <img src={logo} alt="로고" className="h-20 object-contain sm:h-32 md:h-40" />
             </div>
 
             <h2 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4 text-center">로그인</h2>
@@ -196,35 +195,37 @@ export default function Login() {
                 {loading ? "로그인 중..." : "로그인"}
               </button>
 
-              <div className="flex items-center justify-between text-[11px] sm:text-sm pt-2 gap-3 whitespace-nowrap">
-                <label
-                  htmlFor="autoLogin"
-                  className="inline-flex items-center gap-2 cursor-pointer select-none text-gray-900 font-bold"
-                >
-                  <input
-                    id="autoLogin"
-                    type="checkbox"
-                    checked={autoLogin}
-                    onChange={(e) => {
-                      setAutoLogin(e.target.checked);
-                      localStorage.setItem("autoLogin", String(e.target.checked));
-                    }}
-                    className="peer sr-only"
-                  />
-                  <span
-                    className="relative inline-block w-4 h-4 border border-gray-400 bg-white
-                               peer-focus:ring-2 peer-focus:ring-black
-                               peer-checked:border-black
-                               after:content-[''] after:absolute after:w-[6px] after:h-[10px]
-                               after:border-r-2 after:border-b-2 after:border-black
-                               after:left-[5px] after:top-[1px] after:rotate-45
-                               after:opacity-0 peer-checked:after:opacity-100"
-                    aria-hidden="true"
-                  />
-                  자동 로그인
-                </label>
+              <div className="space-y-3 pt-2 text-xs sm:text-sm">
+                <div className="flex justify-start">
+                  <label
+                    htmlFor="autoLogin"
+                    className="inline-flex cursor-pointer select-none items-center gap-2 whitespace-nowrap font-bold text-gray-900"
+                  >
+                    <input
+                      id="autoLogin"
+                      type="checkbox"
+                      checked={autoLogin}
+                      onChange={(e) => {
+                        setAutoLogin(e.target.checked);
+                        localStorage.setItem("autoLogin", String(e.target.checked));
+                      }}
+                      className="peer sr-only"
+                    />
+                    <span
+                      className="relative inline-block w-4 h-4 border border-gray-400 bg-white
+                                 peer-focus:ring-2 peer-focus:ring-black
+                                 peer-checked:border-black
+                                 after:content-[''] after:absolute after:w-[6px] after:h-[10px]
+                                 after:border-r-2 after:border-b-2 after:border-black
+                                 after:left-[5px] after:top-[1px] after:rotate-45
+                                 after:opacity-0 peer-checked:after:opacity-100"
+                      aria-hidden="true"
+                    />
+                    자동 로그인
+                  </label>
+                </div>
 
-                <div className="flex items-center gap-2 sm:gap-3 text-gray-400 justify-center whitespace-nowrap">
+                <div className="flex items-center justify-center gap-3 whitespace-nowrap text-gray-400 sm:gap-4">
                   <button
                     type="button"
                     className="hover:text-gray-600"

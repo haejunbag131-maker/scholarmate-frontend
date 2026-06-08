@@ -87,7 +87,10 @@ export default function Profile() {
   // UI 처리 
   if (loading) {
     return (
-      <div className="page-wrapper flex justify-center items-center h-screen">
+      <div
+        className="page-wrapper flex items-center justify-center"
+        style={{ minHeight: "calc(100vh - var(--header-offset, 64px))" }}
+      >
         <div className="flex flex-col items-center">
           {/* Tailwind 스피너 */}
           <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>

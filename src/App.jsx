@@ -1,6 +1,7 @@
-import { lazy, Suspense, useState, useEffect, useRef } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
 import isTokenExpired from "./api/auth";
+import api from "./api/axios";
 
 import Header from "./components/Header";
 import PrivateRoute from "./components/PrivateRoute";
@@ -24,21 +25,58 @@ const Wishlist = lazy(() => import("./pages/Wishlist"));
 
 import "antd/dist/reset.css";
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const token = localStorage.getItem("token");
+    return !!token && !isTokenExpired(token);
+  });
+  const [authChecked, setAuthChecked] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const pendingHashRef = useRef(null);
 
   // 로그인 상태 점검
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token && isTokenExpired(token)) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
-      setIsLoggedIn(false);
-    } else {
-      setIsLoggedIn(!!token);
-    }
+    let cancelled = false;
+
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      const refreshToken = localStorage.getItem("refreshToken");
+      const autoLogin = localStorage.getItem("autoLogin") === "true";
+
+      if (token && !isTokenExpired(token)) {
+        if (!cancelled) setIsLoggedIn(true);
+        if (!cancelled) setAuthChecked(true);
+        return;
+      }
+
+      if (token && refreshToken && autoLogin) {
+        try {
+          const { data } = await api.post("/auth/jwt/refresh/", { refresh: refreshToken });
+          if (data?.access) {
+            localStorage.setItem("token", data.access);
+            if (!cancelled) setIsLoggedIn(true);
+            return;
+          }
+        } catch {
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+        } finally {
+          if (!cancelled) setAuthChecked(true);
+        }
+        return;
+      }
+
+      if (token && isTokenExpired(token)) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+      }
+      if (!cancelled) setIsLoggedIn(false);
+      if (!cancelled) setAuthChecked(true);
+    };
+
+    checkAuth();
+    return () => {
+      cancelled = true;
+    };
   }, [location.pathname]);
 
   // 중앙 정렬 스크롤 
@@ -51,7 +89,7 @@ export default function App() {
 
   // 해시 접근/변경 시 스크롤
   useEffect(() => {
-    const hash = location.hash?.slice(1) || pendingHashRef.current;
+    const hash = location.hash?.slice(1);
     if (!hash) return;
 
     let tries = 0;
@@ -59,7 +97,6 @@ export default function App() {
       tries++;
       const ok = scrollToSectionId(hash);
       if (!ok && tries < 40) requestAnimationFrame(tick);
-      else pendingHashRef.current = null;
     };
     requestAnimationFrame(tick);
   }, [location.key, location.hash]);
@@ -69,40 +106,18 @@ export default function App() {
     navigate("/", { replace: true });
   };
 
-  // 홈 섹션으로 이동
-  const goToSection = (sectionId) => {
-    if (location.pathname !== "/") {
-      pendingHashRef.current = sectionId;
-      navigate(`/#${sectionId}`);
-      return;
-    }
-
-    if (location.hash !== `#${sectionId}`) {
-      history.replaceState(null, "", `/#${sectionId}`);
-    }
-
-    setTimeout(() => {
-      if (!scrollToSectionId(sectionId)) {
-        let tries = 0;
-        const id = setInterval(() => {
-          tries++;
-          const ok = scrollToSectionId(sectionId);
-          if (ok || tries > 30) clearInterval(id);
-        }, 50);
-      }
-    }, 0);
-  };
-
   return (
     <>
       <Header
         isLoggedIn={isLoggedIn}
         setIsLoggedIn={setIsLoggedIn}
-        goToSection={goToSection}
       />
 
       <main className="content">
         <Suspense fallback={<div className="py-16 text-center text-sm text-gray-500">로딩 중...</div>}>
+          {!authChecked ? (
+            <div className="py-16 text-center text-sm text-gray-500">로딩 중...</div>
+          ) : (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route
@@ -154,6 +169,7 @@ export default function App() {
               element={<PrivateRoute isLoggedIn={isLoggedIn}><Messages /></PrivateRoute>}
             />
           </Routes>
+          )}
         </Suspense>
       </main>
     </>
