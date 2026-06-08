@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "../api/axios";
 import Calendar from "react-calendar";
+import useBodyClass from "../shared/hooks/useBodyClass";
 import "react-calendar/dist/Calendar.css";
 
 export default function CalendarPage() {
@@ -20,12 +21,7 @@ export default function CalendarPage() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  useEffect(() => {
-    document.body.classList.add("calendar-page");
-    return () => {
-      document.body.classList.remove("calendar-page");
-    };
-  }, []);
+  useBodyClass("calendar-page");
 
   useEffect(() => {
     axios

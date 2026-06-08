@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
+import useBodyClass from "../shared/hooks/useBodyClass";
 
 import "../assets/css/profile.css";
 
@@ -11,10 +12,7 @@ export default function Profile() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true); // 로딩 상태
 
-  useEffect(() => {
-    document.body.classList.add("profile-page");
-    return () => document.body.classList.remove("profile-page");
-  }, []);
+  useBodyClass("profile-page");
 
   useEffect(() => {
     let alive = true;

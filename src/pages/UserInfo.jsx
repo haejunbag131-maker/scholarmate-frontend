@@ -1,81 +1,52 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../api/axios"; 
+import useBodyClass from "../shared/hooks/useBodyClass";
+import UniversitySearchModal from "../features/userInfo/components/UniversitySearchModal";
+import {
+  academicYears,
+  genders,
+  incomeLevels,
+  semesters,
+  univCategories,
+} from "../features/userInfo/constants";
+import useUserInfoForm from "../features/userInfo/hooks/useUserInfoForm";
+import loadUniversitiesWithDepartments from "../features/userInfo/utils/loadUniversitiesWithDepartments";
 
 import "../assets/css/userinfor.css"; 
 
-// 데이터 소스
 import regions from "../data/regions";
 import majorFields from "../data/majorFields";
 import universities from "../data/universities";
-
-let universitiesWithDepartmentsPromise;
-
-const loadUniversitiesWithDepartments = () => {
-  if (!universitiesWithDepartmentsPromise) {
-    universitiesWithDepartmentsPromise = import("../data/universities_with_departments").then(
-      ({ default: universitiesWithDepartments }) => universitiesWithDepartments
-    );
-  }
-  return universitiesWithDepartmentsPromise;
-};
-
-// 상수 정의
-const incomeLevels = Array.from({ length: 10 }, (_, i) => `${i + 1}분위`);
-const academicYears = ["대학신입생", "대학1학기", "대학2학기", "대학3학기", "대학4학기", "대학5학기", "대학6학기", "대학7학기", "대학8학기이상"];
-const semesters = ["신입생", "1학기", "2학기", "3학기", "4학기", "5학기", "6학기", "7학기", "8학기 이상"];
-const genders = ["남성", "여성", "선택안함"];
-const univCategories = ["4년제(5~6년제포함)", "전문대(2~3년제)", "해외대학"];
 
 const UserInfo = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const existingData = location.state?.scholarshipData || {};
-
-  // 기본 state
-  const [name, setName] = useState(existingData.name || "");
-  const [selectedGender, setSelectedGender] = useState(existingData.gender || "");
-  const [birthDate, setBirthDate] = useState(existingData.birth_date || "");
-
-  const [selectedRegion, setSelectedRegion] = useState(existingData.region || "");
-  const [selectedDistrict, setSelectedDistrict] = useState(existingData.district || "");
-  const [selectedIncomeLevel, setSelectedIncomeLevel] = useState(existingData.income_level || "");
-
-  const [selectedUnivType, setSelectedUnivType] = useState(existingData.university_type || "");
-  const [selectedUniversityName, setSelectedUniversityName] = useState(existingData.university_name || "");
-  const [selectedMajorField, setSelectedMajorField] = useState(existingData.major_field || ""); // 지원 계열
-  const [selectedDepartment, setSelectedDepartment] = useState(""); // 학과
-
-  const [selectedAcademicYear, setSelectedAcademicYear] = useState(existingData.academic_year_type || "");
-  const [selectedSemester, setSelectedSemester] = useState(existingData.semester || "");
-
-  const [gpaLastSemester, setGpaLastSemester] = useState(existingData.gpa_last_semester ?? "");
-  const [gpaOverall, setGpaOverall] = useState(existingData.gpa_overall ?? "");
-
-  const [additionalInfo, setAdditionalInfo] = useState(existingData.additional_info || "");
-
-  const [isMultiCulturalFamily, setIsMultiCulturalFamily] = useState(existingData.is_multi_cultural_family || false);
-  const [isSingleParentFamily, setIsSingleParentFamily] = useState(existingData.is_single_parent_family || false);
-  const [isMultipleChildrenFamily, setIsMultipleChildrenFamily] = useState(existingData.is_multiple_children_family || false);
-  const [isNationalMerit, setIsNationalMerit] = useState(existingData.is_national_merit || false);
+  const { form, setField, setFields, toggleField, buildPayload } =
+    useUserInfoForm(existingData);
 
   // 모달 상태
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredUniversities, setFilteredUniversities] = useState(universities);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [isDepartmentsLoading, setIsDepartmentsLoading] = useState(false);
 
-  useEffect(() => {
-    document.body.classList.add("userinfor-page");
-    return () => document.body.classList.remove("userinfor-page");
-  }, []);
+  const filteredUniversities = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if (!normalizedQuery) return universities;
 
-  // 학과 목록 업데이트
+    return universities.filter((university) =>
+      university.toLowerCase().includes(normalizedQuery)
+    );
+  }, [searchQuery]);
+
+  useBodyClass("userinfor-page");
+
   useEffect(() => {
     let isActive = true;
 
-    if (!selectedUniversityName) {
+    if (!form.selectedUniversityName) {
       setDepartments([]);
       setIsDepartmentsLoading(false);
       return undefined;
@@ -87,7 +58,7 @@ const UserInfo = () => {
     loadUniversitiesWithDepartments()
       .then((universitiesWithDepartments) => {
         if (!isActive) return;
-        setDepartments(universitiesWithDepartments[selectedUniversityName] || []);
+        setDepartments(universitiesWithDepartments[form.selectedUniversityName] || []);
       })
       .catch(() => {
         if (!isActive) return;
@@ -101,23 +72,13 @@ const UserInfo = () => {
     return () => {
       isActive = false;
     };
-  }, [selectedUniversityName]);
-
-  const handleSearch = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    setFilteredUniversities(
-      query.length > 0
-        ? universities.filter((uni) =>
-            uni.toLowerCase().includes(query.toLowerCase())
-          )
-        : universities
-    );
-  };
+  }, [form.selectedUniversityName]);
 
   const handleSelectUniversity = (university) => {
-    setSelectedUniversityName(university);
-    setSelectedDepartment("");
+    setFields({
+      selectedUniversityName: university,
+      selectedDepartment: "",
+    });
     setIsModalOpen(false);
     setSearchQuery("");
   };
@@ -131,30 +92,8 @@ const UserInfo = () => {
       return;
     }
 
-    const userInfo = {
-      name,
-      gender: selectedGender || null,
-      birth_date: birthDate || null,
-      region: selectedRegion || null,
-      district: selectedDistrict || null,
-      income_level: selectedIncomeLevel || null,
-      university_type: selectedUnivType || null,
-      university_name: selectedUniversityName || null,
-      major_field: selectedMajorField || null,
-      department: selectedDepartment || null,
-      academic_year_type: selectedAcademicYear || null,
-      semester: selectedSemester || null,
-      gpa_last_semester: gpaLastSemester ? parseFloat(gpaLastSemester) : null,
-      gpa_overall: gpaOverall ? parseFloat(gpaOverall) : null,
-      is_multi_cultural_family: !!isMultiCulturalFamily,
-      is_single_parent_family: !!isSingleParentFamily,
-      is_multiple_children_family: !!isMultipleChildrenFamily,
-      is_national_merit: !!isNationalMerit,
-      additional_info: additionalInfo || null,
-    };
-
     try {
-      const response = await axios.post("/userinfor/scholarship/save/", userInfo, {
+      const response = await axios.post("/userinfor/scholarship/save/", buildPayload(), {
         headers: {
           Authorization: `JWT ${token}`,
           "Content-Type": "application/json",
@@ -162,9 +101,8 @@ const UserInfo = () => {
       });
 
       if (response.status === 200) {
-        // ✅ 이름 로컬스토리지에 저장
-        if (name) {
-          localStorage.setItem("userName", name);
+        if (form.name) {
+          localStorage.setItem("userName", form.name);
         }
 
         alert("장학 정보가 성공적으로 저장되었습니다.");
@@ -189,8 +127,8 @@ const UserInfo = () => {
           <input
             type="text"
             className="form-input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={form.name}
+            onChange={(event) => setField("name", event.target.value)}
             placeholder="이름 입력"
           />
         </div>
@@ -200,8 +138,8 @@ const UserInfo = () => {
           <label className="form-label">성별</label>
           <select
             className="form-select"
-            value={selectedGender}
-            onChange={(e) => setSelectedGender(e.target.value)}
+            value={form.selectedGender}
+            onChange={(event) => setField("selectedGender", event.target.value)}
           >
             <option value="">성별 선택</option>
             {genders.map((gender, index) => (
@@ -218,8 +156,8 @@ const UserInfo = () => {
           <input
             type="date"
             className="form-input"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
+            value={form.birthDate}
+            onChange={(event) => setField("birthDate", event.target.value)}
             min="1900-01-01"
             max="2100-12-31"
           />
@@ -231,10 +169,12 @@ const UserInfo = () => {
           <div className="form-group">
             <select
               className="form-select"
-              value={selectedRegion}
-              onChange={(e) => {
-                setSelectedRegion(e.target.value);
-                setSelectedDistrict("");
+              value={form.selectedRegion}
+              onChange={(event) => {
+                setFields({
+                  selectedRegion: event.target.value,
+                  selectedDistrict: "",
+                });
               }}
             >
               <option value="">지역 선택</option>
@@ -246,13 +186,13 @@ const UserInfo = () => {
             </select>
             <select
               className="form-select"
-              value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
-              disabled={!selectedRegion}
+              value={form.selectedDistrict}
+              onChange={(event) => setField("selectedDistrict", event.target.value)}
+              disabled={!form.selectedRegion}
             >
               <option value="">군/구 선택</option>
-              {selectedRegion &&
-                regions[selectedRegion].map((district) => (
+              {form.selectedRegion &&
+                regions[form.selectedRegion].map((district) => (
                   <option key={district} value={district}>
                     {district}
                   </option>
@@ -266,8 +206,8 @@ const UserInfo = () => {
           <label className="form-label">소득 분위</label>
           <select
             className="form-select"
-            value={selectedIncomeLevel}
-            onChange={(e) => setSelectedIncomeLevel(e.target.value)}
+            value={form.selectedIncomeLevel}
+            onChange={(event) => setField("selectedIncomeLevel", event.target.value)}
           >
             <option value="">분위 선택</option>
             {incomeLevels.map((level) => (
@@ -283,8 +223,8 @@ const UserInfo = () => {
           <label className="form-label">대학 유형</label>
           <select
             className="form-select"
-            value={selectedUnivType}
-            onChange={(e) => setSelectedUnivType(e.target.value)}
+            value={form.selectedUnivType}
+            onChange={(event) => setField("selectedUnivType", event.target.value)}
           >
             <option value="">대학 유형 선택</option>
             {univCategories.map((category, index) => (
@@ -300,8 +240,8 @@ const UserInfo = () => {
           <label className="form-label">지원 계열</label>
           <select
             className="form-select"
-            value={selectedMajorField}
-            onChange={(e) => setSelectedMajorField(e.target.value)}
+            value={form.selectedMajorField}
+            onChange={(event) => setField("selectedMajorField", event.target.value)}
           >
             <option value="">계열 선택</option>
             {majorFields.map((field) => (
@@ -320,7 +260,7 @@ const UserInfo = () => {
               type="text"
               className="form-input"
               placeholder="대학교 선택"
-              value={selectedUniversityName}
+              value={form.selectedUniversityName}
               readOnly
             />
             <button className="form-button" onClick={() => setIsModalOpen(true)}>
@@ -331,33 +271,13 @@ const UserInfo = () => {
 
         {/* 대학교 검색 모달 */}
         {isModalOpen && (
-          <div className="user-info-modal-overlay">
-            <div className="user-info-modal">
-              <h3>대학교 검색</h3>
-              <button className="user-info-close-btn" onClick={() => setIsModalOpen(false)}>
-                닫기
-              </button>
-
-              <input
-                type="text"
-                className="search-input"
-                placeholder="대학교 검색"
-                value={searchQuery}
-                onChange={handleSearch}
-              />
-              <ul className="user-info-dropdown-list">
-                {filteredUniversities.length > 0 ? (
-                  filteredUniversities.map((uni) => (
-                    <li key={uni} onClick={() => handleSelectUniversity(uni)}>
-                      {uni}
-                    </li>
-                  ))
-                ) : (
-                  <li>검색 결과 없음</li>
-                )}
-              </ul>
-            </div>
-          </div>
+          <UniversitySearchModal
+            searchQuery={searchQuery}
+            universities={filteredUniversities}
+            onSearchChange={setSearchQuery}
+            onSelectUniversity={handleSelectUniversity}
+            onClose={() => setIsModalOpen(false)}
+          />
         )}
 
         {/* 학과/학년 */}
@@ -366,14 +286,14 @@ const UserInfo = () => {
           <div className="form-group">
             <select
               className="form-select"
-              value={selectedDepartment}
-              onChange={(e) => setSelectedDepartment(e.target.value)}
+              value={form.selectedDepartment}
+              onChange={(event) => setField("selectedDepartment", event.target.value)}
               disabled={isDepartmentsLoading || !departments.length}
             >
               <option value="">
                 {isDepartmentsLoading
                   ? "학과 목록 불러오는 중..."
-                  : selectedUniversityName
+                  : form.selectedUniversityName
                     ? "학과 선택"
                     : "대학교를 먼저 선택하세요"}
               </option>
@@ -386,8 +306,8 @@ const UserInfo = () => {
 
             <select
               className="form-select"
-              value={selectedAcademicYear}
-              onChange={(e) => setSelectedAcademicYear(e.target.value)}
+              value={form.selectedAcademicYear}
+              onChange={(event) => setField("selectedAcademicYear", event.target.value)}
             >
               <option value="">학년 선택</option>
               {academicYears.map((year, index) => (
@@ -404,8 +324,8 @@ const UserInfo = () => {
           <label className="form-label">수료 학기</label>
           <select
             className="form-select"
-            value={selectedSemester}
-            onChange={(e) => setSelectedSemester(e.target.value)}
+            value={form.selectedSemester}
+            onChange={(event) => setField("selectedSemester", event.target.value)}
           >
             <option value="">학기 선택</option>
             {semesters.map((semester, index) => (
@@ -425,16 +345,16 @@ const UserInfo = () => {
               className="form-input"
               step="0.01"
               placeholder="직전 학기 성적"
-              value={gpaLastSemester}
-              onChange={(e) => setGpaLastSemester(e.target.value)}
+              value={form.gpaLastSemester}
+              onChange={(event) => setField("gpaLastSemester", event.target.value)}
             />
             <input
               type="number"
               className="form-input"
               step="0.01"
               placeholder="전체 성적"
-              value={gpaOverall}
-              onChange={(e) => setGpaOverall(e.target.value)}
+              value={form.gpaOverall}
+              onChange={(event) => setField("gpaOverall", event.target.value)}
             />
           </div>
         </div>
@@ -446,32 +366,32 @@ const UserInfo = () => {
             <label>
               <input
                 type="checkbox"
-                checked={isMultiCulturalFamily}
-                onChange={() => setIsMultiCulturalFamily(!isMultiCulturalFamily)}
+                checked={form.isMultiCulturalFamily}
+                onChange={() => toggleField("isMultiCulturalFamily")}
               />{" "}
               다문화 가정
             </label>
             <label>
               <input
                 type="checkbox"
-                checked={isSingleParentFamily}
-                onChange={() => setIsSingleParentFamily(!isSingleParentFamily)}
+                checked={form.isSingleParentFamily}
+                onChange={() => toggleField("isSingleParentFamily")}
               />{" "}
               한부모 가정
             </label>
             <label>
               <input
                 type="checkbox"
-                checked={isMultipleChildrenFamily}
-                onChange={() => setIsMultipleChildrenFamily(!isMultipleChildrenFamily)}
+                checked={form.isMultipleChildrenFamily}
+                onChange={() => toggleField("isMultipleChildrenFamily")}
               />{" "}
               다자녀 가정
             </label>
             <label>
               <input
                 type="checkbox"
-                checked={isNationalMerit}
-                onChange={() => setIsNationalMerit(!isNationalMerit)}
+                checked={form.isNationalMerit}
+                onChange={() => toggleField("isNationalMerit")}
               />{" "}
               국가유공자
             </label>
@@ -483,8 +403,8 @@ const UserInfo = () => {
           <label className="form-label">추가 정보</label>
           <textarea
             className="form-textarea"
-            value={additionalInfo}
-            onChange={(e) => setAdditionalInfo(e.target.value)}
+            value={form.additionalInfo}
+            onChange={(event) => setField("additionalInfo", event.target.value)}
             placeholder="예시) 프랜차이즈 카페에서 주 7시간 근무 중. 소득 분위 관련 장학금을 찾고 있음."
           />
         </div>

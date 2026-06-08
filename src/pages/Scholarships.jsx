@@ -1,5 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../api/axios";
+import ScholarshipDetailModal from "../features/scholarships/components/ScholarshipDetailModal";
+import ScholarshipToast from "../features/scholarships/components/ScholarshipToast";
+import useBodyClass from "../shared/hooks/useBodyClass";
+import useToast from "../shared/hooks/useToast";
+import { getScholarshipUrl } from "../shared/utils/urls";
 import "../assets/css/scholarships.css";
 
 const TYPE_KR = {
@@ -41,34 +46,7 @@ export default function Scholarships() {
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ====== 토스트 ======
-  const [toast, setToast] = useState({ open: false, message: "", type: "success" });
-  const toastTimerRef = useRef(null);
-  const showToast = (message, type = "success", duration = 2000) => {
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-    setToast({ open: true, message, type });
-    toastTimerRef.current = setTimeout(() => {
-      setToast((t) => ({ ...t, open: false }));
-      toastTimerRef.current = null;
-    }, duration);
-  };
-  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current); }, []);
-
-  // ====== URL 정규화 ======
-  const normalizeUrl = (u) => {
-    if (!u || typeof u !== "string") return null;
-    const v = u.trim();
-    const invalid = new Set(["", "#", "-", "null", "none", "n/a", "N/A", "해당없음", "없음", "미정", "준비중"]);
-    if (invalid.has(v) || invalid.has(v.toLowerCase())) return null;
-    const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v.replace(/^\/+/, "")}`;
-    try {
-      const url = new URL(withScheme);
-      if (!url.hostname || !url.hostname.includes(".")) return null;
-      return url.toString();
-    } catch {
-      return null;
-    }
-  };
+  const { toast, showToast } = useToast();
 
   // ====== (2) API 호출 ======
   const fetchScholarships = useCallback(async () => {
@@ -112,10 +90,7 @@ export default function Scholarships() {
     } catch { /* 무시 */ }
   }, []);
 
-  useEffect(() => {
-    document.body.classList.add("scholarships-page");
-    return () => document.body.classList.remove("scholarships-page");
-  }, []);
+  useBodyClass("scholarships-page");
   useEffect(() => { fetchScholarships(); }, [fetchScholarships]);
   useEffect(() => { fetchFavorites(); }, [fetchFavorites]);
 
@@ -228,7 +203,7 @@ export default function Scholarships() {
                 </thead>
                 <tbody>
                   {scholarships.map((item) => {
-                    const href = normalizeUrl(item.url);
+                    const href = getScholarshipUrl(item);
                     return (
                       <tr key={item.product_id}>
                         <td>{item.foundation_name}</td>
@@ -261,7 +236,7 @@ export default function Scholarships() {
             {/* 모바일 카드 */}
             <div className="md:hidden space-y-4">
               {scholarships.map((item) => {
-                const href = normalizeUrl(item.url);
+                const href = getScholarshipUrl(item);
                 return (
                   <div key={item.product_id} className="bg-white border rounded-lg shadow-sm p-4">
                     <div className="text-xs text-gray-500 mb-1">{item.foundation_name}</div>
@@ -324,38 +299,10 @@ export default function Scholarships() {
         )}
       </div>
 
-      {/* 상세 모달 */}
-      {isModalOpen && selectedScholarship && (
-        <div className="scholarship-modal-overlay" onClick={closeModal}>
-          <div className="scholarship-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="scholarship-modal-close" onClick={closeModal}>✕</button>
-            <h2>{selectedScholarship.name} 상세 정보</h2>
-            <div className="scholarship-modal-body">
-              <p><strong>성적기준:</strong> {selectedScholarship.grade_criteria_details}</p>
-              <p><strong>소득기준:</strong> {selectedScholarship.income_criteria_details}</p>
-              <p><strong>지원내역:</strong> {selectedScholarship.support_details}</p>
-              <p><strong>특정자격:</strong> {selectedScholarship.specific_qualification_details}</p>
-              <p><strong>지역거주여부:</strong> {selectedScholarship.residency_requirement_details}</p>
-              <p><strong>선발방법:</strong> {selectedScholarship.selection_method_details}</p>
-              <p><strong>선발인원:</strong> {selectedScholarship.number_of_recipients_details}</p>
-              <p><strong>자격제한:</strong> {selectedScholarship.eligibility_restrictions}</p>
-              <p><strong>추천필요여부:</strong> {selectedScholarship.recommendation_required ? "필요" : "불필요"}</p>
-              <p><strong>제출서류:</strong> {selectedScholarship.required_documents_details}</p>
-              <p><strong>홈페이지:</strong> {normalizeUrl(selectedScholarship.url)
-                ? <a href={normalizeUrl(selectedScholarship.url)} target="_blank" rel="noopener noreferrer">홈페이지 이동</a>
-                : <span>주소 없음</span>}
-              </p>
-            </div>
-          </div>
-        </div>
+      {isModalOpen && (
+        <ScholarshipDetailModal scholarship={selectedScholarship} onClose={closeModal} />
       )}
-
-      {/* 토스트 */}
-      <div aria-live="polite" aria-atomic="true" className="toast-root">
-        {toast.open && (
-          <div className={`toast-card ${toast.type}`} role="status">{toast.message}</div>
-        )}
-      </div>
+      <ScholarshipToast toast={toast} />
     </div>
   );
 }
