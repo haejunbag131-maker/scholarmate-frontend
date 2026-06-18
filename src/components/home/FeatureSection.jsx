@@ -1,9 +1,9 @@
-import { FaChartLine, FaUsers, FaClock, FaBookmark } from "react-icons/fa";
+import { FaBookmark, FaChartLine, FaClock, FaUsers } from "react-icons/fa";
 
 export default function FeatureSection() {
   const features = [
     {
-      icon: <FaChartLine className="text-lg text-white" />, // 아이콘 크기 축소
+      icon: <FaChartLine className="text-lg text-white" />,
       title: "통합 검색",
       description: "모든 장학금 정보를 한 번에 검색",
     },
@@ -50,7 +50,7 @@ export default function FeatureSection() {
               <h3 className="text-sm sm:text-base font-semibold mb-1 text-gray-900">
                 {item.title}
               </h3>
-              <p className="text-[11px] sm:text-sm text-gray-600 leading-snug">
+              <p className="text-xs sm:text-sm text-gray-600 leading-snug">
                 {item.description}
               </p>
             </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaEnvelope, FaMapMarkerAlt, FaPhone } from "react-icons/fa";
 import api from "../../api/axios";
 
 export default function ContactSection() {
@@ -151,7 +152,7 @@ export default function ContactSection() {
               </h2>
               <div className="space-y-5 sm:space-y-6">
                 <div className="flex items-start">
-                  <i className="fas fa-map-marker-alt text-custom text-base sm:text-xl mt-1"></i>
+                  <FaMapMarkerAlt className="text-custom text-base sm:text-xl mt-1" aria-hidden="true" />
                   <div className="ml-3 sm:ml-4 text-left">
                     <h3 className="text-sm sm:text-lg font-medium text-gray-900">
                       주소
@@ -162,7 +163,7 @@ export default function ContactSection() {
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <i className="fas fa-phone text-custom text-base sm:text-xl mt-1"></i>
+                  <FaPhone className="text-custom text-base sm:text-xl mt-1" aria-hidden="true" />
                   <div className="ml-3 sm:ml-4 text-left">
                     <h3 className="text-sm sm:text-lg font-medium text-gray-900">
                       전화
@@ -173,7 +174,7 @@ export default function ContactSection() {
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <i className="fas fa-envelope text-custom text-base sm:text-xl mt-1"></i>
+                  <FaEnvelope className="text-custom text-base sm:text-xl mt-1" aria-hidden="true" />
                   <div className="ml-3 sm:ml-4 text-left">
                     <h3 className="text-sm sm:text-lg font-medium text-gray-900">
                       이메일
@@ -205,7 +206,7 @@ export default function ContactSection() {
               >
                 <div className="space-y-4 px-4">
                   <div className="flex items-start">
-                    <i className="fas fa-map-marker-alt text-custom text-base mt-1"></i>
+                    <FaMapMarkerAlt className="text-custom text-base mt-1" aria-hidden="true" />
                     <div className="ml-3 text-left">
                       <h3 className="text-sm font-medium text-gray-900">
                         주소
@@ -216,7 +217,7 @@ export default function ContactSection() {
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <i className="fas fa-phone text-custom text-base mt-1"></i>
+                    <FaPhone className="text-custom text-base mt-1" aria-hidden="true" />
                     <div className="ml-3 text-left">
                       <h3 className="text-sm font-medium text-gray-900">
                         전화
@@ -227,7 +228,7 @@ export default function ContactSection() {
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <i className="fas fa-envelope text-custom text-base mt-1"></i>
+                    <FaEnvelope className="text-custom text-base mt-1" aria-hidden="true" />
                     <div className="ml-3 text-left">
                       <h3 className="text-sm font-medium text-gray-900">
                         이메일

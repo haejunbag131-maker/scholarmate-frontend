@@ -275,8 +275,11 @@ export default function CommunityDetail() {
   };
 
   return (
-    <main className="pt-6 pb-6 w-[min(92vw,900px)] mx-auto">
-      <Link className="text-[#0B2D6B] underline" to="/community">
+    <div className="mx-auto w-[min(calc(100vw-32px),900px)] pt-6 pb-6">
+      <Link
+        className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-[#0B2D6B] transition-colors hover:bg-blue-100"
+        to="/community"
+      >
         ← 목록으로
       </Link>
 
@@ -331,6 +334,6 @@ export default function CommunityDetail() {
           />
         </>
       )}
-    </main>
+    </div>
   );
 }

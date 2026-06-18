@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../api/axios";
 import FindIdModal from "../features/auth/components/FindIdModal";
 import ResetPwByCodeModal from "../features/auth/components/ResetPwByCodeModal";
+import { loginSucceeded } from "../features/auth/authSlice";
 
 import logo from "../assets/img/로고.png";
 
@@ -27,6 +29,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const from = location.state?.from || location.state?.fromProtected || "/";
 
   const inputCls =
@@ -78,6 +81,7 @@ export default function Login() {
       localStorage.setItem("refreshToken", data.refresh);
       localStorage.setItem("autoLogin", String(autoLogin));
       axios.defaults.headers.common.Authorization = `Bearer ${data.access}`;
+      dispatch(loginSucceeded());
       navigate(from, { replace: true });
     } catch {
       setErrorMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
@@ -149,14 +153,14 @@ export default function Login() {
 
   return (
     <div className="flex w-full flex-col bg-white text-gray-900">
-      <div className="flex items-start justify-center px-4 py-6 sm:py-8">
+      <div className="flex items-start justify-center px-5 py-6 sm:px-4 sm:py-8">
         <div className="w-full max-w-[520px] rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="px-6 sm:px-10 pt-8 sm:pt-10 pb-6 sm:pb-8">
+          <div className="px-7 pt-8 pb-6 sm:px-10 sm:pt-10 sm:pb-8">
             <div className="w-full flex flex-col items-center mb-6 sm:mb-8">
               <img src={logo} alt="로고" className="h-20 object-contain sm:h-32 md:h-40" />
             </div>
 
-            <h2 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4 text-center">로그인</h2>
+            <h1 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4 text-center">로그인</h1>
 
             {location.state?.from && (
               <p className="text-xs sm:text-sm text-rose-600 mb-2">로그인 후 이용 가능합니다.</p>
@@ -225,7 +229,7 @@ export default function Login() {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-center gap-3 whitespace-nowrap text-gray-400 sm:gap-4">
+                <div className="flex items-center justify-center gap-3 whitespace-nowrap text-gray-700 sm:gap-4">
                   <button
                     type="button"
                     className="hover:text-gray-600"
@@ -268,7 +272,7 @@ export default function Login() {
         </div>
       </div>
 
-      <footer className="py-6 text-[10px] sm:text-[11px] text-gray-900">
+      <footer className="py-6 text-xs text-gray-900">
         <div className="mx-auto max-w-5xl px-4">
           <div className="flex flex-row flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center">
             <span>© 2025</span>

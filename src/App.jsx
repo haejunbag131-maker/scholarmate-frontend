@@ -1,12 +1,20 @@
-import { lazy, Suspense, useState, useEffect } from "react";
-import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 import isTokenExpired from "./api/auth";
 import api from "./api/axios";
+import {
+  loginSucceeded,
+  selectAuthChecked,
+  selectIsLoggedIn,
+  setAuthChecked,
+  setLoggedIn,
+} from "./features/auth/authSlice";
 
 import Header from "./components/Header";
 import PrivateRoute from "./components/PrivateRoute";
+import Home from "./pages/Home";
 
-const Home = lazy(() => import("./pages/Home"));
 const Register = lazy(() => import("./pages/Register"));
 const Login = lazy(() => import("./pages/Login"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -23,14 +31,10 @@ const Messages = lazy(() => import("./pages/Messages"));
 const Introduction = lazy(() => import("./pages/Introduction"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 
-import "antd/dist/reset.css";
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    const token = localStorage.getItem("token");
-    return !!token && !isTokenExpired(token);
-  });
-  const [authChecked, setAuthChecked] = useState(false);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+  const authChecked = useSelector(selectAuthChecked);
   const location = useLocation();
 
   // 로그인 상태 점검
@@ -43,8 +47,10 @@ export default function App() {
       const autoLogin = localStorage.getItem("autoLogin") === "true";
 
       if (token && !isTokenExpired(token)) {
-        if (!cancelled) setIsLoggedIn(true);
-        if (!cancelled) setAuthChecked(true);
+        if (!cancelled) {
+          dispatch(setLoggedIn(true));
+          dispatch(setAuthChecked(true));
+        }
         return;
       }
 
@@ -53,14 +59,14 @@ export default function App() {
           const { data } = await api.post("/auth/jwt/refresh/", { refresh: refreshToken });
           if (data?.access) {
             localStorage.setItem("token", data.access);
-            if (!cancelled) setIsLoggedIn(true);
+            if (!cancelled) dispatch(loginSucceeded());
             return;
           }
         } catch {
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
         } finally {
-          if (!cancelled) setAuthChecked(true);
+          if (!cancelled) dispatch(setAuthChecked(true));
         }
         return;
       }
@@ -69,15 +75,17 @@ export default function App() {
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
       }
-      if (!cancelled) setIsLoggedIn(false);
-      if (!cancelled) setAuthChecked(true);
+      if (!cancelled) {
+        dispatch(setLoggedIn(false));
+        dispatch(setAuthChecked(true));
+      }
     };
 
     checkAuth();
     return () => {
       cancelled = true;
     };
-  }, [location.pathname]);
+  }, [dispatch, location.pathname]);
 
   // 중앙 정렬 스크롤 
   const scrollToSectionId = (sectionId) => {
@@ -101,22 +109,20 @@ export default function App() {
     requestAnimationFrame(tick);
   }, [location.key, location.hash]);
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    navigate("/", { replace: true });
-  };
+  const routeFallback = (
+    <div className="min-h-[calc(100vh-72px)] flex items-center justify-center text-sm text-gray-500">
+      로딩 중...
+    </div>
+  );
 
   return (
     <>
-      <Header
-        isLoggedIn={isLoggedIn}
-        setIsLoggedIn={setIsLoggedIn}
-      />
+      <Header />
 
       <main className="content">
-        <Suspense fallback={<div className="py-16 text-center text-sm text-gray-500">로딩 중...</div>}>
+        <Suspense fallback={routeFallback}>
           {!authChecked ? (
-            <div className="py-16 text-center text-sm text-gray-500">로딩 중...</div>
+            routeFallback
           ) : (
           <Routes>
             <Route path="/" element={<Home />} />
@@ -150,7 +156,7 @@ export default function App() {
             />
             <Route
               path="/login"
-              element={isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
+              element={isLoggedIn ? <Navigate to="/" /> : <Login />}
             />
             <Route
               path="/register"

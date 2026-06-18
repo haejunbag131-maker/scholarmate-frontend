@@ -57,7 +57,7 @@ export default function MessagesList() {
   };
 
   return (
-    <main className="pt-6 pb-20 w-[min(92vw,800px)] mx-auto">
+    <div className="mx-auto w-[min(calc(100vw-32px),800px)] pt-6 pb-20">
       <Card title="쪽지함">
         {loading ? (
           <div className="py-12 flex justify-center">
@@ -133,6 +133,6 @@ export default function MessagesList() {
           </ul>
         )}
       </Card>
-    </main>
+    </div>
   );
 }

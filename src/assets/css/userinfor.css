@@ -1,6 +1,8 @@
 body.userinfor-page .page-wrapper {
   display: flex;
   justify-content: center;
+  padding-left: 16px;
+  padding-right: 16px;
   padding-top: 20px;
   min-height: 100vh;
   box-sizing: border-box;
@@ -194,7 +196,7 @@ body.userinfor-page .user-info-dropdown-list li:hover {
 
 @media (max-width: 480px) {
   body.userinfor-page .profile-box {
-    padding: 20px;
+    padding: 24px 18px;
   }
   body.userinfor-page .title {
     font-size: 20px;
@@ -202,12 +204,13 @@ body.userinfor-page .user-info-dropdown-list li:hover {
   }
   body.userinfor-page .form-row {
     margin-bottom: 15px;
+    padding: 0 4px;
   }
   body.userinfor-page .form-input,
   body.userinfor-page .form-select,
   body.userinfor-page .form-textarea {
     font-size: 13px;
-    padding: 10px;
+    padding: 11px 12px;
   }
   body.userinfor-page .form-button {
     font-size: 11px;

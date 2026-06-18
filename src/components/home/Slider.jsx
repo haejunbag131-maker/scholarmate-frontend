@@ -1,73 +1,27 @@
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-import Slider from "react-slick";
-import sliderImage1 from "../../assets/img/메인1.jpg";
-import sliderImage2 from "../../assets/img/메인2.jpg";
+import sliderImage1 from "../../assets/img/home-hero-scholarships.webp";
+import sliderImage2 from "../../assets/img/home-hero-recommendation.webp";
 import "../../assets/css/slider.css";
-
-function NextArrow(props) {
-  const { onClick } = props;
-  return (
-    <button
-      type="button"
-      className="arrow next"
-      onClick={onClick}
-      aria-label="다음 슬라이드"
-    >
-      <FaChevronRight size={22} />
-    </button>
-  );
-}
-
-function PrevArrow(props) {
-  const { onClick } = props;
-  return (
-    <button
-      type="button"
-      className="arrow prev"
-      onClick={onClick}
-      aria-label="이전 슬라이드"
-    >
-      <FaChevronLeft size={22} />
-    </button>
-  );
-}
 
 export default function SliderSection() {
   const navigate = useNavigate();
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 800,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 10000,
-    nextArrow: <NextArrow />,
-    prevArrow: <PrevArrow />,
-    pauseOnHover: true,
-    adaptiveHeight: false,
-    responsive: [
-      {
-        breakpoint: 1024, // 태블릿 이하
-        settings: { slidesToShow: 1 },
-      },
-      {
-        breakpoint: 768, // 모바일 큰 화면
-        settings: { slidesToShow: 1 },
-      },
-      {
-        breakpoint: 480, // 모바일 작은 화면
-        settings: { slidesToShow: 1, arrows: false }, // 모바일에서는 화살표 숨김
-      },
-    ],
-  };
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [loadedSlideIndexes, setLoadedSlideIndexes] = useState(() => new Set([0]));
+  const swipeRef = useRef({
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    tracking: false,
+  });
 
   const slides = [
     {
       img: sliderImage1,
+      width: 1440,
+      height: 427,
       title: "ScholarMate",
       desc: (
         <>
@@ -79,6 +33,8 @@ export default function SliderSection() {
     },
     {
       img: sliderImage2,
+      width: 1440,
+      height: 427,
       title: "사용자 맞춤 추천",
       desc: (
         <>
@@ -90,36 +46,140 @@ export default function SliderSection() {
     },
   ];
 
+  useEffect(() => {
+    const timerId = window.setInterval(() => {
+      setActiveIndex((current) => {
+        const nextIndex = (current + 1) % slides.length;
+        setLoadedSlideIndexes((loaded) => new Set(loaded).add(nextIndex));
+        return nextIndex;
+      });
+    }, 10000);
+
+    return () => window.clearInterval(timerId);
+  }, [slides.length]);
+
+  const goToSlide = (nextIndex) => {
+    const normalizedIndex = (nextIndex + slides.length) % slides.length;
+    setLoadedSlideIndexes((loaded) => new Set(loaded).add(normalizedIndex));
+    setActiveIndex(normalizedIndex);
+  };
+
+  const handlePointerDown = (event) => {
+    if (event.pointerType === "mouse") return;
+    swipeRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      tracking: true,
+    };
+  };
+
+  const finishSwipe = (event) => {
+    const swipe = swipeRef.current;
+    if (!swipe.tracking || swipe.pointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - swipe.startX;
+    const deltaY = event.clientY - swipe.startY;
+    const isHorizontalSwipe =
+      Math.abs(deltaX) >= 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2;
+
+    swipeRef.current = {
+      pointerId: null,
+      startX: 0,
+      startY: 0,
+      tracking: false,
+    };
+
+    if (!isHorizontalSwipe) return;
+    goToSlide(activeIndex + (deltaX < 0 ? 1 : -1));
+  };
+
+  const cancelSwipe = () => {
+    swipeRef.current = {
+      pointerId: null,
+      startX: 0,
+      startY: 0,
+      tracking: false,
+    };
+  };
+
   return (
-    <section className="slider__wrap">
-      <Slider {...settings}>
+    <section className="slider__wrap" aria-roledescription="carousel">
+      <div
+        className="slider"
+        onPointerDown={handlePointerDown}
+        onPointerUp={finishSwipe}
+        onPointerCancel={cancelSwipe}
+        onPointerLeave={cancelSwipe}
+      >
         {slides.map((slide, index) => (
-          <div key={index}>
-            <div
-              className="slider__img flex items-center justify-center text-center"
-              style={{ backgroundImage: `url(${slide.img})` }}
-              role="img"
-              aria-label={slide.title}
-            >
-              <div className="slider__overlay" />
-              <div className="desc text-white px-4 md:px-8">
-                <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4">
-                  {slide.title}
-                </h3>
-                <p className="text-base md:text-lg lg:text-xl mb-6 leading-relaxed">
-                  {slide.desc}
-                </p>
-                <button
-                  onClick={() => navigate(slide.cta.to)}
-                  className="slider-btn"
-                >
-                  {slide.cta.label}
-                </button>
-              </div>
+          <article
+            key={slide.title}
+            className={`slider__slide ${index === activeIndex ? "is-active" : ""}`}
+            aria-hidden={index !== activeIndex}
+          >
+            {loadedSlideIndexes.has(index) && (
+              <img
+                src={slide.img}
+                alt=""
+                width={slide.width}
+                height={slide.height}
+                className="slider__image"
+                loading={index === 0 ? "eager" : "lazy"}
+                {...{ fetchpriority: index === 0 ? "high" : "auto" }}
+                decoding={index === 0 ? "sync" : "async"}
+              />
+            )}
+            <div className="slider__overlay" />
+            <div className="desc text-white px-4 md:px-8">
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4">
+                {slide.title}
+              </h2>
+              <p className="text-base md:text-lg lg:text-xl mb-6 leading-relaxed">
+                {slide.desc}
+              </p>
+              <button
+                onClick={() => navigate(slide.cta.to)}
+                disabled={index !== activeIndex}
+                tabIndex={index === activeIndex ? 0 : -1}
+                className="slider-btn"
+              >
+                {slide.cta.label}
+              </button>
             </div>
-          </div>
+          </article>
         ))}
-      </Slider>
+
+        <button
+          type="button"
+          className="arrow prev"
+          onClick={() => goToSlide(activeIndex - 1)}
+          aria-label="이전 슬라이드"
+        >
+          <FaChevronLeft aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="arrow next"
+          onClick={() => goToSlide(activeIndex + 1)}
+          aria-label="다음 슬라이드"
+        >
+          <FaChevronRight aria-hidden="true" />
+        </button>
+
+        <div className="slider__dots" aria-label="슬라이드 선택">
+          {slides.map((slide, index) => (
+            <button
+              key={slide.title}
+              type="button"
+              className={index === activeIndex ? "is-active" : ""}
+              onClick={() => goToSlide(index)}
+              aria-label={`${index + 1}번 슬라이드 보기`}
+              aria-current={index === activeIndex}
+            />
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

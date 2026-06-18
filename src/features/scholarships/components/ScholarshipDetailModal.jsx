@@ -1,3 +1,4 @@
+import { FaTimes } from "react-icons/fa";
 import { getScholarshipUrl } from "../../../shared/utils/urls";
 
 const DETAIL_ROWS = [
@@ -21,7 +22,7 @@ export default function ScholarshipDetailModal({ scholarship, onClose }) {
     <div className="scholarship-modal-overlay" onClick={onClose}>
       <div className="scholarship-modal-content" onClick={(event) => event.stopPropagation()}>
         <button type="button" className="scholarship-modal-close" onClick={onClose}>
-          ✕
+          <FaTimes aria-hidden="true" />
         </button>
         <h2>{scholarship.name} 상세 정보</h2>
         <div className="scholarship-modal-body">
@@ -37,7 +38,12 @@ export default function ScholarshipDetailModal({ scholarship, onClose }) {
           <p>
             <strong>홈페이지:</strong>{" "}
             {homepageUrl ? (
-              <a href={homepageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+              <a
+                href={homepageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="scholarship-inline-action"
+              >
                 홈페이지 이동
               </a>
             ) : (

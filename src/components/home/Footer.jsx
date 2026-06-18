@@ -1,4 +1,13 @@
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from "react-icons/fa";
+
 export default function Footer() {
+  const socials = [
+    { label: "Facebook", icon: <FaFacebookF aria-hidden="true" /> },
+    { label: "Twitter", icon: <FaTwitter aria-hidden="true" /> },
+    { label: "LinkedIn", icon: <FaLinkedinIn aria-hidden="true" /> },
+    { label: "Instagram", icon: <FaInstagram aria-hidden="true" /> },
+  ];
+
   return (
     <footer className="bg-gray-900 text-white py-12 w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
@@ -40,24 +49,22 @@ export default function Footer() {
               소셜 미디어
             </h3>
             <div className="flex space-x-3 text-base sm:text-lg text-gray-400">
-              <a href="#" aria-label="Facebook" className="hover:text-white">
-                <i className="fab fa-facebook-f"></i>
-              </a>
-              <a href="#" aria-label="Twitter" className="hover:text-white">
-                <i className="fab fa-twitter"></i>
-              </a>
-              <a href="#" aria-label="LinkedIn" className="hover:text-white">
-                <i className="fab fa-linkedin-in"></i>
-              </a>
-              <a href="#" aria-label="Instagram" className="hover:text-white">
-                <i className="fab fa-instagram"></i>
-              </a>
+              {socials.map((social) => (
+                <a
+                  key={social.label}
+                  href="#"
+                  aria-label={social.label}
+                  className="hover:text-white"
+                >
+                  {social.icon}
+                </a>
+              ))}
             </div>
           </div>
         </div>
 
         {/* 하단 바 */}
-        <div className="text-center text-xs sm:text-sm text-gray-500 mt-10 border-t border-gray-700 pt-4">
+        <div className="text-center text-xs sm:text-sm text-gray-300 mt-10 border-t border-gray-700 pt-4">
           © 2025 ScholarMate. All rights reserved.
         </div>
       </div>
