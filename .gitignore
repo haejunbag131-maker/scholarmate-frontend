@@ -25,3 +25,8 @@ dist-ssr
 
 build/
 .env
+
+# Local QA reports and generated portfolio artifacts
+.portfolio-work/
+PORTFOLIO_*.md
+ScholarMate_*Portfolio*.pptx
