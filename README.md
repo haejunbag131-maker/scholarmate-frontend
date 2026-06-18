@@ -1,33 +1,151 @@
 # ScholarMate Frontend
 
-ScholarMate는 사용자의 학적, 지역, 소득, 관심 조건을 바탕으로 장학금을 탐색하고 추천받을 수 있는 React 기반 프론트엔드입니다. 장학금 목록, 맞춤 추천, 관심 장학금, 마감 캘린더, 커뮤니티, 공지, 1:1 메시지 기능을 제공합니다.
+> 사용자의 학적, 지역, 소득, 관심 조건을 바탕으로 장학금을 탐색하고 추천받을 수 있는 플랫폼입니다.
+
+ScholarMate는 장학금 정보를 찾고, 비교하고, 마감일을 관리하는 과정을 하나의 흐름으로 묶은 서비스입니다. 프론트엔드는 장학금 목록 검색, 맞춤 추천, 관심 장학금, 마감 캘린더, 커뮤니티, 공지사항, 1:1 메시지를 담당합니다.
+
+## 포트폴리오 핵심 포인트
+
+| 평가 관점       | 구현 내용                                                                                |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| 문제 해결       | 장학금 탐색, 추천 확인, 관심 등록, 마감 관리까지 이어지는 사용자 흐름 구현               |
+| 프론트엔드 구조 | 라우트 단위 page와 도메인별 feature 컴포넌트를 분리해 유지보수성 개선                    |
+| 서버 상태 관리  | TanStack Query로 목록, 추천, 관심 장학금 데이터를 캐싱하고 무효화 전략 적용              |
+| 인증 처리       | JWT access/refresh token 기반 로그인 상태 유지와 401 자동 재시도 처리                    |
+| 사용자 경험     | protected route, lazy loading, toast feedback, optimistic update, responsive layout 적용 |
+| 품질 관리       | 단위 테스트, 접근성 smoke test, Lighthouse/성능 측정 스크립트 구성                       |
+
+## 프로젝트 배경
+
+장학금 서비스는 사용자가 단순히 목록을 보는 데서 끝나지 않습니다. 지원 조건을 확인하고, 본인에게 맞는 장학금을 선별하고, 관심 목록에 저장하고, 마감일을 놓치지 않아야 합니다.
+
+이 프로젝트에서는 다음 세 가지를 프론트엔드 목표로 두었습니다.
+
+1. 많은 장학금 데이터를 검색, 필터, 페이지네이션으로 탐색하기 쉽게 만든다.
+2. 추천 결과를 상세 정보, 추천 이유, 관심 등록 흐름으로 연결한다.
+3. 캘린더, 커뮤니티, 메시지 기능을 통해 서비스 사용성을 확장한다.
 
 ## 주요 기능
 
-- JWT 로그인, 회원가입, 이메일 인증, 아이디/비밀번호 찾기
-- 장학금 목록 검색, 유형 필터, 정렬, 페이지네이션
-- 사용자 장학 정보 기반 맞춤 장학금 추천과 추천 이유 확인
-- 관심 장학금 등록, 해제, 목록 관리
-- 장학금 마감 캘린더, 제출 완료 표시, 마감 알림 등록
-- 커뮤니티 게시글, 댓글, 대댓글, 좋아요, 북마크, 공유
-- 공지사항 목록과 상세 페이지
-- 사용자 간 1:1 메시지와 읽음 처리
-- React Query 기반 서버 상태 캐싱과 JWT 자동 갱신
+### 인증
+
+- JWT 로그인, 회원가입, 이메일 인증
+- 아이디 찾기, 비밀번호 재설정 모달
+- access token 만료 감지와 refresh token 자동 갱신
+- 로그인 필요 페이지에 대한 route guard 처리
+
+### 장학금 탐색
+
+- 장학금 목록 검색, 유형 필터, 정렬
+- 페이지네이션과 페이지당 표시 개수 변경
+- 상세 모달, 외부 홈페이지 링크 정규화
+- 관심 장학금 등록/해제 optimistic update
+
+### 맞춤 추천
+
+- 사용자 장학 정보 기반 추천 API 연동
+- 추천 카드, 상세 모달, 추천 이유 모달 분리
+- 추천 조회 전 사용자 정보 미입력 상태 안내
+- 추천 목록과 관심 장학금 상태 동기화
+
+### 캘린더
+
+- 관심 장학금 마감일 캘린더 표시
+- 제출 완료 표시와 localStorage 저장
+- 마감 알림 등록/취소 API 연동
+- 제출 서류 복사와 D-1 알림 toast
+
+### 커뮤니티와 메시지
+
+- 게시글 목록, 검색, 카테고리, 인기순/최신순 정렬
+- 게시글 작성, 수정, 삭제, 좋아요, 북마크, 공유
+- 댓글, 대댓글, 답글 편집 UI
+- 1:1 대화 목록, 메시지 전송, 읽음 처리
+
+### 공지와 홈
+
+- 공지사항 목록/상세, 검색, 페이지네이션
+- 홈 화면 최신 공지/커뮤니티 미리보기
+- WebP 이미지 자산 적용과 hero/card 이미지 최적화
 
 ## 기술 스택
 
-| 구분 | 기술 |
-| --- | --- |
-| 런타임 | React 18, Vite 6 |
-| 언어 | JavaScript, JSX |
-| 라우팅 | React Router |
-| 서버 상태 | TanStack React Query |
-| 클라이언트 상태 | Redux Toolkit |
-| API 통신 | Axios |
-| UI | CSS, Tailwind CSS, Ant Design, React Icons |
-| 품질 확인 | ESLint, Node test runner, Lighthouse, axe-core |
+| 영역         | 기술                                           |
+| ------------ | ---------------------------------------------- |
+| Core         | React 18, Vite 6, JavaScript                   |
+| Routing      | React Router                                   |
+| Server State | TanStack Query                                 |
+| Client State | Redux Toolkit, React Redux                     |
+| API          | Axios                                          |
+| UI           | CSS, Tailwind CSS, Ant Design, React Icons     |
+| Test/QA      | Node test runner, ESLint, axe-core, Lighthouse |
+| Deploy       | Vercel, Vite production build                  |
 
-## 시작하기
+## 설계와 구현 의사결정
+
+### 1. feature 중심 구조
+
+페이지 컴포넌트에 UI와 비즈니스 로직이 과도하게 모이는 문제를 줄이기 위해 도메인별 feature 폴더를 분리했습니다.
+
+```text
+src/
+  api/                 API 클라이언트와 도메인별 요청 함수
+  app/                 Redux store
+  components/          공통 컴포넌트와 홈 섹션
+  features/            auth, calendar, community, recommendations, scholarships, userInfo
+  pages/               라우트 단위 페이지
+  shared/              공통 hook, query client, query key, utility
+```
+
+이 구조로 `pages`는 화면 조립과 라우팅 중심 역할을 맡고, 세부 UI와 유틸리티는 `features`와 `shared`에서 관리합니다.
+
+### 2. 서버 상태와 클라이언트 상태 분리
+
+- 서버에서 가져오는 장학금, 추천, 관심 목록은 TanStack Query로 관리합니다.
+- 로그인 여부와 인증 확인 상태는 Redux Toolkit slice로 관리합니다.
+- `queryKeys`를 중앙화해 캐시 키 중복과 무효화 실수를 줄였습니다.
+
+### 3. JWT 자동 갱신 흐름
+
+`src/api/axios.js`의 공통 Axios 인스턴스에서 다음 처리를 담당합니다.
+
+- 요청 전 access token 만료 여부 확인
+- refresh token으로 access token 재발급
+- 동시 요청 시 refresh 요청을 1회로 제한
+- 401 응답 발생 시 한 번만 재시도
+- 인증 복구 실패 시 토큰 제거 후 로그인 페이지로 이동
+
+### 4. 사용자 피드백과 실패 복구
+
+- 관심 장학금, 좋아요, 북마크는 즉시 UI에 반영하고 실패 시 이전 상태로 복구합니다.
+- 주요 액션은 toast로 성공/실패 상태를 전달합니다.
+- 추천 조건 미입력, 세션 만료, 빈 검색 결과 같은 예외 상태를 화면에서 분기 처리합니다.
+
+### 5. 품질 검증 자동화
+
+단순 빌드 확인에서 끝내지 않고, 포트폴리오 검토자가 재현 가능한 QA 스크립트를 제공합니다.
+
+- 단위 테스트: 날짜 계산, 페이지네이션, 추천 이유 파싱, URL 정규화, 사용자 정보 payload 변환
+- 접근성 smoke test: 이미지 alt, 외부 링크 noopener, 로그인 autocomplete, 주요 landmark 확인
+- E2E/접근성 스크립트: production build를 로컬 정적 서버로 띄우고 Chrome DevTools Protocol과 axe-core로 검증
+- Lighthouse/성능 스크립트: 홈 desktop/mobile 기준 성능, 접근성, SEO, best practices 측정
+
+## 화면 흐름
+
+```mermaid
+flowchart LR
+  Home["홈"] --> Login["로그인"]
+  Login --> Scholarships["장학금 목록"]
+  Login --> Recommendation["맞춤 추천"]
+  Login --> Calendar["마감 캘린더"]
+  Login --> Community["커뮤니티"]
+  Scholarships --> Wishlist["관심 장학금"]
+  Recommendation --> Wishlist
+  Community --> Messages["1:1 메시지"]
+  Home --> Notice["공지사항"]
+```
+
+## 실행 방법
 
 ### 요구 사항
 
@@ -51,13 +169,13 @@ VITE_API_PROXY_TARGET=
 VITE_WITH_CREDENTIALS=false
 ```
 
-| 변수 | 설명 | 기본값 |
-| --- | --- | --- |
-| `VITE_API_BASE_URL` | 프론트엔드에서 사용할 API base URL | `/api` |
-| `VITE_API_PROXY_TARGET` | 개발 서버 프록시 대상 백엔드 URL | 빈 값 |
+| 변수                    | 설명                                                | 기본값  |
+| ----------------------- | --------------------------------------------------- | ------- |
+| `VITE_API_BASE_URL`     | 프론트엔드에서 사용할 API base URL                  | `/api`  |
+| `VITE_API_PROXY_TARGET` | 개발 서버 프록시 대상 백엔드 URL                    | 빈 값   |
 | `VITE_WITH_CREDENTIALS` | 쿠키 기반 인증이 필요할 때 Axios credentials 활성화 | `false` |
 
-로컬 개발에서 백엔드가 `http://localhost:8000`에서 실행 중이라면 다음처럼 설정할 수 있습니다.
+로컬 백엔드가 `http://localhost:8000`에서 실행 중이라면 다음처럼 설정합니다.
 
 ```env
 VITE_API_BASE_URL=/api
@@ -65,88 +183,70 @@ VITE_API_PROXY_TARGET=http://localhost:8000
 VITE_WITH_CREDENTIALS=false
 ```
 
-### 개발 서버 실행
+### 개발 서버
 
 ```bash
 npm run dev
 ```
 
-기본 개발 서버 주소는 `http://localhost:5173`입니다.
+기본 주소는 `http://localhost:5173`입니다.
 
 ### 프로덕션 빌드
 
 ```bash
 npm run build
-```
-
-빌드 결과물은 `dist/`에 생성됩니다.
-
-### 빌드 결과 미리보기
-
-```bash
 npm run preview
 ```
 
-## 사용 가능한 스크립트
+## 스크립트
 
-| 명령어 | 설명 |
-| --- | --- |
-| `npm run dev` | Vite 개발 서버 실행 |
-| `npm run build` | 프로덕션 빌드 생성 |
-| `npm run preview` | 빌드 결과 미리보기 |
-| `npm run lint` | ESLint 검사 |
-| `npm test` | Node test runner 기반 단위 테스트 실행 |
-| `npm run test:e2e` | 프로덕션 E2E 및 접근성 smoke 테스트 |
-| `npm run test:lighthouse` | Lighthouse 리포트 측정 |
-| `npm run test:performance` | API 연동 성능 측정 |
+| 명령어                     | 설명                                          |
+| -------------------------- | --------------------------------------------- |
+| `npm run dev`              | Vite 개발 서버 실행                           |
+| `npm run build`            | 프로덕션 빌드 생성                            |
+| `npm run preview`          | 빌드 결과 미리보기                            |
+| `npm run lint`             | ESLint 검사                                   |
+| `npm test`                 | Node test runner 기반 단위 테스트 실행        |
+| `npm run test:e2e`         | production build 기반 E2E/접근성 smoke 테스트 |
+| `npm run test:lighthouse`  | Lighthouse 리포트 측정                        |
+| `npm run test:performance` | API 연동 성능 측정                            |
 
 QA 리포트와 측정 결과는 `.portfolio-work/`에 생성되며, 이 폴더는 커밋 대상에서 제외됩니다.
 
 ## 주요 라우트
 
-| 경로 | 화면 |
-| --- | --- |
-| `/` | 홈 |
-| `/login`, `/register` | 로그인, 회원가입 |
-| `/scholarships` | 장학금 목록 |
-| `/recommendation` | 맞춤 장학금 추천 |
-| `/interest` | 관심 장학금 |
-| `/calendar` | 장학금 마감 캘린더 |
-| `/userinfor` | 나의 장학 정보 입력 |
-| `/community`, `/community/:id` | 커뮤니티 목록과 상세 |
-| `/notice`, `/notice/:id` | 공지사항 목록과 상세 |
-| `/messages`, `/messages/:conversationId` | 메시지 목록과 대화 |
-| `/profile` | 사용자 프로필 |
-| `/introduction` | 서비스 소개 |
-
-## 프로젝트 구조
-
-```text
-src/
-  api/                 API 클라이언트와 도메인별 요청 함수
-  app/                 Redux store 설정
-  assets/              CSS와 이미지 리소스
-  components/          공통 컴포넌트와 홈 섹션 컴포넌트
-  data/                정적 데이터
-  features/            도메인별 컴포넌트, 훅, 유틸
-  pages/               라우트 단위 페이지
-  shared/              공통 훅, query key, query client, 유틸
-```
-
-## API 연동
-
-API 요청은 `src/api/axios.js`의 공통 Axios 인스턴스를 사용합니다. Access token은 `localStorage`의 `token`, refresh token은 `refreshToken` 키를 사용하며, access token 만료 시 `/auth/jwt/refresh/`로 자동 갱신합니다.
-
-개발 서버에서 `VITE_API_PROXY_TARGET`을 설정하면 `/api`, `/media`, `/static` 요청이 백엔드 서버로 프록시됩니다.
+| 경로                                     | 화면                 |
+| ---------------------------------------- | -------------------- |
+| `/`                                      | 홈                   |
+| `/login`, `/register`                    | 로그인, 회원가입     |
+| `/scholarships`                          | 장학금 목록          |
+| `/recommendation`                        | 맞춤 장학금 추천     |
+| `/interest`                              | 관심 장학금          |
+| `/calendar`                              | 장학금 마감 캘린더   |
+| `/userinfor`                             | 나의 장학 정보 입력  |
+| `/community`, `/community/:id`           | 커뮤니티 목록과 상세 |
+| `/notice`, `/notice/:id`                 | 공지사항 목록과 상세 |
+| `/messages`, `/messages/:conversationId` | 메시지 목록과 대화   |
+| `/profile`                               | 사용자 프로필        |
+| `/introduction`                          | 서비스 소개          |
 
 ## 배포
 
-Vercel 배포 설정은 `vercel.json`에 포함되어 있습니다.
+Vercel 기준으로 `npm run build`를 실행하고 `dist/`를 정적 결과물로 배포합니다. SPA 라우팅을 위해 정적 자산 요청을 제외한 경로는 `index.html`로 rewrite되도록 설정되어 있습니다.
 
-- 빌드 명령어: `npm run build`
-- 출력 디렉터리: `dist`
-- SPA 라우팅을 위해 정적 자산을 제외한 요청은 `index.html`로 rewrite
+## 검증 결과
 
-## 검증
+최종 확인 기준으로 다음 명령이 통과했습니다.
 
-현재 기준으로 `npm run build`가 성공해야 배포 가능한 상태로 봅니다. 기능 변경 후에는 변경 범위에 따라 `npm test`, `npm run lint`, `npm run test:e2e`를 추가로 실행하는 것을 권장합니다.
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+## 개선 예정
+
+- 실제 사용자 행동 기반 추천 결과 UX 고도화
+- 메시지 화면의 실시간성 강화
+- API error boundary와 공통 empty/error 상태 컴포넌트 추가
+- QA 스크립트의 CI 연동
