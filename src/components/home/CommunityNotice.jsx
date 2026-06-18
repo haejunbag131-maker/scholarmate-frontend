@@ -1,11 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import { FaChevronRight } from "react-icons/fa";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { FaChevronRight, FaHeart, FaRegCommentDots, FaRegEye } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios";
-
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
-import "swiper/swiper-bundle.css";
+import { queryKeys } from "../../shared/queryKeys";
 
 // YYYY.MM.DD
 const formatDate = (iso) => {
@@ -31,121 +29,99 @@ const normalizeList = (raw) => {
   }));
 };
 
-const Stat = ({ icon, value, title }) => (
-  <span className="text-[11px] text-gray-500 flex items-center gap-1" title={title}>
-    <span aria-hidden>{icon}</span>
+const Stat = ({ icon: Icon, value, title }) => (
+  <span className="text-xs text-gray-600 flex items-center gap-1" title={title}>
+    <Icon className="h-3.5 w-3.5 text-gray-500" aria-hidden="true" />
     {value}
   </span>
 );
 
+const PreviewSkeleton = ({ rows = 4 }) => (
+  <>
+    <div className="mb-3 min-h-[76px] p-3 rounded-md bg-gray-50 border border-gray-100">
+      <div className="h-5 w-3/4 bg-gray-100 rounded animate-pulse" />
+      <div className="mt-3 h-4 w-1/2 bg-gray-100 rounded animate-pulse" />
+    </div>
+    <div className="border-t border-gray-200 my-2" />
+    <ul className="list-none p-0">
+      {Array.from({ length: rows }).map((_, index) => (
+        <li key={index} className="py-3 border-b border-[#eee] last:border-b-0">
+          <div className="h-5 w-3/4 bg-gray-100 rounded animate-pulse" />
+        </li>
+      ))}
+    </ul>
+  </>
+);
+
+async function fetchCommunityLatest() {
+  const res = await axios.get("/community/posts/", {
+    params: { page_size: 10, ordering: "-created_at" },
+  });
+  const items = normalizeList(res.data);
+  if (items.length > 0) return items;
+
+  const fallback = await axios.get("/community/", {
+    params: { page_size: 10, ordering: "-created_at" },
+  });
+  return normalizeList(fallback.data);
+}
+
+async function fetchCommunityPopular() {
+  const res = await axios.get("/community/posts/", { params: { page_size: 20 } });
+  const list = normalizeList(res.data);
+  return (
+    list
+      .map((post) => ({
+        ...post,
+        score: (post.view_count || 0) + (post.like_count || 0) * 2,
+      }))
+      .sort((a, b) => b.score - a.score)[0] ?? null
+  );
+}
+
+async function fetchHomeNotices() {
+  const { data } = await axios.get("/notices/", {
+    params: { page_size: 20, ordering: "-is_pinned,-created_at" },
+  });
+  const items = data?.results ?? [];
+  const pinnedItem = items.find((notice) => notice.is_pinned) ?? null;
+  const latestItems = items
+    .filter((notice) => !notice.is_pinned)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  return { pinnedItem, latestItems };
+}
+
+const getErrorLabel = (error) => error?.response?.status || "FETCH_ERROR";
+const EMPTY_LIST = [];
+const Chevron = () => (
+  <FaChevronRight className="mr-[8px] text-[#111] shrink-0" aria-hidden="true" />
+);
+
 const CommunityNotice = () => {
-  const [communityItems, setCommunityItems] = useState([]);
-  const [communityLoading, setCommunityLoading] = useState(true);
-  const [communityError, setCommunityError] = useState(null);
+  const communityQuery = useQuery({
+    queryKey: queryKeys.home.communityLatest,
+    queryFn: fetchCommunityLatest,
+  });
+  const popularQuery = useQuery({
+    queryKey: queryKeys.home.communityPopular,
+    queryFn: fetchCommunityPopular,
+  });
+  const noticeQuery = useQuery({
+    queryKey: queryKeys.home.notices,
+    queryFn: fetchHomeNotices,
+  });
 
-  const [popularItem, setPopularItem] = useState(null);
-  const [popularLoading, setPopularLoading] = useState(true);
+  const communityItems = communityQuery.data ?? EMPTY_LIST;
+  const popularItem = popularQuery.data ?? null;
+  const pinnedItem = noticeQuery.data?.pinnedItem ?? null;
+  const latestItems = noticeQuery.data?.latestItems ?? EMPTY_LIST;
+  const communityLoading = communityQuery.isPending;
+  const popularLoading = popularQuery.isPending;
+  const noticeLoading = noticeQuery.isPending;
+  const communityError = communityQuery.isError ? getErrorLabel(communityQuery.error) : null;
+  const noticeError = noticeQuery.isError ? getErrorLabel(noticeQuery.error) : null;
 
-  const [pinnedItem, setPinnedItem] = useState(null);
-  const [latestItems, setLatestItems] = useState([]);
-  const [noticeLoading, setNoticeLoading] = useState(true);
-  const [noticeError, setNoticeError] = useState(null);
-
-  // 최신 글
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        setCommunityLoading(true);
-        setCommunityError(null);
-        let res = await axios.get("/community/posts/", {
-          params: { page_size: 10, ordering: "-created_at" },
-        });
-        let items = normalizeList(res.data);
-        if (items.length === 0) {
-          try {
-            res = await axios.get("/community/", {
-              params: { page_size: 10, ordering: "-created_at" },
-            });
-            items = normalizeList(res.data);
-          } catch (e2) {
-            if (alive) setCommunityError(e2?.response?.status || "FETCH_ERROR");
-          }
-        }
-        if (!alive) return;
-        setCommunityItems(items);
-      } catch (e) {
-        if (!alive) return;
-        setCommunityError(e?.response?.status || "FETCH_ERROR");
-        setCommunityItems([]);
-      } finally {
-        if (alive) setCommunityLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  // 인기글
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        setPopularLoading(true);
-        const res = await axios.get("/community/posts/", { params: { page_size: 20 } });
-        const list = normalizeList(res.data);
-        const best = list
-          .map((p) => ({
-            ...p,
-            score: (p.view_count || 0) * 1 + (p.like_count || 0) * 2,
-          }))
-          .sort((a, b) => b.score - a.score)[0];
-        if (alive) setPopularItem(best || null);
-      } catch {
-        if (alive) setPopularItem(null);
-      } finally {
-        if (alive) setPopularLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  // 공지사항
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        setNoticeLoading(true);
-        setNoticeError(null);
-        const { data } = await axios.get("/notices/", {
-          params: { page_size: 20, ordering: "-is_pinned,-created_at" },
-        });
-        if (!alive) return;
-        const items = data?.results ?? [];
-        const pinned = items.find((n) => n.is_pinned) ?? null;
-        const others = items
-          .filter((n) => !n.is_pinned)
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        setPinnedItem(pinned);
-        setLatestItems(others);
-      } catch (e) {
-        if (!alive) return;
-        setPinnedItem(null);
-        setLatestItems([]);
-        setNoticeError(e?.response?.status || "FETCH_ERROR");
-      } finally {
-        if (alive) setNoticeLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  // 모바일 / 데스크탑 글 개수 제한
   const communityLatestForRender = useMemo(() => {
     const base = [...communityItems];
     const filtered = popularItem ? base.filter((p) => p.id !== popularItem.id) : base;
@@ -164,20 +140,9 @@ const CommunityNotice = () => {
 
   return (
     <div className="mx-auto mt-[40px] mb-[60px] w-full px-4 sm:px-6 lg:w-[80%] lg:max-w-[1200px]">
-      <Swiper
-        spaceBetween={16}
-        slidesPerView={1}
-        pagination={{ clickable: true }}
-        autoplay={{ delay: 4000, disableOnInteraction: false }}
-        modules={[Pagination, Autoplay]}
-        breakpoints={{
-          640: { slidesPerView: 2, spaceBetween: 20 },
-        }}
-        className="community-swiper"
-      >
+      <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:gap-5 sm:px-6 min-[769px]:mx-0 min-[769px]:grid min-[769px]:grid-cols-2 min-[769px]:overflow-visible min-[769px]:px-0 min-[769px]:pb-0">
         {/* 커뮤니티 */}
-        <SwiperSlide>
-          <div className="bg-white p-3 sm:p-6 rounded-[12px] border border-gray-300 shadow hover:-translate-y-1 transition-transform max-w-[90%] sm:max-w-full mx-auto">
+        <div className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 min-[769px]:w-full min-[769px]:min-w-0">
             <div className="flex justify-between items-center mb-3 pb-2 border-b-2 border-gray-300">
               <h3 className="text-base sm:text-lg md:text-[1.2rem] font-bold text-gray-900">
                 커뮤니티
@@ -193,7 +158,7 @@ const CommunityNotice = () => {
                 <div className="mb-3 p-3 rounded-md bg-blue-50 border border-blue-200">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div className="flex items-center min-w-0">
-                      <FaChevronRight className="mr-[8px] text-[#111] shrink-0" />
+                      <Chevron />
                       <Link
                         to={`/community/${popularItem.id}`}
                         className="text-sm font-medium text-[#333] hover:underline truncate"
@@ -205,12 +170,12 @@ const CommunityNotice = () => {
                         <span className="truncate">{popularItem.title}</span>
                       </Link>
                     </div>
-                    <div className="flex items-center gap-2 sm:gap-3 shrink-0 text-[11px]">
-                      <Stat icon="❤️" value={popularItem.like_count} title="좋아요" />
-                      <Stat icon="💬" value={popularItem.comment_count} title="댓글" />
-                      <Stat icon="👁" value={popularItem.view_count} title="조회수" />
-                      <span className="text-[11px] text-gray-500">{formatDate(popularItem.created_at)}</span>
-                      <span className="text-[11px] px-2 py-0.5 rounded-full text-black-800 border border-blue-200">
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0 text-xs">
+                      <Stat icon={FaHeart} value={popularItem.like_count} title="좋아요" />
+                      <Stat icon={FaRegCommentDots} value={popularItem.comment_count} title="댓글" />
+                      <Stat icon={FaRegEye} value={popularItem.view_count} title="조회수" />
+                      <span className="text-xs text-gray-600">{formatDate(popularItem.created_at)}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full text-gray-900 border border-blue-200">
                         인기
                       </span>
                     </div>
@@ -221,14 +186,8 @@ const CommunityNotice = () => {
             )}
 
             {/* 최신글 */}
-            {communityLoading ? (
-              <ul className="list-none p-0">
-                {[...Array(5)].map((_, i) => (
-                  <li key={i} className="py-3 border-b border-[#eee]">
-                    <div className="h-5 w-3/4 bg-gray-100 rounded animate-pulse" />
-                  </li>
-                ))}
-              </ul>
+            {communityLoading || popularLoading ? (
+              <PreviewSkeleton />
             ) : communityError ? (
               <div className="text-sm text-red-600 py-3">
                 프리뷰를 불러오지 못했어요. (에러: {String(communityError)})
@@ -243,7 +202,7 @@ const CommunityNotice = () => {
                     className="text-sm text-[#333] flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-b border-[#eee] hover:text-[#007bff] transition-colors last:border-b-0"
                   >
                     <div className="flex items-center min-w-0">
-                      <FaChevronRight className="mr-[8px] text-[#111]" />
+                      <Chevron />
                       <Link
                         to={`/community/${post.id}`}
                         className="text-[#333] hover:underline truncate"
@@ -255,22 +214,20 @@ const CommunityNotice = () => {
                         <span className="truncate">{post.title}</span>
                       </Link>
                     </div>
-                    <div className="flex items-center gap-2 sm:gap-3 shrink-0 mt-2 sm:mt-0 text-[11px]">
-                      <Stat icon="❤️" value={post.like_count} title="좋아요" />
-                      <Stat icon="💬" value={post.comment_count} title="댓글" />
-                      <Stat icon="👁" value={post.view_count} title="조회수" />
-                      <span className="text-[11px] text-gray-500">{formatDate(post.created_at)}</span>
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0 mt-2 sm:mt-0 text-xs">
+                      <Stat icon={FaHeart} value={post.like_count} title="좋아요" />
+                      <Stat icon={FaRegCommentDots} value={post.comment_count} title="댓글" />
+                      <Stat icon={FaRegEye} value={post.view_count} title="조회수" />
+                      <span className="text-xs text-gray-600">{formatDate(post.created_at)}</span>
                     </div>
                   </li>
                 ))}
               </ul>
             )}
-          </div>
-        </SwiperSlide>
+        </div>
 
         {/* 공지사항 */}
-        <SwiperSlide>
-          <div className="bg-white p-3 sm:p-6 rounded-[12px] border border-gray-300 shadow hover:-translate-y-1 transition-transform max-w-[90%] sm:max-w-full mx-auto">
+        <div className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 min-[769px]:w-full min-[769px]:min-w-0">
             <div className="flex justify-between items-center mb-3 pb-2 border-b-2 border-gray-300">
               <h3 className="text-base sm:text-lg md:text-[1.2rem] font-bold text-gray-900">
                 공지사항
@@ -280,13 +237,7 @@ const CommunityNotice = () => {
               </Link>
             </div>
             {noticeLoading ? (
-              <ul className="list-none p-0">
-                {[...Array(5)].map((_, i) => (
-                  <li key={i} className="py-3 border-b border-[#eee]">
-                    <div className="h-5 w-3/4 bg-gray-100 rounded animate-pulse" />
-                  </li>
-                ))}
-              </ul>
+              <PreviewSkeleton />
             ) : noticeError ? (
               <div className="text-sm text-red-600 py-3">
                 공지사항을 불러오지 못했어요. (에러: {String(noticeError)})
@@ -297,7 +248,7 @@ const CommunityNotice = () => {
                   <div className="mb-3 p-3 rounded-md bg-blue-50 border border-blue-200">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="flex items-center min-w-0">
-                        <FaChevronRight className="mr-[8px] text-[#111] shrink-0" />
+                        <Chevron />
                         <Link
                           to={`/notice/${pinnedItem.id}`}
                           className="text-sm font-medium text-[#333] hover:underline truncate"
@@ -306,9 +257,9 @@ const CommunityNotice = () => {
                           {pinnedItem.title}
                         </Link>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0 text-[11px]">
-                        <span className="text-[11px] text-gray-500">{formatDate(pinnedItem.created_at)}</span>
-                        <span className="text-[11px] px-2 py-0.5 rounded-full text-black-800 border border-blue-200">
+                      <div className="flex items-center gap-2 shrink-0 text-xs">
+                        <span className="text-xs text-gray-600">{formatDate(pinnedItem.created_at)}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full text-gray-900 border border-blue-200">
                           고정
                         </span>
                       </div>
@@ -323,7 +274,7 @@ const CommunityNotice = () => {
                       className="text-sm text-[#333] flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-b border-[#eee] hover:text-[#007bff] transition-colors last:border-b-0"
                     >
                       <div className="flex items-center min-w-0">
-                        <FaChevronRight className="mr-[8px] text-[#111]" />
+                        <Chevron />
                         <Link
                           to={`/notice/${n.id}`}
                           className="text-[#333] hover:underline truncate"
@@ -332,7 +283,7 @@ const CommunityNotice = () => {
                           {n.title}
                         </Link>
                       </div>
-                      <span className="text-[11px] text-gray-500 mt-1 sm:mt-0 ml-0 sm:ml-2 shrink-0">
+                      <span className="text-xs text-gray-600 mt-1 sm:mt-0 ml-0 sm:ml-2 shrink-0">
                         {formatDate(n.created_at)}
                       </span>
                     </li>
@@ -343,9 +294,8 @@ const CommunityNotice = () => {
                 </ul>
               </>
             )}
-          </div>
-        </SwiperSlide>
-      </Swiper>
+        </div>
+      </div>
     </div>
   );
 };

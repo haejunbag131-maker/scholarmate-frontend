@@ -1,12 +1,17 @@
 // src/components/Header.jsx
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { FaBars, FaTimes } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
-import logo from "../assets/img/로고.png";
+import logo from "../assets/img/logo-header.webp";
+import { logoutSucceeded, selectIsLoggedIn } from "../features/auth/authSlice";
 import HeaderMessagesIcon from "./HeaderMessagesIcon";
 
-export default function Header({ isLoggedIn, setIsLoggedIn }) {
+export default function Header() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector(selectIsLoggedIn);
   const navigate = useNavigate();
 
   const itemCls =
@@ -26,7 +31,7 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
-    setIsLoggedIn(false);
+    dispatch(logoutSucceeded());
     navigate("/");
   };
 
@@ -42,7 +47,13 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
         {/* 왼쪽 */}
         <div className="flex min-w-0 flex-1 items-center lg:flex-none">
           <Link to="/" className="flex min-w-0 items-center" aria-label="ScholarMate 홈">
-            <img src={logo} alt="ScholarMate" className="logo h-12 w-auto sm:h-14" />
+            <img
+              src={logo}
+              alt="ScholarMate"
+              width="168"
+              height="112"
+              className="logo h-12 w-auto sm:h-14"
+            />
           </Link>
         </div>
 
@@ -61,15 +72,15 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
 
           {isLoggedIn ? (
             <>
-              <button className="hidden px-3 py-1 bg-black text-white rounded text-xs sm:text-sm lg:inline-flex lg:text-base hover:bg-gray-800 transition" onClick={() => navigate("/profile")}>
+              <button className="header-action-btn header-action-btn--primary hidden text-xs sm:text-sm lg:inline-flex lg:text-base" onClick={() => navigate("/profile")}>
                 마이페이지
               </button>
-              <button className="hidden px-3 py-1 bg-white border border-gray-400 rounded text-xs sm:text-sm lg:inline-flex lg:text-base hover:bg-gray-100 transition" onClick={handleLogout}>
+              <button className="header-action-btn hidden text-xs sm:text-sm lg:inline-flex lg:text-base" onClick={handleLogout}>
                 로그아웃
               </button>
             </>
           ) : (
-            <button className="hidden px-3 py-1 bg-black text-white rounded text-xs sm:text-sm lg:inline-flex lg:text-base hover:bg-gray-800 transition" onClick={() => navigate("/login")}>
+            <button className="header-action-btn header-action-btn--primary hidden text-xs sm:text-sm lg:inline-flex lg:text-base" onClick={() => navigate("/login")}>
               로그인
             </button>
           )}
@@ -83,7 +94,7 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
             aria-expanded={sidebarOpen}
             onClick={() => setSidebarOpen((v) => !v)}
           >
-            ☰
+            <FaBars aria-hidden="true" />
           </button>
         </div>
       </header>
@@ -93,7 +104,14 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
         <nav className="drawer-panel" onClick={(e) => e.stopPropagation()}>
           <div className="drawer-head flex justify-between items-center p-4 border-b">
             <strong>메뉴</strong>
-            <button className="drawer-close text-2xl" onClick={() => setSidebarOpen(false)}>×</button>
+            <button
+              type="button"
+              className="drawer-close text-2xl"
+              onClick={() => setSidebarOpen(false)}
+              aria-label="메뉴 닫기"
+            >
+              <FaTimes aria-hidden="true" />
+            </button>
           </div>
 
           <div className="drawer-links p-2">
@@ -109,15 +127,15 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
           <div className="drawer-actions p-4 border-t">
             {isLoggedIn ? (
               <>
-                <button className="drawer-btn primary w-full mb-2" onClick={() => { setSidebarOpen(false); navigate("/profile"); }}>
+                <button className="drawer-btn primary header-action-btn--primary w-full mb-2" onClick={() => { setSidebarOpen(false); navigate("/profile"); }}>
                   마이페이지
                 </button>
-                <button className="drawer-btn w-full" onClick={() => { setSidebarOpen(false); handleLogout(); }}>
+                <button className="drawer-btn header-action-btn--secondary w-full" onClick={() => { setSidebarOpen(false); handleLogout(); }}>
                   로그아웃
                 </button>
               </>
             ) : (
-              <button className="drawer-btn primary w-full" onClick={handleLoginClick}>
+              <button className="drawer-btn primary header-action-btn--primary w-full" onClick={handleLoginClick}>
                 로그인
               </button>
             )}

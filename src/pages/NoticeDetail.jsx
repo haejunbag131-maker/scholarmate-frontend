@@ -1,51 +1,63 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { fetchNotice, updateNotice, deleteNotice } from "../api/notices";
 import { fetchMe } from "../api/user";
+import { queryKeys } from "../shared/queryKeys";
 import { Spin, Empty, Button, Modal, Form, Input as AntInput, Switch, message } from "antd";
 
 export default function NoticeDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(true);
-  const [item, setItem] = useState(null);
-  const [me, setMe] = useState(null);
-
-  // 수정 모달
+  const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [form] = Form.useForm();
+  const hasToken = Boolean(localStorage.getItem("token"));
 
-  // 내 정보 (관리자 여부)
-  useEffect(() => {
-    (async () => {
-      try {
-        const u = await fetchMe();
-        setMe(u);
-      } catch {
-        setMe(null);
-      }
-    })();
-  }, []);
+  const meQuery = useQuery({
+    queryKey: queryKeys.auth.me,
+    queryFn: fetchMe,
+    enabled: hasToken,
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
 
-  // 상세 로드 (view_count 증가)
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await fetchNotice(id);
-      setItem(data);
-    } catch (e) {
-      console.error(e);
-      setItem(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const noticeQuery = useQuery({
+    queryKey: queryKeys.notices.detail(id),
+    queryFn: () => fetchNotice(id),
+    enabled: Boolean(id),
+    staleTime: 30_000,
+  });
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const updateMutation = useMutation({
+    mutationFn: ({ noticeId, values }) => updateNotice(noticeId, values),
+    onSuccess: async () => {
+      message.success("수정되었습니다.");
+      setEditOpen(false);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.notices.detail(id),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.notices.all,
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteNotice,
+    onSuccess: async () => {
+      message.success("삭제되었습니다.");
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.notices.all,
+      });
+      navigate("/notice");
+    },
+  });
+
+  const item = noticeQuery.data ?? null;
+  const me = meQuery.data ?? null;
+  const loading = noticeQuery.isPending;
+  const saving = updateMutation.isPending;
 
   const openEdit = () => {
     if (!item) return;
@@ -62,19 +74,13 @@ export default function NoticeDetail() {
   const submitEdit = async () => {
     try {
       const values = await form.validateFields();
-      setSaving(true);
-      await updateNotice(item.id, values);
-      message.success("수정되었습니다.");
-      setEditOpen(false);
-      load();
+      await updateMutation.mutateAsync({ noticeId: item.id, values });
     } catch (e) {
       if (e?.errorFields) return;
       console.error(e);
       message.error(
         e?.response?.status === 403 ? "권한이 없습니다." : "수정에 실패했습니다."
       );
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -87,9 +93,7 @@ export default function NoticeDetail() {
       cancelText: "취소",
       async onOk() {
         try {
-          await deleteNotice(item.id);
-          message.success("삭제되었습니다.");
-          navigate("/notice");
+          await deleteMutation.mutateAsync(item.id);
         } catch (e) {
           console.error(e);
           message.error("삭제에 실패했습니다.");
@@ -99,8 +103,13 @@ export default function NoticeDetail() {
   };
 
   return (
-    <main className="pt-6 pb-6 w-[min(92vw,900px)] mx-auto">
-      <Link className="text-[#0B2D6B] underline" to="/notice">← 목록으로</Link>
+    <div className="mx-auto w-[min(calc(100vw-32px),900px)] pt-6 pb-6">
+      <Link
+        className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-[#0B2D6B] transition-colors hover:bg-blue-100"
+        to="/notice"
+      >
+        ← 목록으로
+      </Link>
 
       {loading ? (
         <div className="py-16 flex justify-center"><Spin /></div>
@@ -116,7 +125,6 @@ export default function NoticeDetail() {
               <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900">{item.title}</h1>
             </div>
 
-            {/* 관리자 액션 */}
             {me?.is_staff && (
               <div className="flex gap-2">
                 <Button
@@ -125,7 +133,7 @@ export default function NoticeDetail() {
                 >
                   수정
                 </Button>
-                <Button danger onClick={doDelete}>삭제</Button>
+                <Button danger loading={deleteMutation.isPending} onClick={doDelete}>삭제</Button>
               </div>
             )}
           </div>
@@ -143,7 +151,6 @@ export default function NoticeDetail() {
         </article>
       )}
 
-      {/* 수정 모달 */}
       <Modal
         title="공지 수정"
         open={editOpen}
@@ -185,6 +192,6 @@ export default function NoticeDetail() {
           </div>
         </Form>
       </Modal>
-    </main>
+    </div>
   );
 }

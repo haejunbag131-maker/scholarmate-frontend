@@ -79,8 +79,8 @@ export default function Register() {
   const canSend = !sending && secondsLeft === 0 && !!form.email.trim();
 
   return (
-    <div className="flex min-h-[calc(100vh-72px)] items-start justify-center bg-gray-50 px-4 py-6 sm:py-8">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg sm:p-10">
+    <div className="flex min-h-[calc(100vh-72px)] items-start justify-center bg-gray-50 px-5 py-6 sm:px-4 sm:py-8">
+      <div className="w-full max-w-md rounded-lg bg-white p-7 shadow-lg sm:p-10">
         <h1 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900 text-center border-b pb-4">
           회원가입
         </h1>

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { message as antdMessage } from "antd";
 import api from "../api/axios";
 
 function EnvelopeIcon({ className = "w-6 h-6" }) {
@@ -21,6 +20,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
   const [preview, setPreview] = useState([]);
   const [open, setOpen] = useState(false);
   const [me, setMe] = useState({ id: null, username: null });
+  const [notice, setNotice] = useState("");
   const timerRef = useRef(null);
   const wrapRef = useRef(null);
   const { pathname } = useLocation();
@@ -150,7 +150,8 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
 
   const handleToggle = () => {
     if (!isLoggedIn) {
-      antdMessage.info("쪽지함은 로그인 후 이용 가능합니다.");
+      setNotice("쪽지함은 로그인 후 이용 가능합니다.");
+      window.setTimeout(() => setNotice(""), 2200);
       return;
     }
     setOpen((v) => !v);
@@ -168,11 +169,21 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
       >
         <EnvelopeIcon />
         {isLoggedIn && count > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 text-[11px] leading-5 text-white bg-red-600 rounded-full text-center">
+          <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 text-xs leading-5 text-white bg-red-600 rounded-full text-center">
             {badgeText}
           </span>
         )}
       </button>
+
+      {notice && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="absolute right-0 top-full z-50 mt-2 w-64 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-900 shadow"
+        >
+          {notice}
+        </div>
+      )}
 
       {open && isLoggedIn && (
         <>
@@ -218,7 +229,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
                     {c.other || "알 수 없음"}
                   </div>
                   <div className="text-xs text-gray-500 truncate">{c.last}</div>
-                  <div className="text-[11px] text-gray-400 mt-0.5">
+                  <div className="text-xs text-gray-500 mt-0.5">
                     {c.at ? new Date(c.at).toLocaleString() : ""}
                   </div>
                 </li>

@@ -1,8 +1,10 @@
 import {
-  FaUserPlus,
-  FaSearch,
-  FaComments,
+  FaChevronDown,
+  FaChevronRight,
   FaClipboardList,
+  FaComments,
+  FaSearch,
+  FaUserPlus,
 } from "react-icons/fa";
 
 export default function HowItWorksSection() {
@@ -43,14 +45,14 @@ export default function HowItWorksSection() {
         </div>
 
         {/* 카드 영역 */}
-        <div className="grid md:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6">
+        <div className="grid gap-x-4 gap-y-10 px-4 sm:gap-x-6 sm:px-6 md:grid-cols-4 md:gap-8">
           {steps.map((step, index) => (
             <div
               key={index}
               className="relative bg-white p-4 sm:p-5 rounded-lg shadow-sm text-center"
             >
               {/* Step 라벨 */}
-              <span className="block text-[11px] sm:text-xs font-semibold text-blue-600 mb-1">
+              <span className="block text-xs font-semibold text-blue-600 mb-1">
                 Step {index + 1}
               </span>
 
@@ -65,21 +67,21 @@ export default function HowItWorksSection() {
               </h3>
 
               {/* 설명 */}
-              <p className="text-[11px] sm:text-sm text-gray-600 leading-snug">
+              <p className="text-xs sm:text-sm text-gray-600 leading-snug">
                 {step.description}
               </p>
 
               {/* 데스크탑: 오른쪽 화살표 */}
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2">
-                  <i className="fas fa-chevron-right text-gray-400 text-base"></i>
+                <div className="absolute top-1/2 -right-8 hidden h-8 w-8 -translate-y-1/2 items-center justify-center text-gray-400 md:flex">
+                  <FaChevronRight className="text-sm" aria-hidden="true" />
                 </div>
               )}
 
               {/* 모바일: 아래쪽 화살표 */}
               {index < steps.length - 1 && (
-                <div className="block md:hidden mt-2">
-                  <i className="fas fa-chevron-down text-gray-400 text-base"></i>
+                <div className="absolute -bottom-8 left-1/2 flex h-6 w-6 -translate-x-1/2 items-center justify-center text-gray-400 md:hidden">
+                  <FaChevronDown className="text-gray-400 text-base" aria-hidden="true" />
                 </div>
               )}
             </div>

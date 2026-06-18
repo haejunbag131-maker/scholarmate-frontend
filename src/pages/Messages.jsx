@@ -219,7 +219,7 @@ export default function Messages() {
   const isMine = (m) => m.__mine ?? isMineMessage(m);
 
   return (
-    <main className="pt-6 pb-20 w-[min(92vw,800px)] mx-auto">
+    <div className="mx-auto w-[min(calc(100vw-32px),800px)] pt-6 pb-20">
       <Card
         title={
           <div className="flex items-center gap-2">
@@ -277,7 +277,7 @@ export default function Messages() {
                       {m.content ?? ""}
                     </div>
                     {mine && (
-                      <div className="mt-1 text-[11px] text-gray-400 flex justify-end">
+                      <div className="mt-1 text-xs text-gray-500 flex justify-end">
                         {m.is_read ? "✓ 읽음" : "✓ 전송됨"}
                       </div>
                     )}
@@ -308,6 +308,6 @@ export default function Messages() {
           </Button>
         </div>
       </Card>
-    </main>
+    </div>
   );
 }
