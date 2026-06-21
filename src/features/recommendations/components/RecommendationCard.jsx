@@ -1,4 +1,5 @@
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import Button from "../../../shared/components/Button";
 import { getScholarshipUrl } from "../../../shared/utils/urls";
 
 export default function RecommendationCard({
@@ -15,7 +16,7 @@ export default function RecommendationCard({
     <article className="w-full bg-white border border-gray-200 rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h3 className="text-lg sm:text-2xl font-bold text-blue-700 mb-1 sm:mb-2">
+          <h3 className="mb-1 text-lg font-bold text-[var(--color-primary)] sm:mb-2 sm:text-2xl">
             {scholarship.name}
           </h3>
           <p className="text-gray-700 text-sm sm:text-base">
@@ -28,36 +29,43 @@ export default function RecommendationCard({
         </div>
 
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3 w-full md:w-auto">
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
+            fullWidth
             onClick={() => onOpenReason(scholarship)}
-            className="w-full md:w-auto px-3 py-2 text-sm bg-white rounded-md border hover:bg-gray-50 text-center"
+            className="md:w-auto"
           >
             선별 이유
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="subtle"
+            size="sm"
+            fullWidth
             onClick={() => onOpenDetail(scholarship)}
-            className="w-full md:w-auto px-3 py-2 text-sm bg-gray-100 rounded-md border hover:bg-gray-200 text-center"
+            className="md:w-auto"
           >
-            상세보기
-          </button>
+            상세 보기
+          </Button>
 
           {homepage ? (
-            <a
+            <Button
+              as="a"
               href={homepage}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full md:w-auto px-3 py-2 text-sm bg-sky-500 text-white rounded-md hover:bg-sky-600 hover:text-white text-center"
+              variant="primary"
+              size="sm"
+              fullWidth
+              className="md:w-auto"
             >
               홈페이지
-            </a>
+            </Button>
           ) : (
-            <button
-              disabled
-              className="w-full md:w-auto px-3 py-2 text-sm bg-gray-300 text-white rounded-md cursor-not-allowed text-center"
-            >
+            <Button disabled size="sm" fullWidth className="md:w-auto">
               홈페이지 없음
-            </button>
+            </Button>
           )}
 
           <button

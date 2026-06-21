@@ -5,6 +5,8 @@ import axios from "../api/axios";
 import FindIdModal from "../features/auth/components/FindIdModal";
 import ResetPwByCodeModal from "../features/auth/components/ResetPwByCodeModal";
 import { loginSucceeded } from "../features/auth/authSlice";
+import PageShell from "../shared/components/PageShell";
+import PageTitle from "../shared/components/PageTitle";
 
 import logo from "../assets/img/로고.png";
 
@@ -33,7 +35,7 @@ export default function Login() {
   const from = location.state?.from || location.state?.fromProtected || "/";
 
   const inputCls =
-    "w-full h-10 sm:h-11 border border-gray-300 rounded-md px-3 sm:px-4 text-sm outline-none focus:border-black focus:ring-2 focus:ring-black/30 bg-white placeholder-gray-400";
+    "w-full h-10 sm:h-11 border border-gray-300 rounded-md px-3 sm:px-4 text-sm outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)] bg-white placeholder-gray-400";
 
   useEffect(() => {
     const saved = localStorage.getItem("autoLogin") === "true";
@@ -153,14 +155,14 @@ export default function Login() {
 
   return (
     <div className="flex w-full flex-col bg-white text-gray-900">
-      <div className="flex items-start justify-center px-5 py-6 sm:px-4 sm:py-8">
+      <PageShell width="narrow" className="flex justify-center">
         <div className="w-full max-w-[520px] rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="px-7 pt-8 pb-6 sm:px-10 sm:pt-10 sm:pb-8">
             <div className="w-full flex flex-col items-center mb-6 sm:mb-8">
               <img src={logo} alt="로고" className="h-20 object-contain sm:h-32 md:h-40" />
             </div>
 
-            <h1 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4 text-center">로그인</h1>
+            <PageTitle>로그인</PageTitle>
 
             {location.state?.from && (
               <p className="text-xs sm:text-sm text-rose-600 mb-2">로그인 후 이용 가능합니다.</p>
@@ -194,7 +196,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-10 sm:h-11 bg-black hover:bg-gray-800 disabled:opacity-60 text-white text-sm sm:text-base font-semibold transition-colors rounded-md"
+                className="w-full h-10 sm:h-11 bg-gray-900 hover:bg-black disabled:opacity-60 text-white text-sm sm:text-base font-semibold transition-colors rounded-md"
               >
                 {loading ? "로그인 중..." : "로그인"}
               </button>
@@ -270,7 +272,7 @@ export default function Login() {
             </form>
           </div>
         </div>
-      </div>
+      </PageShell>
 
       <footer className="py-6 text-xs text-gray-900">
         <div className="mx-auto max-w-5xl px-4">

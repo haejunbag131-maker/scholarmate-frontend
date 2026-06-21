@@ -16,13 +16,13 @@ export default function PostDetailCard({
   return (
     <Card className="mt-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <h1 className="text-xl sm:text-2xl font-bold">
+        <h1 className="page-content-title">
           {post.title || post.scholarship_name}
         </h1>
         <div className="flex flex-wrap gap-2">
           {canSendMessage && (
             <Button
-              className="!bg-black !border-black !text-white hover:!bg-gray-800"
+              className="black-action-button"
               onClick={onStartDM}
             >
               작성자에게 쪽지
@@ -31,7 +31,7 @@ export default function PostDetailCard({
           {canEditPost && (
             <>
               <Button
-                className="!bg-black !border-black !text-white hover:!bg-gray-800"
+                className="brand-action-button"
                 onClick={onOpenEdit}
               >
                 수정
@@ -41,7 +41,7 @@ export default function PostDetailCard({
                 okText="삭제"
                 cancelText="취소"
                 okButtonProps={{
-                  className: "!bg-black !border-black !text-white hover:!bg-gray-800",
+                  danger: true,
                 }}
                 cancelButtonProps={{
                   className: "!border-gray-400 hover:!border-gray-600",

@@ -45,7 +45,7 @@ export default function Header() {
       {/*  헤더  */}
       <header className="header flex flex-wrap justify-between items-center px-4 py-3 bg-white shadow-md sticky top-0 z-50">
         {/* 왼쪽 */}
-        <div className="flex min-w-0 flex-1 items-center lg:flex-none">
+        <div className="flex min-w-0 flex-1 items-center xl:flex-none">
           <Link to="/" className="flex min-w-0 items-center" aria-label="ScholarMate 홈">
             <img
               src={logo}
@@ -58,7 +58,7 @@ export default function Header() {
         </div>
 
         {/* 네비게이션 */}
-        <nav className="nav hidden flex-1 min-w-0 gap-2 text-base lg:flex lg:flex-wrap lg:justify-center">
+        <nav className="nav hidden flex-1 min-w-0 gap-2 text-base xl:flex xl:flex-wrap xl:justify-center">
           <Link to="/scholarships" className="nav-btn">전체 장학금</Link>
           <Link to="/recommendation" className="nav-btn">추천 장학금</Link>
           <Link to="/interest" className="nav-btn">관심 장학금</Link>
@@ -72,15 +72,15 @@ export default function Header() {
 
           {isLoggedIn ? (
             <>
-              <button className="header-action-btn header-action-btn--primary hidden text-xs sm:text-sm lg:inline-flex lg:text-base" onClick={() => navigate("/profile")}>
+              <button className="header-action-btn header-action-btn--primary hidden text-xs sm:text-sm xl:inline-flex xl:text-base" onClick={() => navigate("/profile")}>
                 마이페이지
               </button>
-              <button className="header-action-btn hidden text-xs sm:text-sm lg:inline-flex lg:text-base" onClick={handleLogout}>
+              <button className="header-action-btn hidden text-xs sm:text-sm xl:inline-flex xl:text-base" onClick={handleLogout}>
                 로그아웃
               </button>
             </>
           ) : (
-            <button className="header-action-btn header-action-btn--primary hidden text-xs sm:text-sm lg:inline-flex lg:text-base" onClick={() => navigate("/login")}>
+            <button className="header-action-btn header-action-btn--primary hidden text-xs sm:text-sm xl:inline-flex xl:text-base" onClick={() => navigate("/login")}>
               로그인
             </button>
           )}

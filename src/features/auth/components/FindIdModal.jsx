@@ -44,7 +44,7 @@ export default function FindIdModal({
           type="button"
           onClick={sendIdCode}
           disabled={idSubmitting}
-          className="h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-black text-white text-xs sm:text-sm hover:bg-gray-800 disabled:opacity-60"
+          className="h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-[var(--color-primary)] text-white text-xs sm:text-sm hover:bg-[var(--color-secondary)] disabled:opacity-60"
         >
           {idSubmitting ? "전송 중..." : "인증코드 보내기"}
         </button>
@@ -79,7 +79,7 @@ export default function FindIdModal({
           type="button"
           onClick={revealUsernames}
           disabled={idSubmitting || !idVerified}
-          className="h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-gray-900 text-white text-xs sm:text-sm hover:bg-gray-800 disabled:opacity-60"
+          className="h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-[var(--color-primary)] text-white text-xs sm:text-sm hover:bg-[var(--color-secondary)] disabled:opacity-60"
         >
           {idSubmitting ? "조회 중..." : "아이디 보기"}
         </button>

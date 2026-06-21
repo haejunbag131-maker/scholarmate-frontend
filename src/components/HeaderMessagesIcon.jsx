@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { selectIsLoggedIn } from "../features/auth/authSlice";
 
 function EnvelopeIcon({ className = "w-6 h-6" }) {
   return (
@@ -15,6 +17,18 @@ function EnvelopeIcon({ className = "w-6 h-6" }) {
   );
 }
 
+const FORM_CONTROL_SELECTOR =
+  "select, input, textarea, [contenteditable='true'], [data-user-info-select]";
+
+const isFormControlActive = () => {
+  if (typeof document === "undefined") return false;
+  const activeElement = document.activeElement;
+  return Boolean(activeElement?.closest?.(FORM_CONTROL_SELECTOR));
+};
+
+const isFormControlEvent = (event) =>
+  Boolean(event.target?.closest?.(FORM_CONTROL_SELECTOR));
+
 export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
   const [count, setCount] = useState(0);
   const [preview, setPreview] = useState([]);
@@ -25,8 +39,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
   const wrapRef = useRef(null);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-
-  const isLoggedIn = !!localStorage.getItem("token");
+  const isLoggedIn = useSelector(selectIsLoggedIn);
 
   // 현재 로그인 사용자 정보
   useEffect(() => {
@@ -36,7 +49,9 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
     }
     (async () => {
       try {
-        const { data } = await api.get("/auth/users/me/");
+        const { data } = await api.get("/auth/users/me/", {
+          skipAuthRedirect: true,
+        });
         setMe({ id: data?.id ?? null, username: data?.username ?? null });
       } catch {
         try {
@@ -56,6 +71,8 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
   }, [isLoggedIn]);
 
   const sync = useCallback(async () => {
+    if (isFormControlActive()) return;
+
     if (!isLoggedIn) {
       setCount(0);
       setPreview([]);
@@ -65,6 +82,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
     try {
       const { data } = await api.get("/community/conversations/", {
         params: { page_size: 10, ordering: "-updated_at" },
+        skipAuthRedirect: true,
       });
       const list = Array.isArray(data) ? data : data?.results ?? [];
       const unread = list.reduce(
@@ -134,6 +152,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
   useEffect(() => {
     if (!open) return;
     const handlePointerDown = (e) => {
+      if (isFormControlEvent(e)) return;
       const el = wrapRef.current;
       if (el && !el.contains(e.target)) setOpen(false);
     };
@@ -164,7 +183,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
       <button
         type="button"
         onClick={handleToggle}
-        className="relative p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="relative p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         aria-label={`쪽지함${isLoggedIn ? `(미읽음 ${count}개)` : ""}`}
       >
         <EnvelopeIcon />
@@ -179,7 +198,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
         <div
           role="status"
           aria-live="polite"
-          className="absolute right-0 top-full z-50 mt-2 w-64 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-900 shadow"
+          className="absolute right-0 top-full z-50 mt-2 w-64 rounded-lg border border-[color-mix(in_srgb,var(--color-primary)_25%,#fff)] bg-[color-mix(in_srgb,var(--color-primary)_10%,#fff)] px-3 py-2 text-sm text-[var(--color-secondary)] shadow"
         >
           {notice}
         </div>
@@ -204,7 +223,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
               <span className="text-sm font-medium">최근 쪽지</span>
               <button
                 onClick={() => setOpen(false)}
-                className="text-xs text-white hover:text-gray-200 bg-black px-2 py-1 rounded"
+                className="rounded bg-[#111827] px-2 py-1 text-xs text-white hover:bg-[#020617] hover:text-white"
               >
                 닫기
               </button>
@@ -240,7 +259,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
               <Link
                 to="/messages"
                 onClick={() => setOpen(false)}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-[var(--color-primary)] hover:underline"
               >
                 모두 보기
               </Link>

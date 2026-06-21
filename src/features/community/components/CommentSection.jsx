@@ -76,7 +76,7 @@ export default function CommentSection({
         <Button
           onClick={onSubmitComment}
           loading={sending}
-          className="self-end sm:self-auto !bg-black !border-black !text-white hover:!bg-gray-800"
+          className="black-action-button self-end sm:self-stretch sm:!h-auto sm:min-w-[76px]"
         >
           등록
         </Button>

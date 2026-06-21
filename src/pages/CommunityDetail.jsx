@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { fetchMe } from "../api/user";
+import PageShell from "../shared/components/PageShell";
+import LoadingState from "../shared/components/LoadingState";
 
-import { message, Spin, Empty } from "antd";
+import { message, Empty } from "antd";
 
 import {
   getPost,
@@ -275,18 +277,20 @@ export default function CommunityDetail() {
   };
 
   return (
-    <div className="mx-auto w-[min(calc(100vw-32px),900px)] pt-6 pb-6">
+    <PageShell width="narrow">
       <Link
-        className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-[#0B2D6B] transition-colors hover:bg-blue-100"
+        className="inline-flex items-center rounded-full border border-[color-mix(in_srgb,var(--color-primary)_25%,#fff)] bg-[color-mix(in_srgb,var(--color-primary)_10%,#fff)] px-3 py-1.5 text-sm font-semibold text-[var(--color-secondary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_16%,#fff)]"
         to="/community"
       >
         ← 목록으로
       </Link>
 
       {loading ? (
-        <div className="mt-6 flex justify-center py-16">
-          <Spin />
-        </div>
+        <LoadingState
+          className="mt-6"
+          message="게시글을 불러오는 중..."
+          minHeight="220px"
+        />
       ) : !post ? (
         <div className="mt-6">
           <Empty description="글을 찾을 수 없습니다." />
@@ -334,6 +338,6 @@ export default function CommunityDetail() {
           />
         </>
       )}
-    </div>
+    </PageShell>
   );
 }

@@ -1,73 +1,155 @@
 import { Link } from "react-router-dom";
+import {
+  FaBell,
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaClipboardList,
+  FaHeart,
+  FaSearch,
+  FaUserGraduate,
+} from "react-icons/fa";
+import PageShell from "../shared/components/PageShell";
+
+const featureItems = [
+  {
+    icon: FaSearch,
+    title: "장학금 탐색",
+    text: "전체 장학금에서 모집 기간, 유형, 재단 정보를 빠르게 훑고 필요한 공고만 확인합니다.",
+  },
+  {
+    icon: FaUserGraduate,
+    title: "맞춤 추천",
+    text: "학교, 지역, 소득 분위, 성적 정보를 바탕으로 조건에 맞는 장학금을 우선 정리합니다.",
+  },
+  {
+    icon: FaHeart,
+    title: "관심 장학금",
+    text: "지원할 가능성이 있는 장학금을 저장하고 나중에 다시 비교할 수 있습니다.",
+  },
+  {
+    icon: FaCalendarAlt,
+    title: "마감 캘린더",
+    text: "관심 장학금의 마감일과 제출 상태를 달력에서 함께 관리합니다.",
+  },
+];
+
+const workflowItems = [
+  "나의 장학 정보를 입력합니다.",
+  "전체 장학금과 추천 장학금을 비교합니다.",
+  "관심 장학금으로 저장하고 마감일을 확인합니다.",
+  "커뮤니티와 쪽지로 준비 경험을 공유합니다.",
+];
 
 export default function Introduction() {
   return (
-    <div className="px-5 py-8 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
-      {/* Hero */}
-      <section className="mx-auto w-full max-w-7xl">
-        <div className="bg-white rounded-2xl shadow-lg p-7 sm:p-10 md:p-16">
-          <h1 className="text-center text-4xl md:text-6xl font-extrabold text-[#0B2D6B]">
-            ScholarMate
-          </h1>
-          <p className="mt-6 text-center text-gray-700 text-xl md:text-2xl leading-relaxed">
-            ScholarMate는 학생들이 장학금 정보를 놓치지 않도록 돕는{" "}
-            <span className="font-semibold">AI 기반 개인 맞춤형 장학금 추천 서비스</span>
-            입니다.
-          </p>
+    <div className="bg-slate-50">
+      <section className="border-b border-slate-200 bg-white">
+        <PageShell className="py-10 sm:py-14">
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div>
+              <p className="mb-3 text-sm font-bold text-[var(--color-primary)]">
+                장학금 준비를 한 화면에서
+              </p>
+              <h1 className="m-0 text-2xl font-black leading-tight text-gray-950 sm:text-3xl lg:text-4xl">
+                ScholarMate는
+                <br />
+                조건 확인부터 마감 관리까지
+                <br />
+                이어지는 장학금 관리 플랫폼입니다.
+              </h1>
+              <p className="mt-5 max-w-3xl text-base leading-8 text-gray-600 sm:text-lg">
+                공고를 찾고, 내 조건과 맞는지 보고, 저장하고, 마감일까지 챙기는 흐름을
+                <br />
+                끊기지 않게 연결했습니다.
+              </p>
+              <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/scholarships"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#111827] px-5 py-3 text-sm font-black text-white hover:bg-[#020617] hover:text-white"
+                >
+                  전체 장학금 보기
+                </Link>
+                <Link
+                  to="/recommendation"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[var(--color-primary)] bg-white px-5 py-3 text-sm font-black text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,#fff)] hover:text-[var(--color-primary)]"
+                >
+                  추천 장학금 확인
+                </Link>
+              </div>
+            </div>
 
-          <ul className="mt-10 grid gap-6 md:grid-cols-3 text-center">
-            <li className="p-5 sm:p-6 rounded-xl border">
-              <h2 className="font-semibold text-[#0B2D6B] text-lg md:text-xl">맞춤 추천</h2>
-              <p className="text-gray-600 mt-3">전공/소득/지역/성적 등을 반영한 추천 로직</p>
-            </li>
-            <li className="p-5 sm:p-6 rounded-xl border">
-              <h2 className="font-semibold text-[#0B2D6B] text-lg md:text-xl">마감 캘린더</h2>
-              <p className="text-gray-600 mt-3">찜한 장학금 마감일/제출서류를 한눈에</p>
-            </li>
-            <li className="p-5 sm:p-6 rounded-xl border">
-              <h2 className="font-semibold text-[#0B2D6B] text-lg md:text-xl">알림</h2>
-              <p className="text-gray-600 mt-3">마감 임박 푸시/메일 알림(추가 예정)</p>
-            </li>
-          </ul>
-
-          <div className="mt-10 flex flex-wrap gap-4 justify-center">
-            <Link
-              to="/scholarships"
-              className="px-6 py-3 rounded-lg bg-[#0B2D6B] text-white font-semibold transition hover:bg-[#092559] hover:text-white"
-            >
-              장학금 보러가기
-            </Link>
-            <Link
-              to="/recommendation"
-              className="px-6 py-3 rounded-lg border border-[#0B2D6B] text-[#0B2D6B] font-semibold transition hover:bg-gray-100 hover:text-[#0B2D6B]"
-            >
-              추천 받기
-            </Link>
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-5 shadow-sm">
+              <div className="grid gap-3">
+                {workflowItems.map((item, index) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-black text-white">
+                      {index + 1}
+                    </span>
+                    <span className="text-sm font-bold text-gray-800">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        </PageShell>
       </section>
 
-      {/* Tech / 로드맵 */}
-      <section className="mx-auto mt-12 grid w-full max-w-7xl gap-6 sm:mt-16 sm:gap-8 md:grid-cols-2">
-        <div className="rounded-2xl border bg-white p-7 sm:p-8 md:p-10">
-          <h2 className="text-xl font-bold text-[#0B2D6B] text-center md:text-left">기술 스택</h2>
-          <ul className="mt-4 text-gray-700 list-disc list-inside space-y-2">
-            <li>Frontend: React (Vite) + Tailwind</li>
-            <li>Backend: Django + DRF + SimpleJWT</li>
-            <li>DB: MySQL</li>
-            <li>Infra: AWS (EC2, Nginx, Gunicorn)</li>
-          </ul>
-        </div>
-        <div className="rounded-2xl border bg-white p-7 sm:p-8 md:p-10">
-          <h2 className="text-xl font-bold text-[#0B2D6B] text-center md:text-left">로드맵</h2>
-          <ol className="mt-4 text-gray-700 list-decimal list-inside space-y-2">
-            <li>장학 데이터 정제 및 일괄 동기화</li>
-            <li>개인화 추천(가중치/룰 → ML 고도화)</li>
-            <li>캘린더/알림 강화</li>
-            <li>접근성/반응형 UI 개선</li>
-          </ol>
-        </div>
-      </section>
+      <PageShell className="py-10 sm:py-12">
+        <section>
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="m-0 text-2xl font-black text-gray-950">핵심 기능</h2>
+              <p className="mt-2 text-sm text-gray-600">
+                장학금 탐색부터 일정 관리까지 실제 지원 흐름에 맞춰 구성했습니다.
+              </p>
+            </div>
+            <div className="inline-flex items-center gap-2 text-sm font-bold text-gray-700">
+              <FaCheckCircle className="text-[var(--color-primary)]" aria-hidden="true" />
+              반복 확인 시간을 줄이는 구조
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {featureItems.map(({ icon: Icon, title, text }) => (
+              <article key={title} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--color-primary)_12%,#fff)] text-[var(--color-primary)]">
+                  <Icon aria-hidden="true" />
+                </div>
+                <h3 className="m-0 text-base font-black text-gray-950">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-gray-600">{text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-10 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center gap-3">
+              <FaClipboardList className="text-[var(--color-primary)]" aria-hidden="true" />
+              <h2 className="m-0 text-xl font-black text-gray-950">관리 기준</h2>
+            </div>
+            <ul className="m-0 space-y-3 p-0 text-sm leading-6 text-gray-700">
+              <li className="list-none">모집 기간과 장학 유형을 먼저 비교합니다.</li>
+              <li className="list-none">나의 조건에 맞는 추천 항목을 따로 확인합니다.</li>
+              <li className="list-none">관심 장학금으로 저장한 뒤 캘린더에서 마감일을 추적합니다.</li>
+            </ul>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center gap-3">
+              <FaBell className="text-[var(--color-primary)]" aria-hidden="true" />
+              <h2 className="m-0 text-xl font-black text-gray-950">지원 준비 흐름</h2>
+            </div>
+            <p className="m-0 text-sm leading-7 text-gray-700">
+              장학금 상세 조건을 확인하고, 제출 서류와 마감일을 캘린더에 연결해 놓으면
+              지원 전 확인해야 할 내용을 한 번에 점검할 수 있습니다.
+            </p>
+          </div>
+        </section>
+      </PageShell>
     </div>
   );
 }

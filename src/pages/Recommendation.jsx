@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
@@ -11,6 +11,9 @@ import RecommendationCard from "../features/recommendations/components/Recommend
 import RecommendationDetailModal from "../features/recommendations/components/RecommendationDetailModal";
 import RecommendationReasonModal from "../features/recommendations/components/RecommendationReasonModal";
 import RecommendationShell from "../features/recommendations/components/RecommendationShell";
+import Button from "../shared/components/Button";
+import PageTitle from "../shared/components/PageTitle";
+import { SkeletonCardGrid } from "../shared/components/Skeleton";
 import useToast from "../shared/hooks/useToast";
 import { queryKeys } from "../shared/queryKeys";
 
@@ -38,7 +41,6 @@ function getRecommendationErrorMessage(error) {
 
 export default function Recommendation() {
   const [visibleCount, setVisibleCount] = useState(5);
-  const [headerPad, setHeaderPad] = useState(96);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [reasonTarget, setReasonTarget] = useState(null);
   const [userName, setUserName] = useState("");
@@ -120,19 +122,6 @@ export default function Recommendation() {
     ? getRecommendationErrorMessage(recommendationsQuery.error)
     : null;
 
-  useLayoutEffect(() => {
-    const updatePad = () => {
-      const header =
-        document.querySelector("header") ||
-        document.querySelector("nav") ||
-        document.querySelector(".site-header");
-      setHeaderPad((header?.offsetHeight || 72) + 16);
-    };
-    updatePad();
-    window.addEventListener("resize", updatePad);
-    return () => window.removeEventListener("resize", updatePad);
-  }, []);
-
   useEffect(() => {
     const storedName = localStorage.getItem("userName");
     if (storedName) setUserName(storedName);
@@ -158,9 +147,11 @@ export default function Recommendation() {
   if (loading) {
     return (
       <RecommendationShell toast={toast}>
-        <div className="text-lg sm:text-xl font-extrabold text-black text-center">
-          추천 장학금을 로딩 중입니다...
-        </div>
+        <SkeletonCardGrid
+          count={3}
+          className="space-y-4 sm:space-y-6"
+          cardClassName="min-h-[180px]"
+        />
       </RecommendationShell>
     );
   }
@@ -170,21 +161,25 @@ export default function Recommendation() {
     return (
       <RecommendationShell toast={toast}>
         {isProfileMissing ? (
-          <div className="mx-auto w-full max-w-2xl rounded-xl bg-white shadow-lg border border-gray-200 p-6 text-center">
-            <div className="mx-auto mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
-              <span className="text-blue-600 text-lg">ℹ️</span>
+          <div className="mx-auto w-full max-w-2xl py-6 text-center">
+            <div
+              className="mx-auto mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full"
+              style={{
+                background: "color-mix(in srgb, var(--color-secondary) 12%, #fff)",
+              }}
+            >
+              <span className="text-lg text-[var(--color-primary)]">ℹ️</span>
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">추천을 보기 전에</h2>
             <p className="text-gray-700">
               맞춤 추천을 위해 <strong>나의 장학 정보</strong>를 먼저 입력해 주세요.
             </p>
             <div className="mt-4 flex justify-center">
-              <button
+              <Button
                 onClick={() => navigate("/userinfor")}
-                className="px-5 py-2.5 rounded-md bg-gray-900 text-white hover:bg-black transition"
               >
                 나의 장학 정보 입력하러 가기
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
@@ -193,12 +188,11 @@ export default function Recommendation() {
               {error}
             </div>
             {error.includes("로그인") && (
-              <button
+              <Button
                 onClick={() => navigate("/login")}
-                className="px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition"
               >
                 로그인하기
-              </button>
+              </Button>
             )}
           </div>
         )}
@@ -218,16 +212,16 @@ export default function Recommendation() {
 
   return (
     <RecommendationShell toast={toast}>
-      <h1 className="text-2xl sm:text-4xl font-extrabold mb-2 sm:mb-3 pb-3 sm:pb-4 border-b-4 border-blue-600 text-gray-900 text-center">
+      <PageTitle accent>
         {userName ? (
           <>
-            <span className="text-blue-600">{userName}</span>
+            <strong>{userName}</strong>
             <span>님의 추천 장학금</span>
           </>
         ) : (
           "추천 장학금"
         )}
-      </h1>
+      </PageTitle>
 
       <p className="flex items-center justify-center gap-2 text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 font-bold">
         <FaStar className="text-yellow-400 text-base sm:text-lg" />
@@ -252,37 +246,26 @@ export default function Recommendation() {
       </div>
 
       <div className="mt-6 flex justify-center">
-        <button
+        <Button
           disabled={atEnd}
           onClick={() =>
             setVisibleCount((count) => Math.min(count + 5, recommendations.length))
           }
-          className={
-            "px-5 py-2.5 rounded-md transition shadow " +
-            (atEnd
-              ? "bg-gray-300 text-white cursor-not-allowed"
-              : "bg-gray-900 text-white hover:bg-black")
-          }
         >
           {atEnd ? "모두 확인했습니다" : "더보기"}
-        </button>
+        </Button>
       </div>
 
       {selectedScholarship && (
         <RecommendationDetailModal
           scholarship={selectedScholarship}
-          favorites={favorites}
-          headerPad={headerPad}
-          isFavoritePending={favoriteMutation.isPending}
           onClose={() => setSelectedScholarship(null)}
-          onToggleFavorite={toggleFavorite}
         />
       )}
 
       {reasonTarget && (
         <RecommendationReasonModal
           scholarship={reasonTarget}
-          headerPad={headerPad}
           onClose={() => setReasonTarget(null)}
         />
       )}

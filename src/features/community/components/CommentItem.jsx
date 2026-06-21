@@ -60,7 +60,7 @@ export default function CommentItem({
               />
               <div className="flex gap-2">
                 <Button
-                  className="!bg-black !border-black !text-white hover:!bg-gray-800"
+                  className="brand-action-button"
                   onClick={onSubmitEdit}
                 >
                   저장
@@ -89,7 +89,7 @@ export default function CommentItem({
                 <Button
                   size="small"
                   type="link"
-                  className="!p-0 !h-auto !text-black"
+                  className="!p-0 !h-auto !text-[var(--color-primary)]"
                   onClick={() => onBeginEdit(comment)}
                 >
                   수정
@@ -99,7 +99,7 @@ export default function CommentItem({
                   okText="삭제"
                   cancelText="취소"
                   okButtonProps={{
-                    className: "!bg-black !border-black !text-white hover:!bg-gray-800",
+                    danger: true,
                   }}
                   cancelButtonProps={{
                     className: "!border-gray-400 hover:!border-gray-600",

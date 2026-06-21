@@ -1,7 +1,11 @@
-import { FaTimes } from "react-icons/fa";
+import Button from "../../../shared/components/Button";
+import DetailRows from "../../../shared/components/DetailRows";
+import Modal from "../../../shared/components/Modal";
 import { getScholarshipUrl } from "../../../shared/utils/urls";
 
 const DETAIL_ROWS = [
+  ["운영기관명", "foundation_name"],
+  ["모집 기간", "recruitment_period"],
   ["성적 기준", "grade_criteria_details"],
   ["소득 기준", "income_criteria_details"],
   ["지원 내용", "support_details"],
@@ -17,41 +21,51 @@ export default function ScholarshipDetailModal({ scholarship, onClose }) {
   if (!scholarship) return null;
 
   const homepageUrl = getScholarshipUrl(scholarship);
+  const getDetailValue = (key) => {
+    if (key === "recruitment_period") {
+      const start = scholarship.recruitment_start || "-";
+      const end = scholarship.recruitment_end || "-";
+      return `${start} ~ ${end}`;
+    }
+    return scholarship[key];
+  };
+
+  const rows = [
+    ...DETAIL_ROWS.map(([label, key]) => ({
+      label,
+      value: getDetailValue(key),
+    })),
+    {
+      label: "추천 필요 여부",
+      value:
+        typeof scholarship.recommendation_required === "boolean"
+          ? scholarship.recommendation_required
+            ? "필요"
+            : "불필요"
+          : "",
+    },
+    {
+      label: "홈페이지",
+      value: homepageUrl ? (
+        <Button
+          as="a"
+          href={homepageUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="primary"
+          size="sm"
+        >
+          홈페이지 이동
+        </Button>
+      ) : (
+        "주소 없음"
+      ),
+    },
+  ];
 
   return (
-    <div className="scholarship-modal-overlay" onClick={onClose}>
-      <div className="scholarship-modal-content" onClick={(event) => event.stopPropagation()}>
-        <button type="button" className="scholarship-modal-close" onClick={onClose}>
-          <FaTimes aria-hidden="true" />
-        </button>
-        <h2>{scholarship.name} 상세 정보</h2>
-        <div className="scholarship-modal-body">
-          {DETAIL_ROWS.map(([label, key]) => (
-            <p key={key}>
-              <strong>{label}:</strong> {scholarship[key] || "정보 없음"}
-            </p>
-          ))}
-          <p>
-            <strong>추천 필요 여부:</strong>{" "}
-            {scholarship.recommendation_required ? "필요" : "불필요"}
-          </p>
-          <p>
-            <strong>홈페이지:</strong>{" "}
-            {homepageUrl ? (
-              <a
-                href={homepageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="scholarship-inline-action"
-              >
-                홈페이지 이동
-              </a>
-            ) : (
-              <span className="text-gray-500">주소 없음</span>
-            )}
-          </p>
-        </div>
-      </div>
-    </div>
+    <Modal title={`${scholarship.name} 상세 정보`} onClose={onClose}>
+      <DetailRows rows={rows} emptyText="정보 없음" />
+    </Modal>
   );
 }

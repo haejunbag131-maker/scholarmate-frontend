@@ -135,7 +135,7 @@ export default function SliderSection() {
               <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4">
                 {slide.title}
               </h2>
-              <p className="text-base md:text-lg lg:text-xl mb-6 leading-relaxed">
+              <p className="text-base md:text-lg lg:text-xl mb-1 leading-relaxed">
                 {slide.desc}
               </p>
               <button

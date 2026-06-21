@@ -52,7 +52,7 @@ export default function HowItWorksSection() {
               className="relative bg-white p-4 sm:p-5 rounded-lg shadow-sm text-center"
             >
               {/* Step 라벨 */}
-              <span className="block text-xs font-semibold text-blue-600 mb-1">
+              <span className="block text-xs font-semibold text-gray-900 mb-1">
                 Step {index + 1}
               </span>
 

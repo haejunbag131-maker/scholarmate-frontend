@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { fetchNotices, createNotice } from "../api/notices";
 import { fetchMe } from "../api/user";
+import PageShell from "../shared/components/PageShell";
+import PageTitle from "../shared/components/PageTitle";
+import SearchBox from "../shared/components/SearchBox";
+import { SkeletonList } from "../shared/components/Skeleton";
 import { queryKeys } from "../shared/queryKeys";
 
 import {
   Pagination,
-  Input,
   Button,
-  Spin,
   Empty,
   Modal,
   Form,
@@ -19,14 +21,13 @@ import {
 } from "antd";
 
 
-const { Search } = Input;
-
 export default function NoticeList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
 
-  const [q, setQ] = useState(searchParams.get("q") || "");
-  const [debouncedQ, setDebouncedQ] = useState(q);
+  const initialQuery = searchParams.get("q") || "";
+  const [q, setQ] = useState(initialQuery);
+  const [searchInput, setSearchInput] = useState(initialQuery);
   const [page, setPage] = useState(Number(searchParams.get("page") || 1));
   const [pageSize, setPageSize] = useState(
     Number(searchParams.get("page_size") || 10)
@@ -45,11 +46,6 @@ export default function NoticeList() {
     setSearchParams(params);
   };
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => setDebouncedQ(q), 250);
-    return () => clearTimeout(timeoutId);
-  }, [q]);
-
   const meQuery = useQuery({
     queryKey: queryKeys.auth.me,
     queryFn: fetchMe,
@@ -59,8 +55,8 @@ export default function NoticeList() {
   });
 
   const noticesQuery = useQuery({
-    queryKey: queryKeys.notices.list({ q: debouncedQ, page, pageSize }),
-    queryFn: () => fetchNotices({ q: debouncedQ, page, pageSize }),
+    queryKey: queryKeys.notices.list({ q, page, pageSize }),
+    queryFn: () => fetchNotices({ q, page, pageSize }),
     placeholderData: (previousData) => previousData,
     staleTime: 30_000,
   });
@@ -85,9 +81,12 @@ export default function NoticeList() {
   const saving = createNoticeMutation.isPending;
 
   const onSearch = (value) => {
-    setQ(value);
+    const nextQuery = value.trim();
+    setSearchInput(value);
+    if (nextQuery === q && page === 1) return;
+    setQ(nextQuery);
     setPage(1);
-    syncQuery({ q: value, page: 1 });
+    syncQuery({ q: nextQuery, page: 1 });
   };
 
   const onChangePage = (p, ps) => {
@@ -129,32 +128,18 @@ export default function NoticeList() {
   };
 
   return (
-    <div className="mx-auto w-[min(calc(100vw-32px),1000px)] pt-6 pb-6">
-      {/* 제목 */}
-      <h1 className="text-3xl font-extrabold text-[#0B2D6B] mb-6 text-center">
-        공지사항
-      </h1>
+    <PageShell width="medium">
+      <PageTitle>공지사항</PageTitle>
 
       {/* 검색 + 총건수 + (관리자) 글쓰기 */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
         <div className="flex-1">
-          <Search
-            placeholder="제목/내용 검색…"
-            allowClear
-            size="large"
-            value={q}
+          <SearchBox
+            value={searchInput}
+            onChange={setSearchInput}
             onSearch={onSearch}
-            onChange={(e) => setQ(e.target.value)}
-            style={{ width: "100%", backgroundColor: "#fff" }}
-            enterButton={
-              <Button
-                type="primary"
-                size="large"
-                style={{ backgroundColor: "#000", borderColor: "#000" }}
-              >
-                검색
-              </Button>
-            }
+            placeholder="제목/내용 검색..."
+            ariaLabel="공지사항 검색"
           />
         </div>
 
@@ -164,7 +149,7 @@ export default function NoticeList() {
             <Button
               type="primary"
               onClick={openCreate}
-              className="!bg-black !border-black !text-white hover:!bg-gray-800"
+              className="black-action-button"
             >
               글쓰기
             </Button>
@@ -174,9 +159,7 @@ export default function NoticeList() {
 
       {/* 목록 */}
       {loading ? (
-        <div className="py-12 flex justify-center">
-          <Spin />
-        </div>
+        <SkeletonList rows={pageSize} className="rounded-lg border border-slate-100 bg-white px-4" />
       ) : noticesQuery.isError ? (
         <div className="py-12">
           <Empty description="공지사항을 불러오지 못했습니다." />
@@ -196,7 +179,7 @@ export default function NoticeList() {
               <Link to={`/notice/${n.id}`} className="block">
                 <div className="flex items-center gap-2 mb-1">
                   {n.is_pinned && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                    <span className="text-xs px-2 py-1 rounded-full bg-[color-mix(in_srgb,var(--color-primary)_14%,#fff)] text-[var(--color-secondary)]">
                       고정
                     </span>
                   )}
@@ -239,7 +222,7 @@ export default function NoticeList() {
         okText="등록"
         destroyOnHidden
         okButtonProps={{
-          className: "!bg-black !border-black !text-white hover:!bg-gray-800",
+          className: "brand-action-button",
         }}
         cancelButtonProps={{
           className: "!border-gray-400 hover:!border-gray-600",
@@ -272,7 +255,7 @@ export default function NoticeList() {
               valuePropName="checked"
               className="mb-0"
             >
-              <Switch className="!border !border-black" />
+              <Switch className="!border !border-[var(--color-primary)]" />
             </Form.Item>
             <Form.Item
               name="is_published"
@@ -280,11 +263,11 @@ export default function NoticeList() {
               valuePropName="checked"
               className="mb-0"
             >
-              <Switch defaultChecked className="!border !border-black" />
+              <Switch defaultChecked className="!border !border-[var(--color-primary)]" />
             </Form.Item>
           </div>
         </Form>
       </Modal>
-    </div>
+    </PageShell>
   );
 }

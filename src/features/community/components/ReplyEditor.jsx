@@ -46,7 +46,7 @@ const ReplyEditor = memo(function ReplyEditor({
       />
       <div className="mt-2 flex gap-2">
         <Button
-          className="!bg-black !border-black !text-white hover:!bg-gray-800"
+          className="black-action-button"
           onClick={submit}
         >
           등록

@@ -34,22 +34,22 @@ export default function CardSection() {
           </p>
         </div>
 
-        {/* 모바일: 슬라이더 */}
-        <div className="sm:hidden -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 no-scrollbar">
+        {/* 1024px 아래: 슬라이더 */}
+        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:px-6 lg:hidden">
           {cards.map((card) => (
-            <div key={card.title} className="min-w-[82%] snap-center">
-              <div className="bg-white p-4 rounded-lg shadow border border-gray-200 text-left">
+            <div key={card.title} className="min-w-[82%] snap-center sm:min-w-[46%] md:min-w-[38%]">
+              <div className="min-w-0 bg-white p-4 rounded-lg shadow border border-gray-200 text-left">
                 <img
                   src={card.image}
                   alt={card.title}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-32 object-cover rounded-lg mb-3 border border-gray-300"
+                  className="w-full h-32 object-cover rounded-lg mb-3 border border-gray-300 sm:h-36"
                 />
-                <h3 className="text-base font-semibold mb-1 text-gray-900">
+                <h3 className="mb-1 truncate text-base font-semibold text-gray-900">
                   {card.title}
                 </h3>
-                <p className="text-xs text-gray-600 leading-snug">
+                <p className="truncate text-xs text-gray-600 leading-snug">
                   {card.description}
                 </p>
               </div>
@@ -57,12 +57,12 @@ export default function CardSection() {
           ))}
         </div>
 
-        {/* 태블릿 이상: 그리드 */}
-        <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 1024px 이상: 그리드 */}
+        <div className="hidden lg:grid lg:grid-cols-3 gap-6">
           {cards.map((card) => (
             <div
               key={card.title}
-              className="bg-white p-4 rounded-lg shadow border border-gray-200 hover:shadow-md transition text-left"
+              className="min-w-0 bg-white p-4 rounded-lg shadow border border-gray-200 hover:shadow-md transition text-left"
             >
               <img
                 src={card.image}
@@ -71,10 +71,10 @@ export default function CardSection() {
                 decoding="async"
                 className="w-full h-40 object-cover rounded-lg mb-3 border border-gray-300"
               />
-              <h3 className="text-base font-semibold mb-1 text-gray-900">
+              <h3 className="mb-1 truncate text-base font-semibold text-gray-900">
                 {card.title}
               </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-snug">
+              <p className="truncate text-xs sm:text-sm text-gray-600 leading-snug">
                 {card.description}
               </p>
             </div>

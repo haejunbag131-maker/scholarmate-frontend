@@ -9,7 +9,9 @@ import axios from "./axios";
 
 export async function fetchMe() {
   try {
-    const { data } = await axios.get("/auth/users/me/");
+    const { data } = await axios.get("/auth/users/me/", {
+      skipAuthRedirect: true,
+    });
     return data;
   } catch (err) {
     // 로그인 안 했거나 토큰 만료 시

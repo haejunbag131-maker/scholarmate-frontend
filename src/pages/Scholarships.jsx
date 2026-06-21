@@ -10,6 +10,9 @@ import ScholarshipFilters from "../features/scholarships/components/ScholarshipF
 import ScholarshipPagination from "../features/scholarships/components/ScholarshipPagination";
 import ScholarshipResults from "../features/scholarships/components/ScholarshipResults";
 import ScholarshipToast from "../features/scholarships/components/ScholarshipToast";
+import PageShell from "../shared/components/PageShell";
+import PageTitle from "../shared/components/PageTitle";
+import { SkeletonCardGrid, SkeletonTable } from "../shared/components/Skeleton";
 import useBodyClass from "../shared/hooks/useBodyClass";
 import useToast from "../shared/hooks/useToast";
 import { queryKeys } from "../shared/queryKeys";
@@ -97,6 +100,9 @@ export default function Scholarships() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.scholarships.favorites,
       });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.scholarships.wishlist,
+      });
     },
   });
 
@@ -112,8 +118,12 @@ export default function Scholarships() {
   const closeModal = () => { setSelectedScholarship(null); setIsModalOpen(false); };
   const handleTypeChange = (e) => { setSelectedType(e.target.value); setPage(1); };
   const handleSortChange = (e) => { setSortOrder(e.target.value); setPage(1); };
-  const doSearch = () => { setSearchQuery(searchInput.trim()); setPage(1); };
-  const clearSearch = () => { setSearchInput(""); setSearchQuery(""); setPage(1); };
+  const doSearch = (value = searchInput) => {
+    const nextQuery = value.trim();
+    if (nextQuery === searchQuery && page === 1) return;
+    setSearchQuery(nextQuery);
+    setPage(1);
+  };
 
   const handleFavoriteToggle = async (item) => {
     const id = item.product_id;
@@ -128,9 +138,9 @@ export default function Scholarships() {
   const endIdx = Math.min(page * perPage, totalCount || 0);
 
   return (
-    <div className="scholarships-container">
+    <PageShell className="scholarships-container">
       <div className="scholarships-wrapper">
-        <h1 className="text-3xl font-bold mb-8 pb-4 border-b border-gray-300 text-gray-900">장학금 목록</h1>
+        <PageTitle>장학금 목록</PageTitle>
 
         <ScholarshipFilters
           searchInput={searchInput}
@@ -138,13 +148,24 @@ export default function Scholarships() {
           sortOrder={sortOrder}
           onSearchInputChange={setSearchInput}
           onSearch={doSearch}
-          onClearSearch={clearSearch}
           onTypeChange={handleTypeChange}
           onSortChange={handleSortChange}
         />
 
         {loading ? (
-          <div className="loading">로딩 중...</div>
+          <>
+            <SkeletonTable
+              rows={perPage}
+              columns={5}
+              wrapperClassName="hidden md:block overflow-x-auto"
+              tableClassName="scholarships-table w-full"
+            />
+            <SkeletonCardGrid
+              count={4}
+              className="scholarship-mobile-list md:hidden"
+              cardClassName="scholarship-mobile-card"
+            />
+          </>
         ) : error ? (
           <div className="error">{error}</div>
         ) : scholarships.length === 0 ? (
@@ -180,6 +201,6 @@ export default function Scholarships() {
         <ScholarshipDetailModal scholarship={selectedScholarship} onClose={closeModal} />
       )}
       <ScholarshipToast toast={toast} />
-    </div>
+    </PageShell>
   );
 }

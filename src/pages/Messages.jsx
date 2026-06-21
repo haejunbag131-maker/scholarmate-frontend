@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { listMessages, sendMessage as sendMessageApi } from "../api/community";
-import { Button, Input, Card, Empty, Spin, message as antdMessage } from "antd";
+import { Button, Input, Card, Empty, message as antdMessage } from "antd";
 import api from "../api/axios";
+import PageShell from "../shared/components/PageShell";
+import PageTitle from "../shared/components/PageTitle";
+import { SkeletonList } from "../shared/components/Skeleton";
 
 function parseJwt(token) {
   try {
@@ -29,13 +32,54 @@ function mergeMessages(prev, next) {
   return arr;
 }
 
+const getMessageContent = (message) => {
+  if (!message) return "";
+  if (typeof message === "string") return message;
+  return message.content ?? message.body ?? message.text ?? "";
+};
+
+const getConversationPreview = (conversation) =>
+  getMessageContent(
+    conversation?.latest_message ??
+      conversation?.last_message ??
+      conversation?.lastMessage ??
+      ""
+  );
+
+const getConversationPartnerNames = (conversation, me) => {
+  if (conversation?.partner?.username) return [conversation.partner.username];
+
+  if (Array.isArray(conversation?.other_usernames)) {
+    return conversation.other_usernames.filter(Boolean);
+  }
+
+  const participants = Array.isArray(conversation?.participants)
+    ? conversation.participants
+    : [];
+
+  const otherParticipants = participants.filter((participant) => {
+    if (me.id != null && participant?.id != null) {
+      return Number(participant.id) !== Number(me.id);
+    }
+    if (me.username && participant?.username) {
+      return participant.username !== me.username;
+    }
+    return true;
+  });
+
+  return otherParticipants.map((participant) => participant.username).filter(Boolean);
+};
+
 export default function Messages() {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const [msgs, setMsgs] = useState([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [conversationSummary, setConversationSummary] = useState({
+    title: "쪽지",
+    preview: "",
+  });
 
   const meRef = useRef({ id: null, username: null });
   const inFlight = useRef(false);
@@ -46,6 +90,40 @@ export default function Messages() {
   const scrollToBottom = useCallback((behavior = "auto") => {
     endRef.current?.scrollIntoView({ behavior, block: "end" });
   }, []);
+
+  const applyConversationSummary = useCallback((conversation) => {
+    const names = getConversationPartnerNames(conversation, meRef.current);
+    const title = names.length ? `${names.join(", ")}님과의 쪽지` : "쪽지";
+    setConversationSummary({
+      title,
+      preview: getConversationPreview(conversation),
+    });
+  }, []);
+
+  const loadConversationSummary = useCallback(async () => {
+    if (!conversationId) return;
+
+    try {
+      const { data } = await api.get(`/community/conversations/${conversationId}/`, {
+        skipAuthRedirect: true,
+      });
+      applyConversationSummary(data);
+    } catch {
+      try {
+        const { data } = await api.get("/community/conversations/", {
+          params: { page_size: 100, ordering: "-latest_time" },
+          skipAuthRedirect: true,
+        });
+        const list = Array.isArray(data) ? data : data?.results ?? [];
+        const currentConversation = list.find(
+          (conversation) => String(conversation.id) === String(conversationId)
+        );
+        if (currentConversation) applyConversationSummary(currentConversation);
+      } catch {
+        // 제목 보조 정보 조회 실패 시 기본 제목으로 표시합니다.
+      }
+    }
+  }, [applyConversationSummary, conversationId]);
 
   // 자신 
   useEffect(() => {
@@ -72,12 +150,18 @@ export default function Messages() {
 
       if (mounted) {
         meRef.current = { id: myId, username: myUsername };
+        loadConversationSummary();
       }
     })();
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [loadConversationSummary]);
+
+  useEffect(() => {
+    setConversationSummary({ title: "쪽지", preview: "" });
+    loadConversationSummary();
+  }, [conversationId, loadConversationSummary]);
 
   // 자신인지 판별 
   const isMineMessage = useCallback((m) => {
@@ -113,7 +197,7 @@ export default function Messages() {
       inFlight.current = true;
 
       const firstLoad = mode === "init";
-      firstLoad ? setLoading(true) : setRefreshing(true);
+      if (firstLoad) setLoading(true);
 
       const el = listRef.current;
       const prevScrollHeight = el?.scrollHeight || 0;
@@ -144,7 +228,7 @@ export default function Messages() {
         console.error(e);
         antdMessage.error("쪽지를 불러오지 못했습니다.");
       } finally {
-        firstLoad ? setLoading(false) : setRefreshing(false);
+        if (firstLoad) setLoading(false);
         inFlight.current = false;
       }
     },
@@ -217,16 +301,36 @@ export default function Messages() {
   };
 
   const isMine = (m) => m.__mine ?? isMineMessage(m);
+  const messagePartnerNames = Array.from(
+    new Set(
+      msgs
+        .filter((message) => !isMine(message))
+        .map((message) => message.sender?.username ?? message.author?.username)
+        .filter(Boolean)
+    )
+  );
+  const conversationTitle =
+    conversationSummary.title !== "쪽지"
+      ? conversationSummary.title
+      : messagePartnerNames.length
+        ? `${messagePartnerNames.join(", ")}님과의 쪽지`
+        : "쪽지";
+  const latestMessagePreview =
+    getMessageContent(msgs[msgs.length - 1]) || conversationSummary.preview;
 
   return (
-    <div className="mx-auto w-[min(calc(100vw-32px),800px)] pt-6 pb-20">
+    <PageShell width="narrow">
+      <PageTitle>
+        <span className="block">
+          <span className="block">{conversationTitle}</span>
+          {latestMessagePreview && (
+            <span className="mx-auto mt-2 block max-w-2xl truncate text-sm font-medium leading-6 text-gray-500">
+              {latestMessagePreview}
+            </span>
+          )}
+        </span>
+      </PageTitle>
       <Card
-        title={
-          <div className="flex items-center gap-2">
-            <span>쪽지 대화 #{conversationId || "-"}</span>
-            {refreshing && <Spin size="small" />}
-          </div>
-        }
         extra={
           <Button
             size="small"
@@ -239,9 +343,7 @@ export default function Messages() {
       >
         <div ref={listRef} className="space-y-3 max-h-[50vh] overflow-y-auto p-1">
           {loading && msgs.length === 0 ? (
-            <div className="py-12 flex justify-center">
-              <Spin />
-            </div>
+            <SkeletonList rows={4} />
           ) : msgs.length === 0 ? (
             <Empty description="메시지가 없습니다." />
           ) : (
@@ -301,13 +403,13 @@ export default function Messages() {
             type="primary"
             onClick={send}
             disabled={!text.trim()}
-            className="!bg-black !border-black !text-white"
+            className="black-action-button self-stretch !h-auto min-w-[80px] shrink-0"
             style={{ color: "#fff" }}
           >
             보내기
           </Button>
         </div>
       </Card>
-    </div>
+    </PageShell>
   );
 }

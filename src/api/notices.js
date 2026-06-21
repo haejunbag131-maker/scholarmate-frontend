@@ -1,5 +1,10 @@
 import axios from "./axios";
 
+const PUBLIC_REQUEST = {
+  skipAuth: true,
+  skipAuthRedirect: true,
+};
+
 /**
  * 공지 목록 (공개글만)
  * @param {Object} opts
@@ -21,7 +26,7 @@ export async function fetchNotices({
     page_size: pageSize,
     ordering,
   };
-  const { data } = await axios.get("/notices/", { params });
+  const { data } = await axios.get("/notices/", { params, ...PUBLIC_REQUEST });
   return { total: data.count, items: data.results };
 }
 
@@ -31,7 +36,7 @@ export async function fetchNotices({
  */
 
 export async function fetchNotice(id) {
-  const { data } = await axios.get(`/notices/${id}/`);
+  const { data } = await axios.get(`/notices/${id}/`, PUBLIC_REQUEST);
   return data;
 }
 

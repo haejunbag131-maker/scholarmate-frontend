@@ -14,6 +14,7 @@ import {
 import Header from "./components/Header";
 import PrivateRoute from "./components/PrivateRoute";
 import Home from "./pages/Home";
+import LoadingState from "./shared/components/LoadingState";
 
 const Register = lazy(() => import("./pages/Register"));
 const Login = lazy(() => import("./pages/Login"));
@@ -56,7 +57,11 @@ export default function App() {
 
       if (token && refreshToken && autoLogin) {
         try {
-          const { data } = await api.post("/auth/jwt/refresh/", { refresh: refreshToken });
+          const { data } = await api.post(
+            "/auth/jwt/refresh/",
+            { refresh: refreshToken },
+            { skipAuthRedirect: true }
+          );
           if (data?.access) {
             localStorage.setItem("token", data.access);
             if (!cancelled) dispatch(loginSucceeded());
@@ -95,6 +100,17 @@ export default function App() {
     return true;
   };
 
+  // 페이지 이동 시 상단에서 시작
+  useEffect(() => {
+    if (location.hash) return;
+
+    const animationFrameId = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    });
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [location.pathname, location.hash]);
+
   // 해시 접근/변경 시 스크롤
   useEffect(() => {
     const hash = location.hash?.slice(1);
@@ -110,9 +126,7 @@ export default function App() {
   }, [location.key, location.hash]);
 
   const routeFallback = (
-    <div className="min-h-[calc(100vh-72px)] flex items-center justify-center text-sm text-gray-500">
-      로딩 중...
-    </div>
+    <LoadingState minHeight="calc(100vh - 72px)" />
   );
 
   return (
@@ -146,10 +160,7 @@ export default function App() {
               path="/userinfor"
               element={<PrivateRoute isLoggedIn={isLoggedIn}><UserInfoPage /></PrivateRoute>}
             />
-            <Route
-              path="/community"
-              element={<PrivateRoute isLoggedIn={isLoggedIn}><CommunityPage /></PrivateRoute>}
-            />
+            <Route path="/community" element={<CommunityPage />} />
             <Route
               path="/profile"
               element={isLoggedIn ? <Profile /> : <Navigate to="/login" />}
@@ -165,7 +176,10 @@ export default function App() {
             <Route path="/introduction" element={<Introduction />} />
             <Route path="/notice" element={<NoticeList />} />
             <Route path="/notice/:id" element={<NoticeDetail />} />
-            <Route path="/community/:id" element={<CommunityDetail />} />
+            <Route
+              path="/community/:id"
+              element={<PrivateRoute isLoggedIn={isLoggedIn}><CommunityDetail /></PrivateRoute>}
+            />
             <Route
               path="/messages"
               element={<PrivateRoute isLoggedIn={isLoggedIn}><MessagesList /></PrivateRoute>}

@@ -3,19 +3,17 @@
 }
 
 .community-toolbar {
-  padding: 28px 20px 0;
-  background: #f8fafc;
+  padding: var(--page-padding-top) var(--page-padding-x) 32px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.18);
 }
 
 .community-toolbar__inner {
-  width: calc(100% - 0px);
-  max-width: 1120px;
+  width: 100%;
+  max-width: var(--page-max-width);
   margin: 0 auto;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-  padding: 28px;
+  padding: 0;
   color: #fff;
-  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.18);
 }
 
 .community-toolbar__heading {
@@ -31,9 +29,10 @@
 
 .community-toolbar__heading h1 {
   margin: 0;
-  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  font-size: var(--page-title-size);
   font-weight: 900;
-  letter-spacing: -0.04em;
+  line-height: var(--page-title-line-height);
+  letter-spacing: 0;
 }
 
 .community-filter-card {
@@ -103,7 +102,7 @@
 .community-segment__button--active,
 .community-segment__button--active:hover {
   background: #fff;
-  color: #1d4ed8;
+  color: var(--color-primary);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
 }
 
@@ -115,37 +114,11 @@
   min-width: 280px;
 }
 
-.community-search-box {
-  display: flex;
-  flex: 1 1 auto;
-  min-width: 0;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-  overflow: hidden;
-}
-
-.community-search-input {
-  min-width: 0;
-  flex: 1 1 auto;
-  border: 0;
-  background: #fff;
-  padding: 0 16px;
-  color: #111827;
-  font-size: 0.95rem;
-  outline: none;
-}
-
-.community-search-input:focus {
-  box-shadow: inset 0 0 0 2px #93c5fd;
-}
-
-.community-search-button,
 .community-compose-button {
   min-height: 46px;
   border: 0;
   border-radius: 14px;
-  background: #0f172a;
+  background: #111827;
   color: #fff;
   padding: 0 18px;
   font-size: 0.92rem;
@@ -154,11 +127,6 @@
   transition: background-color 0.18s, transform 0.18s;
 }
 
-.community-search-button {
-  border-radius: 0;
-}
-
-.community-search-button:hover,
 .community-compose-button:hover {
   background: #020617;
   border-color: transparent;
@@ -169,19 +137,31 @@
   background: #111827;
 }
 
+.community-compose-modal .ui-modal-body {
+  overflow-y: visible;
+}
+
+.community-compose-modal .ant-form-item {
+  margin-bottom: 14px;
+}
+
+.community-compose-modal .ant-form-item:last-child {
+  margin-bottom: 0;
+}
+
 .community-post-section {
   width: calc(100% - 40px);
-  max-width: 1120px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
 }
 
 .community-post-title {
   color: #111827;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .community-post-card {
-  border-radius: 18px !important;
+  border-radius: 16px !important;
   border-color: #e5e7eb !important;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06) !important;
 }
@@ -191,7 +171,7 @@
 }
 
 .community-card-action {
-  min-height: 36px;
+  min-height: 32px;
   color: #475569;
   font-weight: 800;
 }
@@ -203,7 +183,8 @@
 
 @media (max-width: 1023px) {
   .community-toolbar {
-    padding: 24px 20px 0;
+    padding-top: var(--page-padding-top);
+    padding-bottom: 30px;
   }
 
   .community-toolbar__inner,
@@ -214,12 +195,11 @@
 
 @media (max-width: 767px) {
   .community-toolbar {
-    padding: 20px 14px 0;
+    padding: 16px 16px 28px;
   }
 
   .community-toolbar__inner {
-    border-radius: 20px;
-    padding: 22px 18px;
+    padding: 0;
   }
 
   .community-filter-card {
@@ -248,12 +228,12 @@
     flex-direction: column;
   }
 
-  .community-search-box {
+  .community-compose-button {
     width: 100%;
   }
 
-  .community-compose-button {
-    width: 100%;
+  .community-compose-modal .ui-modal-body {
+    overflow-y: auto;
   }
 
   .community-post-section {
@@ -262,17 +242,17 @@
   }
 
   .community-post-card {
-    padding: 18px !important;
+    padding: 16px !important;
   }
 }
 
 @media (max-width: 480px) {
   .community-toolbar {
-    padding-inline: 12px;
+    padding-inline: 14px;
   }
 
   .community-toolbar__inner {
-    padding: 20px 16px;
+    padding: 0;
   }
 
   .community-post-section {

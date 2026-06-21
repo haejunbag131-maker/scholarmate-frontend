@@ -1,5 +1,10 @@
 import axios from "./axios";
 
+const PUBLIC_REQUEST = {
+  skipAuth: true,
+  skipAuthRedirect: true,
+};
+
 // DRF pagination/배열 모두 대응 =
 function asPage(data) {
   if (!data) return { items: [], total: 0 };
@@ -26,7 +31,10 @@ export async function listPosts({
     page_size: pageSize,
     ordering,
   };
-  const { data } = await axios.get("/community/posts/", { params });
+  const { data } = await axios.get("/community/posts/", {
+    params,
+    ...PUBLIC_REQUEST,
+  });
   return asPage(data);
 }
 
@@ -49,7 +57,7 @@ export async function listBookmarkedPosts({
 }
 
 export async function getPost(id) {
-  const { data } = await axios.get(`/community/posts/${id}/`);
+  const { data } = await axios.get(`/community/posts/${id}/`, PUBLIC_REQUEST);
   return data;
 }
 
@@ -81,7 +89,7 @@ export async function unbookmarkPost(id) {
 }
 export async function incView(id) {
   try {
-    await axios.post(`/community/posts/${id}/increment_view/`);
+    await axios.post(`/community/posts/${id}/increment_view/`, null, PUBLIC_REQUEST);
   } catch {
     // 조회수 반영 실패는 화면 동작을 막지 않습니다.
   }
@@ -95,7 +103,10 @@ export async function listComments({ postId, parent = null }) {
     parent: parent ?? undefined,
     ordering: "created_at",
   };
-  const { data } = await axios.get("/community/comments/", { params });
+  const { data } = await axios.get("/community/comments/", {
+    params,
+    ...PUBLIC_REQUEST,
+  });
   return Array.isArray(data) ? data : data?.results ?? [];
 }
 
