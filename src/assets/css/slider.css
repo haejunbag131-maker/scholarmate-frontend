@@ -67,7 +67,7 @@
   font-size: 20px;
   font-weight: 300;
   color: #fff;
-  margin-bottom: 100px;
+  margin-bottom: 16px;
   line-height: 1.5; 
 }
 .slider-btn {
@@ -173,7 +173,7 @@
   background: #fff;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1279px) {
   .slider,
   .slider__slide {
     height: 320px;
@@ -186,7 +186,7 @@
   }
   .desc p {
     font-size: 18px;
-    margin-bottom: 60px;
+    margin-bottom: 14px;
   }
   .slider-btn {
     padding: 10px 20px;
@@ -214,12 +214,15 @@
   }
   .desc p {
     font-size: 14px;
-    margin-bottom: 40px;
+    margin-bottom: 8px;
   }
   .slider-btn {
     padding: 8px 16px;
     font-size: 13px;
     border-radius: 6px;
+  }
+  .slider__dots {
+    bottom: 8px;
   }
   .arrow {
     display: none;
@@ -238,6 +241,9 @@
 
   .desc p {
     font-size: 13px;
-    margin-bottom: 25px;
+    margin-bottom: 6px;
+  }
+  .slider__dots {
+    bottom: 6px;
   }
 }

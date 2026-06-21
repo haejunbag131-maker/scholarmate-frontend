@@ -18,7 +18,7 @@ export default function PostEditModal({
       okText="저장"
       cancelText="취소"
       okButtonProps={{
-        className: "!bg-black !border-black !text-white hover:!bg-gray-800",
+        className: "brand-action-button",
       }}
       cancelButtonProps={{
         className: "!border-gray-400 hover:!border-gray-600",

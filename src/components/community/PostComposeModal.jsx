@@ -1,6 +1,8 @@
-import { useEffect } from "react";
-import { Modal, Form, Input, Select, message } from "antd";
+import { useEffect, useState } from "react";
+import { Form, Input, Select, message } from "antd";
 import { createPost } from "../../api/community";
+import Button from "../../shared/components/Button";
+import Modal from "../../shared/components/Modal";
 
 const { TextArea } = Input;
 
@@ -11,6 +13,7 @@ export default function PostComposeModal({
   defaultCategory = "story",
 }) {
   const [form] = Form.useForm();
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -27,6 +30,7 @@ export default function PostComposeModal({
 
   const onSubmit = async () => {
     try {
+      setSubmitting(true);
       const values = await form.validateFields();
       const payload = {
         category: values.category,
@@ -43,19 +47,35 @@ export default function PostComposeModal({
       if (e?.errorFields) return;
       const msg = e?.response?.data?.detail || "등록에 실패했습니다.";
       message.error(String(msg));
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  if (!open) return null;
 
   return (
     <Modal
       title="새 글 작성"
-      open={open}
-      onCancel={onClose}
-      onOk={onSubmit}
-      okText="등록"
-      cancelText="취소"
-      destroyOnHidden
-      okButtonProps={{ className: "!bg-black !border-black" }}
+      onClose={onClose}
+      maxWidth="640px"
+      topOffset={64}
+      className="community-compose-modal"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={submitting}>
+            취소
+          </Button>
+          <Button
+            variant="primary"
+            className="black-action-button"
+            onClick={onSubmit}
+            disabled={submitting}
+          >
+            등록
+          </Button>
+        </>
+      }
     >
       <Form form={form} layout="vertical">
         <Form.Item
@@ -98,7 +118,7 @@ export default function PostComposeModal({
           label="내용"
           rules={[{ required: true, message: "내용을 입력하세요." }]}
         >
-          <TextArea rows={8} placeholder="경험, 준비 과정, 팁 등을 자유롭게 작성해 주세요." />
+          <TextArea rows={6} placeholder="경험, 준비 과정, 팁 등을 자유롭게 작성해 주세요." />
         </Form.Item>
 
         <Form.Item name="tags" label="태그 (엔터로 추가)">

@@ -39,12 +39,12 @@ export default function LatestNewsSection() {
           </p>
         </div>
 
-        {/* 카드 2개 고정 가로 나열 */}
-        <div className="grid grid-cols-2 gap-4 sm:gap-6">
+        {/* 1024px 아래: 슬라이더, 1024px 이상: 2열 그리드 */}
+        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:gap-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
           {news.map((item, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+              className="w-[82vw] min-w-[82vw] snap-center overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md sm:w-[72vw] sm:min-w-[72vw] md:w-[58vw] md:min-w-[58vw] lg:w-full lg:min-w-0"
             >
               <div className="bg-white flex h-28 items-center justify-center border-b border-gray-200 px-3 py-2 sm:h-48 sm:px-0 sm:py-0">
                 <img
@@ -57,7 +57,7 @@ export default function LatestNewsSection() {
               </div>
               <div className="p-4 sm:p-5 text-left">
                 <div className="mb-1 inline-flex items-center gap-1.5 text-[11px] text-gray-500 sm:text-xs">
-                  <item.Icon className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
+                  <item.Icon className="h-3.5 w-3.5 text-gray-900" aria-hidden="true" />
                   {item.source}
                 </div>
                 <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
@@ -70,7 +70,7 @@ export default function LatestNewsSection() {
                   href={item.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs sm:text-sm text-black font-medium hover:text-blue-800 transition-colors"
+                  className="text-xs sm:text-sm text-gray-900 font-medium hover:text-black transition-colors"
                 >
                   <span className="inline-flex items-center gap-1">
                     자세히 보기

@@ -4,6 +4,7 @@ import { FaChevronRight, FaHeart, FaRegCommentDots, FaRegEye } from "react-icons
 import { Link } from "react-router-dom";
 import axios from "../../api/axios";
 import { queryKeys } from "../../shared/queryKeys";
+import { SkeletonList } from "../../shared/components/Skeleton";
 
 // YYYY.MM.DD
 const formatDate = (iso) => {
@@ -36,38 +37,25 @@ const Stat = ({ icon: Icon, value, title }) => (
   </span>
 );
 
-const PreviewSkeleton = ({ rows = 4 }) => (
-  <>
-    <div className="mb-3 min-h-[76px] p-3 rounded-md bg-gray-50 border border-gray-100">
-      <div className="h-5 w-3/4 bg-gray-100 rounded animate-pulse" />
-      <div className="mt-3 h-4 w-1/2 bg-gray-100 rounded animate-pulse" />
-    </div>
-    <div className="border-t border-gray-200 my-2" />
-    <ul className="list-none p-0">
-      {Array.from({ length: rows }).map((_, index) => (
-        <li key={index} className="py-3 border-b border-[#eee] last:border-b-0">
-          <div className="h-5 w-3/4 bg-gray-100 rounded animate-pulse" />
-        </li>
-      ))}
-    </ul>
-  </>
-);
+const PUBLIC_REQUEST = {
+  skipAuth: true,
+  skipAuthRedirect: true,
+};
 
 async function fetchCommunityLatest() {
   const res = await axios.get("/community/posts/", {
     params: { page_size: 10, ordering: "-created_at" },
+    ...PUBLIC_REQUEST,
   });
   const items = normalizeList(res.data);
-  if (items.length > 0) return items;
-
-  const fallback = await axios.get("/community/", {
-    params: { page_size: 10, ordering: "-created_at" },
-  });
-  return normalizeList(fallback.data);
+  return items;
 }
 
 async function fetchCommunityPopular() {
-  const res = await axios.get("/community/posts/", { params: { page_size: 20 } });
+  const res = await axios.get("/community/posts/", {
+    params: { page_size: 20 },
+    ...PUBLIC_REQUEST,
+  });
   const list = normalizeList(res.data);
   return (
     list
@@ -82,6 +70,7 @@ async function fetchCommunityPopular() {
 async function fetchHomeNotices() {
   const { data } = await axios.get("/notices/", {
     params: { page_size: 20, ordering: "-is_pinned,-created_at" },
+    ...PUBLIC_REQUEST,
   });
   const items = data?.results ?? [];
   const pinnedItem = items.find((notice) => notice.is_pinned) ?? null;
@@ -140,9 +129,9 @@ const CommunityNotice = () => {
 
   return (
     <div className="mx-auto mt-[40px] mb-[60px] w-full px-4 sm:px-6 lg:w-[80%] lg:max-w-[1200px]">
-      <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:gap-5 sm:px-6 min-[769px]:mx-0 min-[769px]:grid min-[769px]:grid-cols-2 min-[769px]:overflow-visible min-[769px]:px-0 min-[769px]:pb-0">
+      <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:gap-5 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
         {/* 커뮤니티 */}
-        <div className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 min-[769px]:w-full min-[769px]:min-w-0">
+        <div className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 lg:w-full lg:min-w-0">
             <div className="flex justify-between items-center mb-3 pb-2 border-b-2 border-gray-300">
               <h3 className="text-base sm:text-lg md:text-[1.2rem] font-bold text-gray-900">
                 커뮤니티
@@ -187,7 +176,7 @@ const CommunityNotice = () => {
 
             {/* 최신글 */}
             {communityLoading || popularLoading ? (
-              <PreviewSkeleton />
+              <SkeletonList featured rows={4} />
             ) : communityError ? (
               <div className="text-sm text-red-600 py-3">
                 프리뷰를 불러오지 못했어요. (에러: {String(communityError)})
@@ -199,7 +188,7 @@ const CommunityNotice = () => {
                 {communityLatestForRender.map((post) => (
                   <li
                     key={post.id}
-                    className="text-sm text-[#333] flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-b border-[#eee] hover:text-[#007bff] transition-colors last:border-b-0"
+                    className="text-sm text-[#333] flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-b border-[#eee] hover:text-black transition-colors last:border-b-0"
                   >
                     <div className="flex items-center min-w-0">
                       <Chevron />
@@ -227,7 +216,7 @@ const CommunityNotice = () => {
         </div>
 
         {/* 공지사항 */}
-        <div className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 min-[769px]:w-full min-[769px]:min-w-0">
+        <div className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 lg:w-full lg:min-w-0">
             <div className="flex justify-between items-center mb-3 pb-2 border-b-2 border-gray-300">
               <h3 className="text-base sm:text-lg md:text-[1.2rem] font-bold text-gray-900">
                 공지사항
@@ -237,7 +226,7 @@ const CommunityNotice = () => {
               </Link>
             </div>
             {noticeLoading ? (
-              <PreviewSkeleton />
+              <SkeletonList featured rows={4} />
             ) : noticeError ? (
               <div className="text-sm text-red-600 py-3">
                 공지사항을 불러오지 못했어요. (에러: {String(noticeError)})
@@ -271,7 +260,7 @@ const CommunityNotice = () => {
                   {latestForNotice.map((n) => (
                     <li
                       key={n.id}
-                      className="text-sm text-[#333] flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-b border-[#eee] hover:text-[#007bff] transition-colors last:border-b-0"
+                      className="text-sm text-[#333] flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-b border-[#eee] hover:text-black transition-colors last:border-b-0"
                     >
                       <div className="flex items-center min-w-0">
                         <Chevron />

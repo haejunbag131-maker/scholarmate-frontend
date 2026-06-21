@@ -2,8 +2,11 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../api/axios"; 
 import { message } from "antd";
+import PageShell from "../shared/components/PageShell";
+import PageTitle from "../shared/components/PageTitle";
 import useBodyClass from "../shared/hooks/useBodyClass";
 import UniversitySearchModal from "../features/userInfo/components/UniversitySearchModal";
+import UserInfoSelect from "../features/userInfo/components/UserInfoSelect";
 import {
   academicYears,
   genders,
@@ -118,10 +121,9 @@ const UserInfo = () => {
   };
 
   return (
-    <div className="page-wrapper">
+    <PageShell width="medium" className="user-info-shell">
+      <PageTitle>장학 정보 입력</PageTitle>
       <div className="profile-box">
-        <h2 className="title">장학 정보 입력</h2>
-
         {/* 이름 */}
         <div className="form-row">
           <label className="form-label">이름</label>
@@ -137,18 +139,12 @@ const UserInfo = () => {
         {/* 성별 */}
         <div className="form-row">
           <label className="form-label">성별</label>
-          <select
-            className="form-select"
+          <UserInfoSelect
             value={form.selectedGender}
-            onChange={(event) => setField("selectedGender", event.target.value)}
-          >
-            <option value="">성별 선택</option>
-            {genders.map((gender, index) => (
-              <option key={index} value={gender}>
-                {gender}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setField("selectedGender", value)}
+            options={genders}
+            placeholder="성별 선택"
+          />
         </div>
 
         {/* 생년월일 */}
@@ -168,89 +164,58 @@ const UserInfo = () => {
         <div className="form-row">
           <label className="form-label">거주 지역</label>
           <div className="form-group">
-            <select
-              className="form-select"
+            <UserInfoSelect
               value={form.selectedRegion}
-              onChange={(event) => {
+              onChange={(value) => {
                 setFields({
-                  selectedRegion: event.target.value,
+                  selectedRegion: value,
                   selectedDistrict: "",
                 });
               }}
-            >
-              <option value="">지역 선택</option>
-              {Object.keys(regions).map((region) => (
-                <option key={region} value={region}>
-                  {region}
-                </option>
-              ))}
-            </select>
-            <select
-              className="form-select"
+              options={Object.keys(regions)}
+              placeholder="지역 선택"
+            />
+            <UserInfoSelect
               value={form.selectedDistrict}
-              onChange={(event) => setField("selectedDistrict", event.target.value)}
+              onChange={(value) => setField("selectedDistrict", value)}
               disabled={!form.selectedRegion}
-            >
-              <option value="">군/구 선택</option>
-              {form.selectedRegion &&
-                regions[form.selectedRegion].map((district) => (
-                  <option key={district} value={district}>
-                    {district}
-                  </option>
-                ))}
-            </select>
+              options={form.selectedRegion ? regions[form.selectedRegion] : []}
+              placeholder="군/구 선택"
+            />
           </div>
         </div>
 
         {/* 소득 분위 */}
         <div className="form-row">
           <label className="form-label">소득 분위</label>
-          <select
-            className="form-select"
+          <UserInfoSelect
             value={form.selectedIncomeLevel}
-            onChange={(event) => setField("selectedIncomeLevel", event.target.value)}
-          >
-            <option value="">분위 선택</option>
-            {incomeLevels.map((level) => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setField("selectedIncomeLevel", value)}
+            options={incomeLevels}
+            placeholder="분위 선택"
+          />
         </div>
 
         {/* 대학 유형 */}
         <div className="form-row">
           <label className="form-label">대학 유형</label>
-          <select
-            className="form-select"
+          <UserInfoSelect
             value={form.selectedUnivType}
-            onChange={(event) => setField("selectedUnivType", event.target.value)}
-          >
-            <option value="">대학 유형 선택</option>
-            {univCategories.map((category, index) => (
-              <option key={index} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setField("selectedUnivType", value)}
+            options={univCategories}
+            placeholder="대학 유형 선택"
+          />
         </div>
 
         {/* 지원 계열 */}
         <div className="form-row">
           <label className="form-label">지원 계열</label>
-          <select
-            className="form-select"
+          <UserInfoSelect
             value={form.selectedMajorField}
-            onChange={(event) => setField("selectedMajorField", event.target.value)}
-          >
-            <option value="">계열 선택</option>
-            {majorFields.map((field) => (
-              <option key={field} value={field}>
-                {field}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setField("selectedMajorField", value)}
+            options={majorFields}
+            placeholder="계열 선택"
+          />
         </div>
 
         {/* 학교 */}
@@ -285,56 +250,38 @@ const UserInfo = () => {
         <div className="form-row">
           <label className="form-label">학과/학년</label>
           <div className="form-group">
-            <select
-              className="form-select"
+            <UserInfoSelect
               value={form.selectedDepartment}
-              onChange={(event) => setField("selectedDepartment", event.target.value)}
+              onChange={(value) => setField("selectedDepartment", value)}
               disabled={isDepartmentsLoading || !departments.length}
-            >
-              <option value="">
-                {isDepartmentsLoading
+              options={departments}
+              placeholder={
+                isDepartmentsLoading
                   ? "학과 목록 불러오는 중..."
                   : form.selectedUniversityName
                     ? "학과 선택"
-                    : "대학교를 먼저 선택하세요"}
-              </option>
-              {departments.map((dept, index) => (
-                <option key={index} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
+                    : "대학교를 먼저 선택하세요"
+              }
+            />
 
-            <select
-              className="form-select"
+            <UserInfoSelect
               value={form.selectedAcademicYear}
-              onChange={(event) => setField("selectedAcademicYear", event.target.value)}
-            >
-              <option value="">학년 선택</option>
-              {academicYears.map((year, index) => (
-                <option key={index} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setField("selectedAcademicYear", value)}
+              options={academicYears}
+              placeholder="학년 선택"
+            />
           </div>
         </div>
 
         {/* 수료 학기 */}
         <div className="form-row">
           <label className="form-label">수료 학기</label>
-          <select
-            className="form-select"
+          <UserInfoSelect
             value={form.selectedSemester}
-            onChange={(event) => setField("selectedSemester", event.target.value)}
-          >
-            <option value="">학기 선택</option>
-            {semesters.map((semester, index) => (
-              <option key={index} value={semester}>
-                {semester}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setField("selectedSemester", value)}
+            options={semesters}
+            placeholder="학기 선택"
+          />
         </div>
 
         {/* 성적 */}
@@ -417,7 +364,7 @@ const UserInfo = () => {
           </button>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
 

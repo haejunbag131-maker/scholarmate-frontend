@@ -1,3 +1,5 @@
+import SearchBox from "../../../shared/components/SearchBox";
+
 function SegmentedButtons({ label, value, options, onChange }) {
   return (
     <div className="community-segment" aria-label={label}>
@@ -78,26 +80,14 @@ export default function CommunityToolbar({
             />
 
             <div className="community-search-actions">
-              <div className="community-search-box">
-                <input
-                  type="search"
-                  placeholder="검색..."
-                  value={searchInput}
-                  onChange={(event) => onSearchInputChange(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") onSearch();
-                    if (event.key === "Escape") onClearSearch();
-                  }}
-                  className="community-search-input"
-                />
-                <button
-                  type="button"
-                  onClick={onSearch}
-                  className="community-search-button"
-                >
-                  검색
-                </button>
-              </div>
+              <SearchBox
+                value={searchInput}
+                onChange={onSearchInputChange}
+                onSearch={onSearch}
+                onClear={onClearSearch}
+                placeholder="검색..."
+                ariaLabel="커뮤니티 검색"
+              />
 
               {isLoggedIn && (
                 <button

@@ -17,7 +17,7 @@ test("home hero images are decorative and keep loading priority hints", async ()
 test("home community preview reserves stable layout during async loading", async () => {
   const source = await readSource("./components/home/CommunityNotice.jsx");
 
-  assert.match(source, /const PreviewSkeleton/);
+  assert.match(source, /SkeletonList/);
   assert.match(source, /snap-x snap-mandatory/);
   assert.match(source, /overflow-x-auto/);
   assert.match(source, /min-\[769px\]:grid min-\[769px\]:grid-cols-2/);
@@ -35,7 +35,7 @@ test("scholarship external links keep noopener protection", async () => {
   const sources = await Promise.all([
     readSource("./features/scholarships/components/ScholarshipResults.jsx"),
     readSource("./features/recommendations/components/RecommendationCard.jsx"),
-    readSource("./features/recommendations/components/RecommendationDetailModal.jsx"),
+    readSource("./features/scholarships/components/ScholarshipDetailModal.jsx"),
     readSource("./pages/Wishlist.jsx"),
   ]);
 

@@ -3,8 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { fetchNotice, updateNotice, deleteNotice } from "../api/notices";
 import { fetchMe } from "../api/user";
+import LoadingState from "../shared/components/LoadingState";
+import PageShell from "../shared/components/PageShell";
 import { queryKeys } from "../shared/queryKeys";
-import { Spin, Empty, Button, Modal, Form, Input as AntInput, Switch, message } from "antd";
+import { Empty, Button, Modal, Form, Input as AntInput, Switch, message } from "antd";
 
 export default function NoticeDetail() {
   const { id } = useParams();
@@ -103,16 +105,16 @@ export default function NoticeDetail() {
   };
 
   return (
-    <div className="mx-auto w-[min(calc(100vw-32px),900px)] pt-6 pb-6">
+    <PageShell width="narrow">
       <Link
-        className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-[#0B2D6B] transition-colors hover:bg-blue-100"
+        className="inline-flex items-center rounded-full border border-[color-mix(in_srgb,var(--color-primary)_25%,#fff)] bg-[color-mix(in_srgb,var(--color-primary)_10%,#fff)] px-3 py-1.5 text-sm font-semibold text-[var(--color-secondary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_16%,#fff)]"
         to="/notice"
       >
         ← 목록으로
       </Link>
 
       {loading ? (
-        <div className="py-16 flex justify-center"><Spin /></div>
+        <LoadingState message="공지사항을 불러오는 중..." minHeight="220px" />
       ) : !item ? (
         <div className="py-16"><Empty description="해당 공지가 없습니다." /></div>
       ) : (
@@ -120,15 +122,15 @@ export default function NoticeDetail() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-2">
               {item.is_pinned && (
-                <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">고정</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-[color-mix(in_srgb,var(--color-primary)_14%,#fff)] text-[var(--color-secondary)]">고정</span>
               )}
-              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900">{item.title}</h1>
+              <h1 className="page-content-title">{item.title}</h1>
             </div>
 
             {me?.is_staff && (
               <div className="flex gap-2">
                 <Button
-                  className="!bg-black !border-black !text-white hover:!bg-gray-800"
+                  className="brand-action-button"
                   onClick={openEdit}
                 >
                   수정
@@ -159,7 +161,7 @@ export default function NoticeDetail() {
         okText="저장"
         confirmLoading={saving}
         destroyOnHidden
-        okButtonProps={{ className: "!bg-black !border-black !text-white hover:!bg-gray-800" }}
+        okButtonProps={{ className: "brand-action-button" }}
         cancelButtonProps={{ className: "!border-gray-400 hover:!border-gray-600" }}
       >
         <Form form={form} layout="vertical">
@@ -184,14 +186,14 @@ export default function NoticeDetail() {
 
           <div className="flex gap-6">
             <Form.Item name="is_pinned" label="상단 고정" valuePropName="checked" className="mb-0">
-              <Switch className="!border !border-black" />
+              <Switch className="!border !border-[var(--color-primary)]" />
             </Form.Item>
             <Form.Item name="is_published" label="공개" valuePropName="checked" className="mb-0">
-              <Switch className="!border !border-black" />
+              <Switch className="!border !border-[var(--color-primary)]" />
             </Form.Item>
           </div>
         </Form>
       </Modal>
-    </div>
+    </PageShell>
   );
 }

@@ -39,6 +39,14 @@ function logoutAndRedirect() {
   window.location.href = `/login?next=${next}`;
 }
 
+function shouldSkipAuthRedirect(config) {
+  return Boolean(config?.skipAuthRedirect);
+}
+
+function shouldSkipAuth(config) {
+  return Boolean(config?.skipAuth);
+}
+
 async function refreshAccessToken() {
   const refreshToken = getRefresh();
   if (!refreshToken) throw new Error("NO_REFRESH_TOKEN");
@@ -83,28 +91,29 @@ instance.interceptors.request.use(
       (config.url || "").includes("/auth/jwt/refresh/") ||
       (config.baseURL && (config.baseURL + config.url).includes("/auth/jwt/refresh/"));
 
-    if (accessToken && !isRefreshCall) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    if (shouldSkipAuth(config)) {
+      delete config.headers.Authorization;
+      return config;
     }
 
     // 만료된 access가 있으면 미리 리프레시 후 Authorization 교체
     if (accessToken && isTokenExpired(accessToken) && !isRefreshCall) {
       if (!refreshToken) {
-        logoutAndRedirect();
-        return Promise.reject(
-          new Error("Access token expired and no refresh token")
-        );
+        clearTokens();
+      } else {
+        if (!refreshPromise) {
+          refreshPromise = refreshAccessToken()
+            .catch((err) => {
+              if (!shouldSkipAuthRedirect(config)) logoutAndRedirect();
+              throw err;
+            })
+            .finally(() => (refreshPromise = null));
+        }
+        const newAccess = await refreshPromise;
+        config.headers.Authorization = `Bearer ${newAccess}`;
       }
-      if (!refreshPromise) {
-        refreshPromise = refreshAccessToken()
-          .catch((err) => {
-            logoutAndRedirect();
-            throw err;
-          })
-          .finally(() => (refreshPromise = null));
-      }
-      const newAccess = await refreshPromise;
-      config.headers.Authorization = `Bearer ${newAccess}`;
+    } else if (accessToken && !isRefreshCall) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
     return config;
@@ -124,7 +133,7 @@ instance.interceptors.response.use(
 
     // refresh 호출 자체가 실패한 401이면 바로 로그아웃
     if (original?.url?.includes("/auth/jwt/refresh/") && status === 401) {
-      logoutAndRedirect();
+      if (!shouldSkipAuthRedirect(original)) logoutAndRedirect();
       return Promise.reject(error);
     }
 
@@ -134,7 +143,8 @@ instance.interceptors.response.use(
 
       const refreshToken = getRefresh();
       if (!refreshToken) {
-        logoutAndRedirect();
+        clearTokens();
+        if (!shouldSkipAuthRedirect(original)) logoutAndRedirect();
         return Promise.reject(error);
       }
 
@@ -142,7 +152,7 @@ instance.interceptors.response.use(
         if (!refreshPromise) {
           refreshPromise = refreshAccessToken()
             .catch((err) => {
-              logoutAndRedirect();
+              if (!shouldSkipAuthRedirect(original)) logoutAndRedirect();
               throw err;
             })
             .finally(() => (refreshPromise = null));

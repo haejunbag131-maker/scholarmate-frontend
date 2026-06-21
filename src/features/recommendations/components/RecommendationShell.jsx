@@ -1,11 +1,13 @@
+import PageShell from "../../../shared/components/PageShell";
+
 export default function RecommendationShell({ toast, children }) {
   return (
-    <div className="min-h-screen bg-gray-100" style={{ paddingTop: "20px" }}>
-      <div className="w-full max-w-full px-4 sm:px-4 flex justify-center">
-        <section className="w-full max-w-4xl bg-white rounded-lg shadow-xl p-5 sm:p-8">
+    <div className="min-h-screen bg-gray-100">
+      <PageShell width="narrow" className="recommendation-shell">
+        <section className="recommendation-panel">
           {children}
         </section>
-      </div>
+      </PageShell>
 
       <div aria-live="polite" aria-atomic="true" className="fixed bottom-6 right-6 z-[60]">
         {toast.open && (
@@ -13,11 +15,7 @@ export default function RecommendationShell({ toast, children }) {
             className={[
               "min-w-[220px] max-w-[340px] px-3 py-2 sm:px-4 sm:py-3 rounded-lg shadow-lg border text-sm",
               "animate-[fadeIn_.15s_ease-out]",
-              toast.type === "success"
-                ? "bg-emerald-50 border-emerald-200 text-emerald-900"
-                : toast.type === "error"
-                ? "bg-red-50 border-red-200 text-red-900"
-                : "bg-sky-50 border-sky-200 text-sky-900",
+              "bg-white border-[var(--color-secondary)] text-[var(--color-primary)]",
             ].join(" ")}
             role="status"
           >

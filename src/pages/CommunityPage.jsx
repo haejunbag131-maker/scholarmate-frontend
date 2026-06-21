@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import {
   bookmarkPost,
@@ -13,18 +14,20 @@ import CommunityPagination from "../features/community/components/CommunityPagin
 import CommunityPostGrid from "../features/community/components/CommunityPostGrid";
 import CommunityToast from "../features/community/components/CommunityToast";
 import CommunityToolbar from "../features/community/components/CommunityToolbar";
+import { selectIsLoggedIn } from "../features/auth/authSlice";
 import useToast from "../shared/hooks/useToast";
 import "../assets/css/community.css";
 
 const PostComposeModal = lazy(() => import("../components/community/PostComposeModal"));
 
 export default function CommunityPage() {
+  const isLoggedIn = useSelector(selectIsLoggedIn);
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [viewMode, setViewMode] = useState(
-    searchParams.get("view") === "bookmarks" ? "bookmarks" : "all"
+    isLoggedIn && searchParams.get("view") === "bookmarks" ? "bookmarks" : "all"
   );
   const [category, setCategory] = useState(searchParams.get("category") || "story");
   const [order, setOrder] = useState(searchParams.get("order") || "latest");
@@ -55,7 +58,8 @@ export default function CommunityPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const fetcher = viewMode === "bookmarks" ? listBookmarkedPosts : listPosts;
+      const fetcher =
+        viewMode === "bookmarks" && isLoggedIn ? listBookmarkedPosts : listPosts;
       const result = await fetcher({ category, q, page, pageSize, ordering });
       const mapped = (result.items || []).map((post) => ({
         ...post,
@@ -85,12 +89,20 @@ export default function CommunityPage() {
   }, []);
 
   useEffect(() => {
+    if (isLoggedIn || viewMode !== "bookmarks") return;
+    setViewMode("all");
+    setPage(1);
+    syncQuery({ viewMode: "all", page: 1 });
+  }, [isLoggedIn, viewMode]);
+
+  useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode, category, q, page, pageSize, order]);
 
-  const doSearch = () => {
-    const nextQuery = searchInput.trim();
+  const doSearch = (value = searchInput) => {
+    const nextQuery = value.trim();
+    if (nextQuery === q && page === 1) return;
     setQ(nextQuery);
     setPage(1);
     syncQuery({ q: nextQuery, page: 1 });
@@ -110,6 +122,10 @@ export default function CommunityPage() {
   };
 
   const changeViewMode = (nextViewMode) => {
+    if (nextViewMode === "bookmarks" && !isLoggedIn) {
+      showToast("내 북마크는 로그인 후 이용 가능합니다.", "info");
+      return;
+    }
     setViewMode(nextViewMode);
     setPage(1);
     syncQuery({ viewMode: nextViewMode, page: 1 });
@@ -230,7 +246,7 @@ export default function CommunityPage() {
         viewMode={viewMode}
         category={category}
         searchInput={searchInput}
-        isLoggedIn={Boolean(me)}
+        isLoggedIn={isLoggedIn}
         onOrderChange={changeOrder}
         onViewModeChange={changeViewMode}
         onCategoryChange={changeCategory}

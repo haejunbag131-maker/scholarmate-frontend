@@ -5,6 +5,7 @@ import CalendarHeader from "../features/calendar/components/CalendarHeader";
 import CalendarToast from "../features/calendar/components/CalendarToast";
 import ScholarshipCalendarView from "../features/calendar/components/ScholarshipCalendarView";
 import { getDaysUntil, parseDateOnly } from "../features/calendar/utils/dates";
+import PageShell from "../shared/components/PageShell";
 import useBodyClass from "../shared/hooks/useBodyClass";
 import useToast from "../shared/hooks/useToast";
 import "../assets/css/calendar.css";
@@ -107,7 +108,7 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="calendar-page-shell">
+    <PageShell width="narrow" className="calendar-page-shell">
       <CalendarHeader searchTerm={searchTerm} onSearchTermChange={setSearchTerm} />
 
       <ScholarshipCalendarView
@@ -148,10 +149,10 @@ export default function CalendarPage() {
         body.calendar-page .react-calendar__tile--active,
         body.calendar-page .react-calendar__tile--active:enabled:hover,
         body.calendar-page .react-calendar__tile--active:enabled:focus {
-          background: #2563eb !important;
+          background: var(--color-primary) !important;
           color: #ffffff !important;
         }
       `}</style>
-    </div>
+    </PageShell>
   );
 }

@@ -1,36 +1,25 @@
+import SearchBox from "../../../shared/components/SearchBox";
+
 export default function ScholarshipFilters({
   searchInput,
   selectedType,
   sortOrder,
   onSearchInputChange,
   onSearch,
-  onClearSearch,
   onTypeChange,
   onSortChange,
 }) {
   return (
     <div className="search-and-filter" role="search" aria-label="장학금 검색 및 필터">
       <div className="scholarship-search-row">
-        <input
-          type="text"
-          placeholder="장학 사업명 검색"
+        <SearchBox
           value={searchInput}
-          onChange={(event) => onSearchInputChange(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") onSearch();
-          }}
-          className="search-input"
+          onChange={onSearchInputChange}
+          onSearch={onSearch}
+          placeholder="장학 사업명 검색"
+          ariaLabel="장학금 검색"
         />
-        <button onClick={onSearch} className="search-btn text-white">
-          검색
-        </button>
       </div>
-      <button
-        onClick={onClearSearch}
-        className="search-clear-btn bg-white text-black border border-gray-300 rounded px-3"
-      >
-        검색어 지우기
-      </button>
 
       <div className="scholarship-select-row">
         <select value={selectedType} onChange={onTypeChange} className="filter-dropdown">

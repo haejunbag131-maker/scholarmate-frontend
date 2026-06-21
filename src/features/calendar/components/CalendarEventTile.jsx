@@ -32,7 +32,7 @@ export default function CalendarEventTile({ event, submitted, onOpen }) {
         "w-full max-w-full truncate rounded-md px-1 py-0.5 text-[0.62rem] font-semibold sm:px-1.5 sm:text-[0.7rem]",
         submitted
           ? "bg-emerald-100 text-emerald-800"
-          : "bg-blue-100 text-blue-900 ring-1 ring-blue-200",
+          : "bg-[color-mix(in_srgb,var(--color-primary)_14%,#fff)] text-[var(--color-secondary)] ring-1 ring-[color-mix(in_srgb,var(--color-primary)_35%,#fff)]",
       ].join(" ")}
     >
       <span className="inline-flex max-w-full items-center gap-1">

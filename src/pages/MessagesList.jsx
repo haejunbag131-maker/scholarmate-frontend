@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import PageShell from "../shared/components/PageShell";
+import PageTitle from "../shared/components/PageTitle";
+import { SkeletonList } from "../shared/components/Skeleton";
 
 import {
   Card,
-  Spin,
   Empty,
   Badge,
   Button,
@@ -57,12 +59,11 @@ export default function MessagesList() {
   };
 
   return (
-    <div className="mx-auto w-[min(calc(100vw-32px),800px)] pt-6 pb-20">
-      <Card title="쪽지함">
+    <PageShell width="narrow">
+      <PageTitle>쪽지함</PageTitle>
+      <Card>
         {loading ? (
-          <div className="py-12 flex justify-center">
-            <Spin />
-          </div>
+          <SkeletonList rows={5} />
         ) : items.length === 0 ? (
           <Empty description="받은 대화가 없습니다." />
         ) : (
@@ -133,6 +134,6 @@ export default function MessagesList() {
           </ul>
         )}
       </Card>
-    </div>
+    </PageShell>
   );
 }

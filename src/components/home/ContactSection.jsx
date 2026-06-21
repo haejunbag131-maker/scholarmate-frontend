@@ -25,7 +25,10 @@ export default function ContactSection() {
       setLoading(true);
       setStatus({ type: "", msg: "" });
 
-      await api.post("/contact/", form);
+      await api.post("/contact/", form, {
+        skipAuth: true,
+        skipAuthRedirect: true,
+      });
 
       setForm({ name: "", email: "", message: "" });
       setStatus({ type: "ok", msg: "문의가 접수되었습니다." });

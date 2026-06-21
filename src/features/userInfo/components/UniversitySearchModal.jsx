@@ -1,3 +1,5 @@
+import SearchBox from "../../../shared/components/SearchBox";
+
 export default function UniversitySearchModal({
   searchQuery,
   universities,
@@ -13,12 +15,12 @@ export default function UniversitySearchModal({
           닫기
         </button>
 
-        <input
-          type="text"
-          className="search-input"
-          placeholder="대학교 검색"
+        <SearchBox
           value={searchQuery}
-          onChange={(event) => onSearchChange(event.target.value)}
+          onChange={onSearchChange}
+          onSearch={onSearchChange}
+          placeholder="대학교 검색"
+          ariaLabel="대학교 검색"
         />
         <ul className="user-info-dropdown-list">
           {universities.length > 0 ? (
