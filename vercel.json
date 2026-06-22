@@ -17,7 +17,7 @@
       "destination": "https://scholarmate-backend-production.up.railway.app/static/:path*"
     },
     {
-      "source": "/((?!.*\\.(?:js|css|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|map|json)).*)",
+      "source": "/((?!api/|media/|static/|.*\\.(?:js|css|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|map|json)).*)",
       "destination": "/index.html"
     }
   ]
