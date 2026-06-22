@@ -60,7 +60,7 @@ export default function PostComposeModal({
       onClose={onClose}
       maxWidth="640px"
       topOffset={64}
-      className="community-compose-modal"
+      bodyClassName="overflow-visible max-md:overflow-y-auto"
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={submitting}>
@@ -77,7 +77,11 @@ export default function PostComposeModal({
         </>
       }
     >
-      <Form form={form} layout="vertical">
+      <Form
+        form={form}
+        layout="vertical"
+        className="[&_.ant-form-item]:mb-3.5 [&_.ant-form-item:last-child]:mb-0"
+      >
         <Form.Item
           name="category"
           label="글 유형"

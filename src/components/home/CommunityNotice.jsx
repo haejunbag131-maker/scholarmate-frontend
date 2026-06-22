@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FaChevronRight, FaHeart, FaRegCommentDots, FaRegEye } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
 import { queryKeys } from "../../shared/queryKeys";
 import { SkeletonList } from "../../shared/components/Skeleton";
+import useHorizontalDragScroll from "../../shared/hooks/useHorizontalDragScroll";
 
 // YYYY.MM.DD
 const formatDate = (iso) => {
@@ -88,6 +89,8 @@ const Chevron = () => (
 );
 
 const CommunityNotice = () => {
+  const navigate = useNavigate();
+  const previewSliderDrag = useHorizontalDragScroll();
   const communityQuery = useQuery({
     queryKey: queryKeys.home.communityLatest,
     queryFn: fetchCommunityLatest,
@@ -127,11 +130,26 @@ const CommunityNotice = () => {
       : latestItems.slice(0, isMobile ? 3 : 5);
   }, [latestItems, pinnedItem]);
 
+  const handlePanelClick = (event, path) => {
+    if (event.target.closest("a,button")) return;
+    navigate(path);
+  };
+
   return (
     <div className="mx-auto mt-[40px] mb-[60px] w-full px-4 sm:px-6 lg:w-[80%] lg:max-w-[1200px]">
-      <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:gap-5 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
+      <div
+        ref={previewSliderDrag.scrollRef}
+        className={[
+          "-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:gap-5 sm:px-6 xl:mx-0 xl:grid xl:grid-cols-2 xl:overflow-visible xl:px-0 xl:pb-0",
+          previewSliderDrag.isDragging ? "cursor-grabbing" : "cursor-grab xl:cursor-default",
+        ].join(" ")}
+        {...previewSliderDrag.dragScrollProps}
+      >
         {/* 커뮤니티 */}
-        <div className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 lg:w-full lg:min-w-0">
+        <div
+          className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] cursor-pointer bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 lg:w-[64vw] lg:min-w-[64vw] xl:w-full xl:min-w-0"
+          onClick={(event) => handlePanelClick(event, "/community")}
+        >
             <div className="flex justify-between items-center mb-3 pb-2 border-b-2 border-gray-300">
               <h3 className="text-base sm:text-lg md:text-[1.2rem] font-bold text-gray-900">
                 커뮤니티
@@ -216,7 +234,10 @@ const CommunityNotice = () => {
         </div>
 
         {/* 공지사항 */}
-        <div className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 lg:w-full lg:min-w-0">
+        <div
+          className="w-[86vw] min-w-[86vw] snap-center min-h-[340px] cursor-pointer bg-white p-4 rounded-[12px] border border-gray-300 shadow transition-transform hover:-translate-y-1 sm:w-[78vw] sm:min-w-[78vw] sm:min-h-[360px] sm:p-6 lg:w-[64vw] lg:min-w-[64vw] xl:w-full xl:min-w-0"
+          onClick={(event) => handlePanelClick(event, "/notice")}
+        >
             <div className="flex justify-between items-center mb-3 pb-2 border-b-2 border-gray-300">
               <h3 className="text-base sm:text-lg md:text-[1.2rem] font-bold text-gray-900">
                 공지사항

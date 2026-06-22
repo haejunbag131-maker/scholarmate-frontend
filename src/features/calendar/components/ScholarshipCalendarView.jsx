@@ -17,6 +17,7 @@ export default function ScholarshipCalendarView({
       [
         "[&_.react-calendar]:w-full",
         "[&_.react-calendar]:max-w-full",
+        "[&_.react-calendar]:mx-auto",
         "[&_.react-calendar]:border-0",
         "[&_.react-calendar]:py-5",
         "sm:[&_.react-calendar]:py-8",
@@ -88,7 +89,7 @@ export default function ScholarshipCalendarView({
   };
 
   return (
-    <div className={calendarShellClass}>
+    <div className={`mt-8 px-4 sm:px-6 lg:px-8 ${calendarShellClass}`}>
       <Calendar
         tileContent={renderTileContent}
         key={searchTerm}

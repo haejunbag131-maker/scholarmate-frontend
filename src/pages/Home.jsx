@@ -1,5 +1,3 @@
-import "../assets/css/Home.css";
-
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import Slider from "../components/home/Slider"; 
 import CommunityNotice from "../components/home/CommunityNotice";
@@ -56,7 +54,7 @@ function DeferredHomeSections() {
 
 export default function Home() {
   return (
-    <div className="home-container pb-0">
+    <div className="flex min-h-screen w-full max-w-full flex-col items-center justify-start overflow-x-hidden pb-0 text-center">
       <h1 className="sr-only">ScholarMate</h1>
       <Slider />
       <CommunityNotice />

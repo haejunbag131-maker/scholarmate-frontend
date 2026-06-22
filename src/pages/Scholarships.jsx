@@ -10,13 +10,17 @@ import ScholarshipFilters from "../features/scholarships/components/ScholarshipF
 import ScholarshipPagination from "../features/scholarships/components/ScholarshipPagination";
 import ScholarshipResults from "../features/scholarships/components/ScholarshipResults";
 import ScholarshipToast from "../features/scholarships/components/ScholarshipToast";
+import {
+  scholarshipMobileListClassName,
+  scholarshipTableClassName,
+  scholarshipTableWrapperClassName,
+} from "../features/scholarships/components/ScholarshipListViews";
 import PageShell from "../shared/components/PageShell";
 import PageTitle from "../shared/components/PageTitle";
 import { SkeletonCardGrid, SkeletonTable } from "../shared/components/Skeleton";
 import useBodyClass from "../shared/hooks/useBodyClass";
 import useToast from "../shared/hooks/useToast";
 import { queryKeys } from "../shared/queryKeys";
-import "../assets/css/scholarships.css";
 
 const EMPTY_FAVORITES = new Set();
 
@@ -138,8 +142,8 @@ export default function Scholarships() {
   const endIdx = Math.min(page * perPage, totalCount || 0);
 
   return (
-    <PageShell className="scholarships-container">
-      <div className="scholarships-wrapper">
+    <PageShell>
+      <div>
         <PageTitle>장학금 목록</PageTitle>
 
         <ScholarshipFilters
@@ -157,19 +161,19 @@ export default function Scholarships() {
             <SkeletonTable
               rows={perPage}
               columns={5}
-              wrapperClassName="hidden md:block overflow-x-auto"
-              tableClassName="scholarships-table w-full"
+              wrapperClassName={scholarshipTableWrapperClassName}
+              tableClassName={scholarshipTableClassName}
             />
             <SkeletonCardGrid
               count={4}
-              className="scholarship-mobile-list md:hidden"
-              cardClassName="scholarship-mobile-card"
+              className={scholarshipMobileListClassName}
+              variant="scholarship"
             />
           </>
         ) : error ? (
-          <div className="error">{error}</div>
+          <div className="py-12 text-center font-semibold text-red-600">{error}</div>
         ) : scholarships.length === 0 ? (
-          <div className="no-results">검색 결과가 없습니다.</div>
+          <div className="py-12 text-center font-semibold text-gray-500">검색 결과가 없습니다.</div>
         ) : (
           <>
             <ScholarshipResults

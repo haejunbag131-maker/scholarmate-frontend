@@ -6,7 +6,11 @@ import {
 } from "react-icons/fa";
 import Button from "../../../shared/components/Button";
 import { getScholarshipUrl } from "../../../shared/utils/urls";
-import { ScholarshipMobileCards, ScholarshipTable } from "./ScholarshipListViews";
+import {
+  ScholarshipMobileCards,
+  ScholarshipTable,
+  scholarshipActionsClassName,
+} from "./ScholarshipListViews";
 
 export default function ScholarshipResults({
   scholarships,
@@ -39,7 +43,7 @@ export default function ScholarshipResults({
     return (
       <button
         onClick={() => onToggleFavorite(item)}
-        className="favorite-btn"
+        className="appearance-none rounded-full border-0 bg-transparent p-0 text-[1.1rem] leading-none shadow-none outline-none transition-transform hover:scale-110 hover:border-transparent hover:bg-transparent focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         disabled={isFavoritePending}
         title={isFavorited ? "관심 해제" : "관심 등록"}
         aria-label={isFavorited ? "관심 장학금 해제" : "관심 장학금 등록"}
@@ -65,7 +69,7 @@ export default function ScholarshipResults({
       render: (item) => {
         const href = getScholarshipUrl(item);
         return (
-          <div className="scholarship-actions">
+          <div className={scholarshipActionsClassName}>
             <Button
               variant="secondary"
               size="sm"

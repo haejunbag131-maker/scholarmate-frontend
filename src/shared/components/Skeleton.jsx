@@ -9,7 +9,37 @@ function SkeletonBlock({ className = "" }) {
   );
 }
 
-function SkeletonCard({ className = "" }) {
+function SkeletonCard({ className = "", variant = "default", actionCount = 2 }) {
+  if (variant === "scholarship") {
+    return (
+      <article
+        className={[
+          "relative overflow-hidden rounded-[18px] border border-gray-200 bg-white px-5 py-[18px] text-left shadow-[0_8px_22px_rgba(15,23,42,0.07)] before:absolute before:left-0 before:top-0 before:h-1 before:w-full before:bg-slate-200 max-[480px]:rounded-2xl max-[480px]:p-4",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <SkeletonBlock className="absolute right-4 top-4 h-9 w-9 rounded-full max-[480px]:right-3.5 max-[480px]:top-3.5" />
+        <div className="pr-12">
+          <SkeletonBlock className="h-3.5 w-28" />
+          <SkeletonBlock className="mt-3 h-5 w-3/4" />
+          <SkeletonBlock className="mt-3 h-7 w-52 max-w-full rounded-full" />
+        </div>
+        <div
+          className={[
+            "mt-4 grid gap-2",
+            actionCount >= 3 ? "grid-cols-3" : "grid-cols-2",
+          ].join(" ")}
+        >
+          {Array.from({ length: actionCount }, (_, index) => (
+            <SkeletonBlock key={index} className="h-9 rounded-lg" />
+          ))}
+        </div>
+      </article>
+    );
+  }
+
   return (
     <article
       className={[
@@ -44,11 +74,18 @@ export function SkeletonCardGrid({
   count = 6,
   className = "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3",
   cardClassName = "",
+  variant = "default",
+  actionCount = 2,
 }) {
   return (
     <div className={className} aria-label="콘텐츠를 불러오는 중" role="status">
       {Array.from({ length: count }, (_, index) => (
-        <SkeletonCard key={index} className={cardClassName} />
+        <SkeletonCard
+          key={index}
+          className={cardClassName}
+          variant={variant}
+          actionCount={actionCount}
+        />
       ))}
     </div>
   );
@@ -59,15 +96,36 @@ export function SkeletonTable({
   columns = 5,
   wrapperClassName = "hidden md:block overflow-x-auto",
   tableClassName = "w-full",
+  align = "left",
 }) {
+  const alignmentClassName = align === "center" ? "text-center" : "text-left";
+  const cellClassName = [
+    "border border-gray-200 px-3 py-4",
+    alignmentClassName,
+  ].join(" ");
+  const headerCellClassName = [
+    "border border-gray-200 bg-gray-50 px-3 py-3",
+    alignmentClassName,
+  ].join(" ");
+
   return (
-    <div className={wrapperClassName} aria-label="표를 불러오는 중" role="status">
+    <div
+      className={[wrapperClassName, "rounded-lg border border-gray-200 bg-white shadow-sm"].join(" ")}
+      aria-label="표를 불러오는 중"
+      role="status"
+    >
       <table className={tableClassName}>
         <thead>
           <tr>
             {Array.from({ length: columns }, (_, index) => (
-              <th key={index}>
-                <SkeletonBlock className="mx-auto h-4 w-20" />
+              <th key={index} className={headerCellClassName}>
+                <SkeletonBlock
+                  className={[
+                    "h-4",
+                    align === "center" ? "mx-auto" : "",
+                    index === 1 ? "w-32" : "w-24",
+                  ].join(" ")}
+                />
               </th>
             ))}
           </tr>
@@ -76,9 +134,16 @@ export function SkeletonTable({
           {Array.from({ length: rows }, (_, rowIndex) => (
             <tr key={rowIndex}>
               {Array.from({ length: columns }, (_, columnIndex) => (
-                <td key={columnIndex}>
+                <td key={columnIndex} className={cellClassName}>
                   <SkeletonBlock
-                    className={columnIndex >= columns - 2 ? "mx-auto h-8 w-24" : "h-4 w-full"}
+                    className={[
+                      columnIndex >= columns - 2
+                        ? "h-9 w-28 rounded-lg"
+                        : columnIndex === 1
+                          ? "h-4 w-2/3"
+                          : "h-4 w-full",
+                      align === "center" || columnIndex >= columns - 2 ? "mx-auto" : "",
+                    ].join(" ")}
                   />
                 </td>
               ))}

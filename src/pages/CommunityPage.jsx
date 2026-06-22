@@ -16,7 +16,6 @@ import CommunityToast from "../features/community/components/CommunityToast";
 import CommunityToolbar from "../features/community/components/CommunityToolbar";
 import { selectIsLoggedIn } from "../features/auth/authSlice";
 import useToast from "../shared/hooks/useToast";
-import "../assets/css/community.css";
 
 const PostComposeModal = lazy(() => import("../components/community/PostComposeModal"));
 
@@ -240,7 +239,7 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="community-page min-h-screen bg-gray-50 font-sans flex flex-col">
+    <div className="flex min-h-screen flex-col bg-slate-50 font-sans">
       <CommunityToolbar
         order={order}
         viewMode={viewMode}

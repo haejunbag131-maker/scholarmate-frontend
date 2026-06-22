@@ -8,7 +8,6 @@ import { getDaysUntil, parseDateOnly } from "../features/calendar/utils/dates";
 import PageShell from "../shared/components/PageShell";
 import useBodyClass from "../shared/hooks/useBodyClass";
 import useToast from "../shared/hooks/useToast";
-import "../assets/css/calendar.css";
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
@@ -108,7 +107,10 @@ export default function CalendarPage() {
   };
 
   return (
-    <PageShell width="narrow" className="calendar-page-shell">
+    <PageShell
+      width="narrow"
+      className="!mt-4 !w-[calc(100%-2rem)] rounded-[18px] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)] sm:!mt-6 sm:!w-[calc(100%-2.5rem)] sm:rounded-3xl lg:!w-full"
+    >
       <CalendarHeader searchTerm={searchTerm} onSearchTermChange={setSearchTerm} />
 
       <ScholarshipCalendarView
@@ -141,16 +143,21 @@ export default function CalendarPage() {
         body.calendar-page .react-calendar__tile--now {
           background: #eff6ff !important;
           color: #1e3a8a !important;
+          border-radius: 12px !important;
+          overflow: hidden;
         }
         body.calendar-page .react-calendar__tile--now:enabled:hover,
         body.calendar-page .react-calendar__tile--now:enabled:focus {
           background: #dbeafe !important;
+          border-radius: 12px !important;
         }
         body.calendar-page .react-calendar__tile--active,
         body.calendar-page .react-calendar__tile--active:enabled:hover,
         body.calendar-page .react-calendar__tile--active:enabled:focus {
           background: var(--color-primary) !important;
           color: #ffffff !important;
+          border-radius: 12px !important;
+          overflow: hidden;
         }
       `}</style>
     </PageShell>
