@@ -11,6 +11,11 @@ import ScholarshipDetailModal from "../features/scholarships/components/Scholars
 import {
   ScholarshipMobileCards,
   ScholarshipTable,
+  scholarshipActionsClassName,
+  wishlistCardActionGridClassName,
+  wishlistMobileListClassName,
+  wishlistTableClassName,
+  wishlistTableWrapperClassName,
 } from "../features/scholarships/components/ScholarshipListViews";
 import Button from "../shared/components/Button";
 import PageShell from "../shared/components/PageShell";
@@ -19,8 +24,6 @@ import { SkeletonCardGrid, SkeletonTable } from "../shared/components/Skeleton";
 import useBodyClass from "../shared/hooks/useBodyClass";
 import { queryKeys } from "../shared/queryKeys";
 import { getScholarshipUrl } from "../shared/utils/urls";
-
-import "../assets/css/scholarships.css";
 
 export default function Wishlist() {
   const [selectedScholarship, setSelectedScholarship] = useState(null);
@@ -167,7 +170,7 @@ export default function Wishlist() {
     {
       header: "상세/삭제",
       render: (scholarship) => (
-        <div className="scholarship-actions">
+        <div className={scholarshipActionsClassName}>
           {renderDetailButton(scholarship)}
           {renderDeleteButton(scholarship)}
         </div>
@@ -176,7 +179,7 @@ export default function Wishlist() {
   ];
 
   return (
-    <PageShell className="wishlist-wrapper">
+    <PageShell className="min-h-[550px] text-center max-lg:min-h-[480px] max-[480px]:min-h-[320px]">
       <PageTitle>관심 장학금 목록</PageTitle>
 
       {loading ? (
@@ -184,19 +187,21 @@ export default function Wishlist() {
           <SkeletonTable
             rows={5}
             columns={5}
-            wrapperClassName="hidden lg:block wishlist-table-container"
-            tableClassName="wishlist-table"
+            wrapperClassName={wishlistTableWrapperClassName}
+            tableClassName={wishlistTableClassName}
+            align="center"
           />
           <SkeletonCardGrid
             count={3}
-            className="scholarship-mobile-list wishlist-mobile-list lg:hidden"
-            cardClassName="wishlist-mobile-card"
+            className={wishlistMobileListClassName}
+            variant="scholarship"
+            actionCount={3}
           />
         </>
       ) : error ? (
-        <div className="error">{error}</div>
+        <div className="py-12 text-center font-semibold text-red-600">{error}</div>
       ) : wishlist.length === 0 ? (
-        <div className="no-results">관심 장학금이 없습니다.</div>
+        <div className="py-12 text-center font-semibold text-gray-500">관심 장학금이 없습니다.</div>
       ) : (
         <>
           <ScholarshipTable
@@ -204,18 +209,20 @@ export default function Wishlist() {
             columns={wishlistColumns}
             getScholarship={getWishlistScholarship}
             getKey={getWishlistKey}
-            wrapperClassName="hidden lg:block wishlist-table-container"
-            tableClassName="wishlist-table"
+            wrapperClassName={wishlistTableWrapperClassName}
+            tableClassName={wishlistTableClassName}
+            align="center"
+            headerCellClassName="sticky top-0 z-[2]"
           />
 
           <ScholarshipMobileCards
             items={wishlist}
             getScholarship={getWishlistScholarship}
             getKey={getWishlistKey}
-            listClassName="scholarship-mobile-list wishlist-mobile-list lg:hidden"
-            cardClassName="wishlist-mobile-card"
-            bodyClassName="wishlist-card-body"
-            actionGridClassName="wishlist-card-action-grid"
+            listClassName={wishlistMobileListClassName}
+            cardClassName="text-left"
+            bodyClassName="pr-0"
+            actionGridClassName={wishlistCardActionGridClassName}
             renderActions={(scholarship) => (
               <>
                 {renderHomepageButton(scholarship, true)}

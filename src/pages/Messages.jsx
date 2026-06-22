@@ -406,7 +406,7 @@ export default function Messages() {
             className="black-action-button self-stretch !h-auto min-w-[80px] shrink-0"
             style={{ color: "#fff" }}
           >
-            보내기
+            전송
           </Button>
         </div>
       </Card>

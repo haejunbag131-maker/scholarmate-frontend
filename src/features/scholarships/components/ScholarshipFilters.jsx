@@ -1,4 +1,22 @@
 import SearchBox from "../../../shared/components/SearchBox";
+import UserInfoSelect from "../../userInfo/components/UserInfoSelect";
+
+const filterShellClassName =
+  "mb-5 flex flex-wrap items-center gap-2.5 max-md:flex-row max-md:items-stretch max-md:rounded-[18px] max-md:border max-md:border-gray-200 max-md:bg-slate-50 max-md:p-3.5 max-md:shadow-[0_8px_22px_rgba(15,23,42,0.05)]";
+const searchRowClassName =
+  "flex min-w-[280px] flex-[1_1_520px] items-stretch gap-2.5 max-md:w-full max-md:min-w-0 max-md:flex-[1_1_100%] max-md:gap-2";
+const selectRowClassName =
+  "mr-2 flex min-w-[320px] flex-none items-stretch gap-2.5 max-md:mr-0 max-md:grid max-md:w-full max-md:min-w-0 max-md:flex-[1_1_100%] max-md:grid-cols-2 max-md:gap-2";
+
+const typeOptions = [
+  { value: "regional", label: "지역 연고" },
+  { value: "academic", label: "성적 우수" },
+  { value: "income_based", label: "소득 구분" },
+  { value: "special_talent", label: "특기자" },
+  { value: "other", label: "기타" },
+];
+
+const sortOptions = [{ value: "end_date", label: "모집 종료일 순" }];
 
 export default function ScholarshipFilters({
   searchInput,
@@ -10,8 +28,8 @@ export default function ScholarshipFilters({
   onSortChange,
 }) {
   return (
-    <div className="search-and-filter" role="search" aria-label="장학금 검색 및 필터">
-      <div className="scholarship-search-row">
+    <div className={filterShellClassName} role="search" aria-label="장학금 검색 및 필터">
+      <div className={searchRowClassName}>
         <SearchBox
           value={searchInput}
           onChange={onSearchInputChange}
@@ -21,20 +39,20 @@ export default function ScholarshipFilters({
         />
       </div>
 
-      <div className="scholarship-select-row">
-        <select value={selectedType} onChange={onTypeChange} className="filter-dropdown">
-          <option value="">모든 유형</option>
-          <option value="regional">지역 연고</option>
-          <option value="academic">성적 우수</option>
-          <option value="income_based">소득 구분</option>
-          <option value="special_talent">특기자</option>
-          <option value="other">기타</option>
-        </select>
+      <div className={selectRowClassName}>
+        <UserInfoSelect
+          value={selectedType}
+          onChange={(value) => onTypeChange({ target: { value } })}
+          options={typeOptions}
+          placeholder="모든 유형"
+        />
 
-        <select value={sortOrder} onChange={onSortChange} className="sort-dropdown">
-          <option value="">정렬 없음</option>
-          <option value="end_date">모집 종료일 순</option>
-        </select>
+        <UserInfoSelect
+          value={sortOrder}
+          onChange={(value) => onSortChange({ target: { value } })}
+          options={sortOptions}
+          placeholder="정렬 없음"
+        />
       </div>
     </div>
   );

@@ -1,8 +1,10 @@
 import 전체장학금 from "../../assets/img/home-card-all.webp";
 import 맞춤형추천 from "../../assets/img/home-card-recommendation.webp";
 import 장학캘린더 from "../../assets/img/home-card-calendar.webp";
+import useHorizontalDragScroll from "../../shared/hooks/useHorizontalDragScroll";
 
 export default function CardSection() {
+  const featureSliderDrag = useHorizontalDragScroll();
   const cards = [
     {
       title: "전체 장학금",
@@ -34,8 +36,15 @@ export default function CardSection() {
           </p>
         </div>
 
-        {/* 1024px 아래: 슬라이더 */}
-        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:px-6 lg:hidden">
+        {/* 1280px 아래: 슬라이더 */}
+        <div
+          ref={featureSliderDrag.scrollRef}
+          className={[
+            "-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:px-6 xl:hidden",
+            featureSliderDrag.isDragging ? "cursor-grabbing" : "cursor-grab",
+          ].join(" ")}
+          {...featureSliderDrag.dragScrollProps}
+        >
           {cards.map((card) => (
             <div key={card.title} className="min-w-[82%] snap-center sm:min-w-[46%] md:min-w-[38%]">
               <div className="min-w-0 bg-white p-4 rounded-lg shadow border border-gray-200 text-left">
@@ -57,8 +66,8 @@ export default function CardSection() {
           ))}
         </div>
 
-        {/* 1024px 이상: 그리드 */}
-        <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+        {/* 1280px 이상: 그리드 */}
+        <div className="hidden xl:grid xl:grid-cols-3 gap-6">
           {cards.map((card) => (
             <div
               key={card.title}

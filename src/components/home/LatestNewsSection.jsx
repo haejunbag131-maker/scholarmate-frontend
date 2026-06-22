@@ -1,8 +1,10 @@
 import { FaArrowRight, FaGraduationCap, FaStar } from "react-icons/fa";
 import koreaImg from "../../assets/img/home-news-kosaf.webp";
 import dreamsponImg from "../../assets/img/home-news-dreamspon.webp";
+import useHorizontalDragScroll from "../../shared/hooks/useHorizontalDragScroll";
 
 export default function LatestNewsSection() {
+  const newsSliderDrag = useHorizontalDragScroll();
   const news = [
     {
       Icon: FaGraduationCap,
@@ -39,12 +41,22 @@ export default function LatestNewsSection() {
           </p>
         </div>
 
-        {/* 1024px 아래: 슬라이더, 1024px 이상: 2열 그리드 */}
-        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:gap-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
+        {/* 1280px 아래: 슬라이더, 1280px 이상: 2열 그리드 */}
+        <div
+          ref={newsSliderDrag.scrollRef}
+          className={[
+            "-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:gap-6 sm:px-6 xl:mx-0 xl:grid xl:grid-cols-2 xl:overflow-visible xl:px-0 xl:pb-0",
+            newsSliderDrag.isDragging ? "cursor-grabbing" : "cursor-grab xl:cursor-default",
+          ].join(" ")}
+          {...newsSliderDrag.dragScrollProps}
+        >
           {news.map((item, index) => (
-            <div
+            <a
               key={index}
-              className="w-[82vw] min-w-[82vw] snap-center overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md sm:w-[72vw] sm:min-w-[72vw] md:w-[58vw] md:min-w-[58vw] lg:w-full lg:min-w-0"
+              href={item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-[82vw] min-w-[82vw] snap-center overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md sm:w-[72vw] sm:min-w-[72vw] md:w-[58vw] md:min-w-[58vw] xl:w-full xl:min-w-0"
             >
               <div className="bg-white flex h-28 items-center justify-center border-b border-gray-200 px-3 py-2 sm:h-48 sm:px-0 sm:py-0">
                 <img
@@ -66,19 +78,14 @@ export default function LatestNewsSection() {
                 <p className="line-clamp-3 text-[11px] sm:text-sm text-gray-600 mb-2 sm:mb-3 leading-snug">
                   {item.description}
                 </p>
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs sm:text-sm text-gray-900 font-medium hover:text-black transition-colors"
-                >
+                <span className="text-xs sm:text-sm text-gray-900 font-medium transition-colors">
                   <span className="inline-flex items-center gap-1">
                     자세히 보기
                     <FaArrowRight className="h-3 w-3" aria-hidden="true" />
                   </span>
-                </a>
+                </span>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

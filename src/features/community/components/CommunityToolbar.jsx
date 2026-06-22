@@ -1,18 +1,28 @@
 import SearchBox from "../../../shared/components/SearchBox";
 
+const segmentWrapperClassName =
+  "flex min-w-0 items-center gap-2 max-md:w-full max-md:flex-col max-md:items-start max-md:gap-1.5";
+const segmentLabelClassName = "whitespace-nowrap text-xs font-extrabold text-white/80";
+const segmentButtonsClassName =
+  "inline-flex gap-1.5 rounded-full bg-white/15 p-1 max-md:w-full max-md:overflow-x-auto";
+const segmentButtonBaseClassName =
+  "min-h-9 whitespace-nowrap rounded-full border-0 bg-transparent px-3.5 py-1.5 text-sm font-extrabold text-white transition-colors hover:bg-white/15 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60";
+const segmentButtonActiveClassName =
+  "!bg-[var(--color-primary)] !text-white shadow-[0_4px_12px_rgba(15,23,42,0.18)] ring-1 ring-white/50 hover:!bg-[var(--color-primary)] hover:!text-white";
+
 function SegmentedButtons({ label, value, options, onChange }) {
   return (
-    <div className="community-segment" aria-label={label}>
-      <span className="community-segment__label">{label}</span>
-      <div className="community-segment__buttons">
+    <div className={segmentWrapperClassName} aria-label={label}>
+      <span className={segmentLabelClassName}>{label}</span>
+      <div className={segmentButtonsClassName}>
         {options.map((option) => (
           <button
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
             className={[
-              "community-segment__button",
-              value === option.value ? "community-segment__button--active" : "",
+              segmentButtonBaseClassName,
+              value === option.value ? segmentButtonActiveClassName : "",
             ].join(" ")}
           >
             {option.label}
@@ -38,15 +48,17 @@ export default function CommunityToolbar({
   onOpenCompose,
 }) {
   return (
-    <section className="community-toolbar">
-      <div className="community-toolbar__inner">
-        <div className="community-toolbar__heading">
-          <p>장학 정보 공유 공간</p>
-          <h1>ScholarMate 커뮤니티</h1>
+    <section className="bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] px-[var(--page-padding-x)] pb-8 pt-[var(--page-padding-top)] shadow-[0_12px_32px_rgba(37,99,235,0.18)] max-lg:pb-[30px] max-md:px-4 max-md:pb-7 max-md:pt-4 max-[480px]:px-3.5">
+      <div className="mx-auto w-full max-w-[var(--page-max-width)] p-0 text-white max-lg:max-w-[760px]">
+        <div className="mb-5">
+          <p className="mb-1.5 text-sm font-bold text-white/80">장학 정보 공유 공간</p>
+          <h1 className="m-0 text-[var(--page-title-size)] font-black leading-[var(--page-title-line-height)] tracking-normal">
+            ScholarMate 커뮤니티
+          </h1>
         </div>
 
-        <div className="community-filter-card">
-          <div className="community-filter-row">
+        <div className="flex flex-col gap-3.5 rounded-[20px] border border-white/20 bg-white/10 p-4 backdrop-blur-md max-md:p-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 max-md:items-stretch">
             <SegmentedButtons
               label="정렬"
               value={order}
@@ -68,7 +80,7 @@ export default function CommunityToolbar({
             />
           </div>
 
-          <div className="community-filter-row community-filter-row--bottom">
+          <div className="flex flex-wrap items-stretch justify-between gap-3">
             <SegmentedButtons
               label="분류"
               value={category}
@@ -79,7 +91,7 @@ export default function CommunityToolbar({
               ]}
             />
 
-            <div className="community-search-actions">
+            <div className="flex min-w-[280px] flex-[1_1_460px] items-stretch gap-2.5 max-md:w-full max-md:min-w-0 max-md:flex-col">
               <SearchBox
                 value={searchInput}
                 onChange={onSearchInputChange}
@@ -93,7 +105,7 @@ export default function CommunityToolbar({
                 <button
                   type="button"
                   onClick={onOpenCompose}
-                  className="community-compose-button"
+                  className="min-h-[46px] whitespace-nowrap rounded-[14px] border-0 bg-gray-900 px-[18px] text-sm font-black text-white transition-colors hover:bg-slate-950 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70 max-md:w-full"
                 >
                   글쓰기
                 </button>

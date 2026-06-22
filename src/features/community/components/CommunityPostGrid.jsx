@@ -27,7 +27,7 @@ function PostCard({
   const visibleTags = (post.tags || []).slice(0, 3);
 
   return (
-    <article className="community-post-card flex h-full flex-col rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+    <article className="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:shadow-lg max-md:p-4">
       <Link to={`/community/${post.id}`} className="flex flex-1 flex-col text-gray-900">
         <div className="mb-2 line-clamp-1 text-sm sm:text-base font-bold">
           {post.scholarship_name || "장학금"}
@@ -60,11 +60,11 @@ function PostCard({
           ))}
         </div>
       </Link>
-      <div className="community-card-actions mt-auto flex items-center justify-around border-t pt-2 text-sm text-gray-700">
+      <div className="mt-auto flex items-center justify-between border-t pt-2 text-sm text-gray-700">
         <button
           type="button"
           onClick={(event) => onLike(post, event)}
-          className="community-card-action inline-flex items-center gap-1.5 rounded-md px-2 py-1 hover:bg-gray-100"
+          className="inline-flex min-h-8 items-center gap-1.5 rounded-md px-2 py-1 font-extrabold text-slate-600 hover:border-transparent hover:bg-gray-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-gray-300"
           aria-label={post._liked ? "좋아요 취소" : "좋아요"}
         >
           {liking ? (
@@ -79,7 +79,7 @@ function PostCard({
         <button
           type="button"
           onClick={(event) => onBookmark(post, event)}
-          className="community-card-action inline-flex items-center rounded-md px-2 py-1 hover:bg-gray-100"
+          className="inline-flex min-h-8 items-center rounded-md px-2 py-1 font-extrabold text-slate-600 hover:border-transparent hover:bg-gray-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-gray-300"
           aria-label={post._bookmarked ? "북마크 취소" : "북마크"}
         >
           {bookmarking ? (
@@ -93,7 +93,7 @@ function PostCard({
         <button
           type="button"
           onClick={(event) => onShare(post, event)}
-          className="community-card-action inline-flex items-center gap-1.5 rounded-md px-2 py-1 hover:bg-gray-100"
+          className="inline-flex min-h-8 items-center gap-1.5 rounded-md px-2 py-1 font-extrabold text-slate-600 hover:border-transparent hover:bg-gray-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-gray-300"
           aria-label="공유"
         >
           <FaShareAlt className="h-3.5 w-3.5 text-gray-500" aria-hidden="true" />
@@ -116,19 +116,19 @@ export default function CommunityPostGrid({
   onShare,
 }) {
   return (
-    <div className="community-post-section w-full px-5 py-6 sm:px-6 flex-1">
-      <h2 className="community-post-title text-lg sm:text-2xl font-bold mb-4">
+    <div className="mx-auto w-[calc(100%-40px)] max-w-[var(--page-max-width)] flex-1 py-6 max-lg:max-w-[760px] max-md:w-[calc(100%-28px)] max-md:pt-[22px] max-[480px]:w-[calc(100%-24px)]">
+      <h2 className="mb-4 text-lg font-bold tracking-normal text-gray-950 sm:text-2xl">
         게시글 <span className="text-gray-500 text-sm sm:text-base">({total}건)</span>
       </h2>
 
       {loading ? (
         <SkeletonCardGrid
           count={6}
-          className="community-post-grid grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4"
-          cardClassName="community-post-card"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4"
+          cardClassName="rounded-2xl border-gray-200 shadow-[0_8px_22px_rgba(15,23,42,0.06)]"
         />
       ) : (
-        <div className="community-post-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {items.length > 0 ? (
             items.map((post) => (
               <PostCard

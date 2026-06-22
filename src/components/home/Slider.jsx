@@ -4,7 +4,6 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import sliderImage1 from "../../assets/img/home-hero-scholarships.webp";
 import sliderImage2 from "../../assets/img/home-hero-recommendation.webp";
-import "../../assets/css/slider.css";
 
 export default function SliderSection() {
   const navigate = useNavigate();
@@ -26,7 +25,7 @@ export default function SliderSection() {
       desc: (
         <>
           ScholarMate는 장학금 지원 기회를 놓치는 문제를 해결하고, <br />더 많은
-          학생들에게 교육의 평등성을 제공하는 것을 목표로 합니다.
+          학생들에게 교육의 평등성을 제공하는 것이 목표입니다.
         </>
       ),
       cta: { label: "자세히 알아보기", to: "/introduction" },
@@ -104,9 +103,9 @@ export default function SliderSection() {
   };
 
   return (
-    <section className="slider__wrap" aria-roledescription="carousel">
+    <section className="mx-auto w-full" aria-roledescription="carousel">
       <div
-        className="slider"
+        className="relative h-[400px] touch-pan-y select-none overflow-hidden max-xl:h-[320px] max-md:h-[260px] max-[480px]:h-[220px]"
         onPointerDown={handlePointerDown}
         onPointerUp={finishSwipe}
         onPointerCancel={cancelSwipe}
@@ -115,7 +114,12 @@ export default function SliderSection() {
         {slides.map((slide, index) => (
           <article
             key={slide.title}
-            className={`slider__slide ${index === activeIndex ? "is-active" : ""}`}
+            className={[
+              "pointer-events-none absolute inset-0 flex h-[400px] w-full items-center justify-center opacity-0 transition-opacity duration-[450ms] ease-in-out max-xl:h-[320px] max-md:h-[260px] max-[480px]:h-[220px]",
+              index === activeIndex ? "pointer-events-auto opacity-100" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
             aria-hidden={index !== activeIndex}
           >
             {loadedSlideIndexes.has(index) && (
@@ -124,25 +128,25 @@ export default function SliderSection() {
                 alt=""
                 width={slide.width}
                 height={slide.height}
-                className="slider__image"
+                className="absolute inset-0 h-full w-full object-cover"
                 loading={index === 0 ? "eager" : "lazy"}
                 {...{ fetchpriority: index === 0 ? "high" : "auto" }}
                 decoding={index === 0 ? "sync" : "async"}
               />
             )}
-            <div className="slider__overlay" />
-            <div className="desc text-white px-4 md:px-8">
-              <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4">
+            <div className="absolute inset-0 z-[1] bg-black/35" />
+            <div className="relative z-[2] w-[1160px] px-4 text-center text-white max-xl:w-[90%] max-md:w-full md:px-8">
+              <h2 className="mb-4 text-3xl font-bold text-white md:text-5xl xl:text-6xl">
                 {slide.title}
               </h2>
-              <p className="text-base md:text-lg lg:text-xl mb-1 leading-relaxed">
+              <p className="mb-4 text-base leading-relaxed max-[480px]:mb-3 max-[480px]:text-[13px] md:text-lg xl:text-xl">
                 {slide.desc}
               </p>
               <button
                 onClick={() => navigate(slide.cta.to)}
                 disabled={index !== activeIndex}
                 tabIndex={index === activeIndex ? 0 : -1}
-                className="slider-btn"
+                className="cursor-pointer rounded-lg border-0 bg-black/80 px-6 py-3 text-base font-bold text-white shadow-md shadow-black/30 transition duration-300 hover:scale-105 hover:border-transparent hover:bg-black hover:text-white focus:border-transparent focus:outline-none active:scale-100 disabled:pointer-events-none max-xl:px-5 max-xl:py-2.5 max-xl:text-sm max-md:rounded-md max-md:px-4 max-md:py-2 max-md:text-[13px]"
               >
                 {slide.cta.label}
               </button>
@@ -152,7 +156,7 @@ export default function SliderSection() {
 
         <button
           type="button"
-          className="arrow prev"
+          className="absolute left-5 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-transparent p-0 text-[32px] text-white transition hover:border-transparent hover:bg-white/90 hover:text-neutral-900 hover:shadow-[0_8px_22px_rgba(0,0,0,0.28)] focus:border-transparent focus:bg-transparent focus:text-white focus:shadow-none focus:outline-none max-md:hidden"
           onClick={() => goToSlide(activeIndex - 1)}
           aria-label="이전 슬라이드"
         >
@@ -160,23 +164,33 @@ export default function SliderSection() {
         </button>
         <button
           type="button"
-          className="arrow next"
+          className="absolute right-5 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-transparent p-0 text-[32px] text-white transition hover:border-transparent hover:bg-white/90 hover:text-neutral-900 hover:shadow-[0_8px_22px_rgba(0,0,0,0.28)] focus:border-transparent focus:bg-transparent focus:text-white focus:shadow-none focus:outline-none max-md:hidden"
           onClick={() => goToSlide(activeIndex + 1)}
           aria-label="다음 슬라이드"
         >
           <FaChevronRight aria-hidden="true" />
         </button>
 
-        <div className="slider__dots" aria-label="슬라이드 선택">
+        <div
+          className="absolute bottom-4 left-1/2 z-[11] flex -translate-x-1/2 gap-1 max-md:bottom-2 max-[480px]:bottom-1.5"
+          aria-label="슬라이드 선택"
+        >
           {slides.map((slide, index) => (
             <button
               key={slide.title}
               type="button"
-              className={index === activeIndex ? "is-active" : ""}
+              className="relative h-6 w-6 border-0 bg-transparent p-0 hover:border-transparent hover:bg-transparent focus:border-transparent focus:bg-transparent focus:shadow-none focus:outline-none"
               onClick={() => goToSlide(index)}
               aria-label={`${index + 1}번 슬라이드 보기`}
               aria-current={index === activeIndex}
-            />
+            >
+              <span
+                className={[
+                  "absolute inset-[7px] rounded-full",
+                  index === activeIndex ? "bg-white" : "bg-white/60",
+                ].join(" ")}
+              />
+            </button>
           ))}
         </div>
       </div>

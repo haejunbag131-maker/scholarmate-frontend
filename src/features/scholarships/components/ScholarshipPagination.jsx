@@ -6,6 +6,23 @@ import {
 } from "react-icons/fa";
 import { getPageList } from "../utils/pagination";
 
+const paginationClassName = "mt-5 flex flex-wrap items-center justify-center gap-2";
+const rangeClassName = "mr-1 text-sm text-gray-500";
+const pageButtonFrameClassName =
+  "inline-flex h-[38px] min-w-[38px] cursor-pointer items-center justify-center rounded-lg border px-2.5 leading-none transition-colors focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 max-md:text-xs max-[480px]:h-[26px] max-[480px]:min-w-[26px] max-[480px]:px-1.5 max-[480px]:text-[0.65rem]";
+const pageButtonNormalClassName =
+  "border-gray-300 bg-white text-gray-950 hover:border-gray-900 hover:bg-gray-900 hover:text-white";
+const pageButtonCurrentClassName =
+  "!border-gray-900 !bg-gray-900 !text-white hover:!border-slate-950 hover:!bg-slate-950 hover:!text-white";
+const selectClassName =
+  "ml-1 h-[38px] rounded-lg border border-gray-300 bg-white px-2.5 text-gray-950 transition-colors hover:border-gray-900 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2";
+
+const getPageButtonClassName = (isCurrent = false) =>
+  [
+    pageButtonFrameClassName,
+    isCurrent ? pageButtonCurrentClassName : pageButtonNormalClassName,
+  ].join(" ");
+
 export default function ScholarshipPagination({
   page,
   perPage,
@@ -17,14 +34,14 @@ export default function ScholarshipPagination({
   onPerPageChange,
 }) {
   return (
-    <div className="pagination">
-      <span className="range-text">{startIndex}-{endIndex} / 총 {totalCount}건</span>
+    <div className={paginationClassName}>
+      <span className={rangeClassName}>{startIndex}-{endIndex} / 총 {totalCount}건</span>
 
-      <button className="icon-btn" onClick={() => onPageChange(1)} disabled={page === 1} title="처음">
+      <button className={getPageButtonClassName()} onClick={() => onPageChange(1)} disabled={page === 1} title="처음">
         <FaAngleDoubleLeft aria-hidden="true" />
       </button>
       <button
-        className="icon-btn"
+        className={getPageButtonClassName()}
         onClick={() => onPageChange(Math.max(1, page - 1))}
         disabled={page === 1}
         title="이전"
@@ -34,12 +51,12 @@ export default function ScholarshipPagination({
 
       {getPageList(page, totalPages).map((item, index) =>
         item === "…" ? (
-          <span key={`ellipsis-${index}`} className="ellipsis">…</span>
+          <span key={`ellipsis-${index}`} className="select-none px-1 text-gray-500">…</span>
         ) : (
           <button
             key={item}
             onClick={() => onPageChange(item)}
-            className={`page-btn ${item === page ? "is-current" : ""}`}
+            className={getPageButtonClassName(item === page)}
             aria-current={item === page ? "page" : undefined}
             title={`${item}페이지`}
           >
@@ -49,7 +66,7 @@ export default function ScholarshipPagination({
       )}
 
       <button
-        className="icon-btn"
+        className={getPageButtonClassName()}
         onClick={() => onPageChange(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
         title="다음"
@@ -57,7 +74,7 @@ export default function ScholarshipPagination({
         <FaAngleRight aria-hidden="true" />
       </button>
       <button
-        className="icon-btn"
+        className={getPageButtonClassName()}
         onClick={() => onPageChange(totalPages)}
         disabled={page === totalPages}
         title="맨끝"
@@ -66,7 +83,7 @@ export default function ScholarshipPagination({
       </button>
 
       <select
-        className="perpage-select"
+        className={selectClassName}
         value={perPage}
         onChange={(event) => onPerPageChange(Number(event.target.value))}
         aria-label="페이지당 항목 수"
