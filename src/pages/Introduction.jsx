@@ -47,7 +47,7 @@ export default function Introduction() {
         <PageShell className="py-10 sm:py-14">
           <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
-              <p className="mb-3 text-sm font-bold text-[var(--color-primary)]">
+              <p className="mb-3 text-sm font-bold text-[var(--color-secondary)]">
                 장학금 준비를 한 화면에서
               </p>
               <h1 className="m-0 text-2xl font-black leading-tight text-gray-950 sm:text-3xl lg:text-4xl">
@@ -71,7 +71,7 @@ export default function Introduction() {
                 </Link>
                 <Link
                   to="/recommendation"
-                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[var(--color-primary)] bg-white px-5 py-3 text-sm font-black text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,#fff)] hover:text-[var(--color-primary)]"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[var(--color-secondary)] bg-white px-5 py-3 text-sm font-black text-[var(--color-secondary)] hover:bg-[color-mix(in_srgb,var(--color-secondary)_10%,#fff)] hover:text-[var(--color-secondary)]"
                 >
                   추천 장학금 확인
                 </Link>

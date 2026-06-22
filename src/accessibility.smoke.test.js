@@ -20,7 +20,7 @@ test("home community preview reserves stable layout during async loading", async
   assert.match(source, /SkeletonList/);
   assert.match(source, /snap-x snap-mandatory/);
   assert.match(source, /overflow-x-auto/);
-  assert.match(source, /min-\[769px\]:grid min-\[769px\]:grid-cols-2/);
+  assert.match(source, /xl:mx-0 xl:grid xl:grid-cols-2/);
   assert.match(source, /min-h-\[340px\].*sm:min-h-\[360px\]/);
 });
 

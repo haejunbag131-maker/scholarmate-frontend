@@ -1,14 +1,16 @@
 const http = require("node:http");
+const https = require("node:https");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const os = require("node:os");
 const net = require("node:net");
 const { spawn } = require("node:child_process");
+const { getBackendOrigin } = require("./backend-origin.cjs");
 
 const rootDir = process.cwd();
 const distDir = path.join(rootDir, "dist");
 const outputDir = path.join(rootDir, ".portfolio-work");
-const backendOrigin = new URL("http://127.0.0.1:8000");
+const backendOrigin = getBackendOrigin(rootDir);
 const chromePath = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 
 const mimeTypes = {
@@ -34,7 +36,8 @@ function isProxyPath(requestUrl) {
 
 function proxyRequest(req, res) {
   const target = new URL(req.url, backendOrigin);
-  const proxy = http.request(
+  const transport = target.protocol === "https:" ? https : http;
+  const proxy = transport.request(
     {
       hostname: target.hostname,
       port: target.port,

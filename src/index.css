@@ -82,6 +82,9 @@ button:disabled {
 .ant-modal {
   top: var(--modal-top-offset);
 }
+.ant-empty-description {
+  color: #4b5563 !important;
+}
 
 .page-shell {
   width: 100%;

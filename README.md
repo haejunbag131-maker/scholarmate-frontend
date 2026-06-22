@@ -162,6 +162,20 @@ src/
 Vercel 기준으로 `npm run build`를 실행하고 `dist/`를 정적 결과물로 배포합니다.  
 SPA 라우팅을 위해 정적 자산 요청을 제외한 경로는 `index.html`로 rewrite되도록 설정되어 있습니다.
 
+Vercel에서는 로컬과 동일하게 프론트가 `/api` 상대 경로로 요청합니다. `vercel.json`에서
+`/api`, `/media`, `/static` 요청을 Railway 백엔드로 먼저 rewrite한 뒤 나머지 화면 경로만
+`index.html`로 보냅니다.
+
+Vercel 환경 변수는 다음 값으로 맞춥니다.
+
+```text
+VITE_API_BASE_URL=/api
+VITE_WITH_CREDENTIALS=false
+```
+
+`VITE_API_PROXY_TARGET`은 Vite 로컬 개발 서버용 proxy 설정이므로 Vercel에는 넣지 않아도 됩니다.
+Railway 백엔드 주소를 바꾸는 경우에는 `vercel.json`의 rewrite destination도 같이 변경합니다.
+
 ## 검증 결과
 
 최종 확인 기준으로 다음 명령이 통과했습니다.
@@ -170,4 +184,21 @@ SPA 라우팅을 위해 정적 자산 요청을 제외한 경로는 `index.html`
 npm test
 npm run lint
 npm run build
+```
+
+Railway 등 배포 백엔드를 기준으로 QA 스크립트를 실행할 때는 `BACKEND_ORIGIN` 또는
+`VITE_API_PROXY_TARGET`에 백엔드 origin을 지정합니다.
+
+```bash
+BACKEND_ORIGIN=https://your-backend.example.com npm run test:e2e
+BACKEND_ORIGIN=https://your-backend.example.com npm run test:performance
+BACKEND_ORIGIN=https://your-backend.example.com npm run test:lighthouse
+```
+
+PowerShell에서는 다음처럼 실행합니다.
+
+```powershell
+$env:BACKEND_ORIGIN="https://your-backend.example.com"; npm run test:e2e
+$env:BACKEND_ORIGIN="https://your-backend.example.com"; npm run test:performance
+$env:BACKEND_ORIGIN="https://your-backend.example.com"; npm run test:lighthouse
 ```

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -42,7 +42,7 @@ export default function CommunityPage() {
 
   const ordering = order === "popular" ? "-view_count" : "-created_at";
 
-  const syncQuery = (next = {}) => {
+  const syncQuery = useCallback((next = {}) => {
     const params = new URLSearchParams({
       view: next.viewMode ?? viewMode,
       category: next.category ?? category,
@@ -52,9 +52,9 @@ export default function CommunityPage() {
       page_size: String(next.pageSize ?? pageSize),
     });
     setSearchParams(params);
-  };
+  }, [category, order, page, pageSize, q, setSearchParams, viewMode]);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const fetcher =
@@ -75,7 +75,7 @@ export default function CommunityPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [category, isLoggedIn, ordering, page, pageSize, q, showToast, viewMode]);
 
   useEffect(() => {
     (async () => {
@@ -92,12 +92,11 @@ export default function CommunityPage() {
     setViewMode("all");
     setPage(1);
     syncQuery({ viewMode: "all", page: 1 });
-  }, [isLoggedIn, viewMode]);
+  }, [isLoggedIn, syncQuery, viewMode]);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode, category, q, page, pageSize, order]);
+  }, [load]);
 
   const doSearch = (value = searchInput) => {
     const nextQuery = value.trim();

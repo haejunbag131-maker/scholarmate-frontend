@@ -5,6 +5,18 @@
 
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://scholarmate-backend-production.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/media/:path*",
+      "destination": "https://scholarmate-backend-production.up.railway.app/media/:path*"
+    },
+    {
+      "source": "/static/:path*",
+      "destination": "https://scholarmate-backend-production.up.railway.app/static/:path*"
+    },
+    {
       "source": "/((?!.*\\.(?:js|css|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|map|json)).*)",
       "destination": "/index.html"
     }

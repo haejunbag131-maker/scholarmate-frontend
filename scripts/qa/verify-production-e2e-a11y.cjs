@@ -1,15 +1,17 @@
 const http = require("node:http");
+const https = require("node:https");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const os = require("node:os");
 const net = require("node:net");
 const { spawn } = require("node:child_process");
 const assert = require("node:assert/strict");
+const { getBackendOrigin } = require("./backend-origin.cjs");
 
 const rootDir = process.cwd();
 const distDir = path.join(rootDir, "dist");
 const outputDir = path.join(rootDir, ".portfolio-work");
-const backendOrigin = new URL("http://127.0.0.1:8000");
+const backendOrigin = getBackendOrigin(rootDir);
 const chromePath = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const axeSourcePath = require.resolve("axe-core/axe.min.js");
 
@@ -39,7 +41,8 @@ function isProxyPath(requestUrl) {
 
 function proxyRequest(req, res) {
   const target = new URL(req.url, backendOrigin);
-  const proxy = http.request(
+  const transport = target.protocol === "https:" ? https : http;
+  const proxy = transport.request(
     {
       hostname: target.hostname,
       port: target.port,
@@ -241,6 +244,7 @@ async function enablePage(client) {
 }
 
 async function navigateAndCollect(client, url) {
+  const requests = new Map();
   const failedRequests = [];
   const consoleErrors = [];
   let lastNetworkEventAt = Date.now();
@@ -251,15 +255,17 @@ async function navigateAndCollect(client, url) {
       params.args?.map((arg) => arg.value ?? arg.description ?? "").join(" ") || ""
     );
   });
-  client.on("Network.requestWillBeSent", () => {
+  client.on("Network.requestWillBeSent", (params) => {
+    requests.set(params.requestId, params.request?.url || "");
     lastNetworkEventAt = Date.now();
   });
   client.on("Network.loadingFinished", () => {
     lastNetworkEventAt = Date.now();
   });
   client.on("Network.loadingFailed", (params) => {
+    const requestUrl = requests.get(params.requestId) || params.requestId;
     failedRequests.push({
-      url: params.requestId,
+      url: requestUrl,
       failure: params.errorText || "",
     });
     lastNetworkEventAt = Date.now();
@@ -478,9 +484,10 @@ async function main() {
       name: "introduction page renders service overview",
       route: "/introduction",
       assert(snapshot) {
-        assert.ok(snapshot.h1.includes("ScholarMate"));
-        assert.match(snapshot.text, /AI 기반 개인 맞춤형 장학금 추천 서비스/);
-        assert.match(snapshot.text, /기술 스택/);
+        assert.ok(snapshot.h1.some((heading) => heading.includes("ScholarMate")));
+        assert.match(snapshot.text, /조건 확인부터 마감 관리까지/);
+        assert.match(snapshot.text, /핵심 기능/);
+        assert.match(snapshot.text, /관리 기준/);
       },
     },
     {

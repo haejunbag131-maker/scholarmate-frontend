@@ -8,8 +8,6 @@ import { loginSucceeded } from "../features/auth/authSlice";
 import PageShell from "../shared/components/PageShell";
 import PageTitle from "../shared/components/PageTitle";
 
-import logo from "../assets/img/로고.png";
-
 // 로그인 페이지
 export default function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -159,7 +157,7 @@ export default function Login() {
         <div className="w-full max-w-[520px] rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="px-7 pt-8 pb-6 sm:px-10 sm:pt-10 sm:pb-8">
             <div className="w-full flex flex-col items-center mb-6 sm:mb-8">
-              <img src={logo} alt="로고" className="h-20 object-contain sm:h-32 md:h-40" />
+              <img src="/logo.png" alt="로고" className="h-20 object-contain sm:h-32 md:h-40" />
             </div>
 
             <PageTitle>로그인</PageTitle>

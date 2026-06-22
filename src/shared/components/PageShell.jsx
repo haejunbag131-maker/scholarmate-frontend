@@ -5,7 +5,7 @@ const widthClassNames = {
 };
 
 export default function PageShell({
-  as: Component = "main",
+  as: Component = "div",
   width = "default",
   className = "",
   children,
