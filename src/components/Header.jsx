@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
-import logo from "../assets/img/logo-header.webp";
 import { logoutSucceeded, selectIsLoggedIn } from "../features/auth/authSlice";
 import HeaderMessagesIcon from "./HeaderMessagesIcon";
 
@@ -46,14 +45,17 @@ export default function Header() {
       <header className="header flex flex-wrap justify-between items-center px-4 py-3 bg-white shadow-md sticky top-0 z-50">
         {/* 왼쪽 */}
         <div className="flex min-w-0 flex-1 items-center xl:flex-none">
-          <Link to="/" className="flex min-w-0 items-center" aria-label="ScholarMate 홈">
+          <Link to="/" className="flex min-w-0 items-center gap-2" aria-label="ScholarMate 홈">
             <img
-              src={logo}
+              src="/logo.svg"
               alt="ScholarMate"
               width="168"
               height="112"
-              className="logo h-12 w-auto sm:h-14"
+              className="logo h-9 w-auto sm:h-10"
             />
+            <span className="hidden whitespace-nowrap text-xl font-black tracking-normal text-[#0078BF] sm:inline xl:text-2xl">
+              ScholarMate
+            </span>
           </Link>
         </div>
 

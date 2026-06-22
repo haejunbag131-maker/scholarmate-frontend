@@ -156,8 +156,8 @@ export default function Login() {
       <PageShell width="narrow" className="flex justify-center">
         <div className="w-full max-w-[520px] rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="px-7 pt-8 pb-6 sm:px-10 sm:pt-10 sm:pb-8">
-            <div className="w-full flex flex-col items-center mb-6 sm:mb-8">
-              <img src="/logo.png" alt="로고" className="h-20 object-contain sm:h-32 md:h-40" />
+            <div className="mb-5 flex w-full justify-center sm:mb-6">
+              <img src="/logo.png" alt="로고" className="h-20 w-auto object-contain sm:h-28" />
             </div>
 
             <PageTitle>로그인</PageTitle>
