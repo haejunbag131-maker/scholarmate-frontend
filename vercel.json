@@ -3,22 +3,25 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
 
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "https://scholarmate-backend-production.up.railway.app/api/:path*"
+      "handle": "filesystem"
     },
     {
-      "source": "/media/:path*",
-      "destination": "https://scholarmate-backend-production.up.railway.app/media/:path*"
+      "src": "/api/(.*)",
+      "dest": "https://scholarmate-backend-production.up.railway.app/api/$1"
     },
     {
-      "source": "/static/:path*",
-      "destination": "https://scholarmate-backend-production.up.railway.app/static/:path*"
+      "src": "/media/(.*)",
+      "dest": "https://scholarmate-backend-production.up.railway.app/media/$1"
     },
     {
-      "source": "/((?!api/|media/|static/|.*\\.(?:js|css|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|map|json)).*)",
-      "destination": "/index.html"
+      "src": "/static/(.*)",
+      "dest": "https://scholarmate-backend-production.up.railway.app/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
