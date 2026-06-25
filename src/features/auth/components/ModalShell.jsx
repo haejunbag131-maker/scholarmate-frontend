@@ -7,6 +7,8 @@ export default function ModalShell({ title, onClose, children }) {
       titleTag="h3"
       onClose={onClose}
       maxWidth="520px"
+      className="auth-modal"
+      bodyClassName="auth-modal-body"
       footer={
         <button
           type="button"

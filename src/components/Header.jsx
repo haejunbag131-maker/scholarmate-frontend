@@ -1,16 +1,23 @@
 // src/components/Header.jsx
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { logoutSucceeded, selectIsLoggedIn } from "../features/auth/authSlice";
 import HeaderMessagesIcon from "./HeaderMessagesIcon";
 
 export default function Header() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const lastScrollYRef = useRef(0);
+  const lastTouchYRef = useRef(null);
+  const idleRevealTimerRef = useRef(0);
+  const scrollFrameRef = useRef(0);
+  const sidebarOpenRef = useRef(false);
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(selectIsLoggedIn);
+  const location = useLocation();
   const navigate = useNavigate();
 
   const itemCls =
@@ -39,10 +46,168 @@ export default function Header() {
     navigate("/login");
   };
 
+  useEffect(() => {
+    sidebarOpenRef.current = sidebarOpen;
+    if (sidebarOpen) {
+      setHeaderHidden(false);
+    }
+  }, [sidebarOpen]);
+
+  useEffect(() => {
+    setHeaderHidden(false);
+    lastScrollYRef.current = window.scrollY;
+  }, [location.pathname, location.search, location.hash]);
+
+  useEffect(() => {
+    const minDelta = 1;
+    const hideAfter = 96;
+
+    const getScrollY = () =>
+      window.scrollY ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
+
+    const isNearPageBottom = () => {
+      const scrollHeight = Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight
+      );
+
+      return getScrollY() + window.innerHeight >= scrollHeight - 24;
+    };
+
+    const clearIdleRevealTimer = () => {
+      if (idleRevealTimerRef.current) {
+        window.clearTimeout(idleRevealTimerRef.current);
+        idleRevealTimerRef.current = 0;
+      }
+    };
+
+    lastScrollYRef.current = getScrollY();
+
+    const showHeader = () => {
+      setHeaderHidden(false);
+    };
+
+    const hideHeader = () => {
+      if (isNearPageBottom()) {
+        showHeader();
+        return;
+      }
+
+      if (!sidebarOpenRef.current && getScrollY() > hideAfter) {
+        setHeaderHidden(true);
+      }
+    };
+
+    const scheduleIdleReveal = () => {
+      clearIdleRevealTimer();
+      idleRevealTimerRef.current = window.setTimeout(() => {
+        showHeader();
+      }, 650);
+    };
+
+    const updateHeaderVisibility = () => {
+      scrollFrameRef.current = 0;
+      const currentScrollY = getScrollY();
+      const previousScrollY = lastScrollYRef.current;
+      const scrollDelta = currentScrollY - previousScrollY;
+      lastScrollYRef.current = currentScrollY;
+
+      if (sidebarOpenRef.current || currentScrollY <= 16 || isNearPageBottom()) {
+        showHeader();
+        return;
+      }
+
+      if (scrollDelta < -minDelta) {
+        showHeader();
+        scheduleIdleReveal();
+        return;
+      }
+
+      if (scrollDelta > minDelta && currentScrollY > hideAfter) {
+        hideHeader();
+        scheduleIdleReveal();
+      }
+    };
+
+    const handleScroll = () => {
+      if (scrollFrameRef.current) {
+        return;
+      }
+      scrollFrameRef.current = window.requestAnimationFrame(updateHeaderVisibility);
+    };
+
+    const handleWheel = (event) => {
+      if (event.deltaY < 0) {
+        showHeader();
+        return;
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (
+        event.key === "ArrowUp" ||
+        event.key === "PageUp" ||
+        event.key === "Home"
+      ) {
+        showHeader();
+      }
+    };
+
+    const handleTouchStart = (event) => {
+      lastTouchYRef.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchMove = (event) => {
+      const currentTouchY = event.touches[0]?.clientY;
+
+      if (typeof currentTouchY !== "number" || lastTouchYRef.current === null) {
+        return;
+      }
+
+      const touchDelta = currentTouchY - lastTouchYRef.current;
+      lastTouchYRef.current = currentTouchY;
+
+      if (touchDelta > 0) {
+        showHeader();
+      }
+    };
+
+    const resetTouchPosition = () => {
+      lastTouchYRef.current = null;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    document.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+    document.addEventListener("wheel", handleWheel, { passive: true, capture: true });
+    document.addEventListener("touchstart", handleTouchStart, { passive: true, capture: true });
+    document.addEventListener("touchmove", handleTouchMove, { passive: true, capture: true });
+    document.addEventListener("touchend", resetTouchPosition, true);
+    document.addEventListener("touchcancel", resetTouchPosition, true);
+    document.addEventListener("keydown", handleKeyDown, true);
+
+    return () => {
+      if (scrollFrameRef.current) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+      }
+      clearIdleRevealTimer();
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("scroll", handleScroll, true);
+      document.removeEventListener("wheel", handleWheel, true);
+      document.removeEventListener("touchstart", handleTouchStart, true);
+      document.removeEventListener("touchmove", handleTouchMove, true);
+      document.removeEventListener("touchend", resetTouchPosition, true);
+      document.removeEventListener("touchcancel", resetTouchPosition, true);
+      document.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, []);
+
   return (
     <>
       {/*  헤더  */}
-      <header className="header flex flex-wrap justify-between items-center px-4 py-3 bg-white shadow-md sticky top-0 z-50">
+      <header className={`header flex flex-wrap justify-between items-center px-4 py-3 bg-white shadow-md ${headerHidden ? "header--hidden" : ""}`}>
         {/* 왼쪽 */}
         <div className="flex min-w-0 flex-1 items-center xl:flex-none">
           <Link to="/" className="flex min-w-0 items-center gap-2" aria-label="ScholarMate 홈">

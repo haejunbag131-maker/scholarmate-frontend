@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { FaArrowUp } from "react-icons/fa";
 import Slider from "../components/home/Slider"; 
 import CommunityNotice from "../components/home/CommunityNotice";
 
@@ -52,6 +53,59 @@ function DeferredHomeSections() {
   );
 }
 
+function HomeTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let frameId = 0;
+
+    const updateVisibility = () => {
+      frameId = 0;
+      setVisible((current) => {
+        const next = window.scrollY > 420;
+        return current === next ? current : next;
+      });
+    };
+
+    const handleScroll = () => {
+      if (!frameId) frameId = requestAnimationFrame(updateVisibility);
+    };
+
+    updateVisibility();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      if (frameId) cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={scrollToTop}
+      aria-label="맨 위로 이동"
+      className={`fixed bottom-5 right-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-[0_8px_24px_rgba(15,23,42,0.18)] transition duration-200 hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 sm:bottom-7 sm:right-7 sm:h-12 sm:w-12 ${
+        visible
+          ? "translate-y-0 opacity-100"
+          : "pointer-events-none translate-y-2 opacity-0"
+      }`}
+    >
+      <FaArrowUp aria-hidden="true" />
+    </button>
+  );
+}
+
 export default function Home() {
   return (
     <div className="flex min-h-screen w-full max-w-full flex-col items-center justify-start overflow-x-hidden pb-0 text-center">
@@ -59,6 +113,7 @@ export default function Home() {
       <Slider />
       <CommunityNotice />
       <DeferredHomeSections />
+      <HomeTopButton />
     </div>
   );
 }

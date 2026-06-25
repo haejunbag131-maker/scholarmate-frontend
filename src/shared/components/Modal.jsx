@@ -23,11 +23,24 @@ export default function Modal({
   topOffset = 96,
   className = "",
   bodyClassName = "",
+  showCloseButton = false,
 }) {
   useBodyScrollLock();
 
   const titleId = useId();
   const modalTop = Math.max(40, topOffset);
+  const resolvedFooter =
+    footer === undefined ? (
+      <button
+        type="button"
+        onClick={onClose}
+        className="h-9 rounded-md border border-gray-300 px-3 text-xs hover:bg-gray-50 sm:h-10 sm:px-4 sm:text-sm"
+      >
+        닫기
+      </button>
+    ) : (
+      footer
+    );
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -51,14 +64,16 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <button
-          type="button"
-          className="ui-modal-close"
-          onClick={onClose}
-          aria-label="모달 닫기"
-        >
-          <span aria-hidden="true">×</span>
-        </button>
+        {showCloseButton && (
+          <button
+            type="button"
+            className="ui-modal-close"
+            onClick={onClose}
+            aria-label="모달 닫기"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        )}
 
         {title && (
           <TitleTag id={titleId} className="ui-modal-title">
@@ -70,7 +85,7 @@ export default function Modal({
           {children}
         </div>
 
-        {footer && <div className="ui-modal-footer">{footer}</div>}
+        {resolvedFooter && <div className="ui-modal-footer">{resolvedFooter}</div>}
       </section>
     </div>
   );
