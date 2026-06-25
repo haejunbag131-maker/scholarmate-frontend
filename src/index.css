@@ -16,6 +16,7 @@
   --page-title-size: 1.875rem;
   --page-title-line-height: 1.2;
   --modal-top-offset: 96px;
+  --app-header-height: 72px;
   font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -55,6 +56,9 @@ body {
   font-family: inherit;
   color: #213547;
   background-color: #ffffff;
+}
+.content {
+  padding-top: var(--app-header-height);
 }
 h1 {
   font-size: 3.2em;
@@ -336,8 +340,8 @@ button:disabled {
 }
 .ui-modal-title {
   margin: 0 0 18px;
-  padding: 0 48px;
-  color: var(--color-primary);
+  padding: 0 8px;
+  color: #111827;
   font-size: 1.2rem;
   font-weight: 900;
   line-height: 1.35;
@@ -380,6 +384,9 @@ button:disabled {
   color: #334155;
   font-size: 0.98rem;
   line-height: 1.7;
+}
+.auth-modal-body {
+  padding: 0 6px 2px;
 }
 .ui-modal-footer {
   display: flex;
@@ -592,6 +599,11 @@ button:disabled {
   outline-offset: 2px;
 }
 .header {
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:1500;
   width:100%;
   display:flex;
   align-items:center;
@@ -605,6 +617,12 @@ button:disabled {
   border-bottom:1px solid #ddd;
   box-shadow:0 4px 6px rgba(0, 0, 0, 0.05);
   box-sizing:border-box;
+  transform:translateY(0);
+  transition:transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change:transform;
+}
+.header--hidden {
+  transform:translateY(-100%);
 }
 .header .header-left {
   display:flex;
@@ -667,6 +685,12 @@ button:disabled {
   .header .header-right {
     justify-content:flex-end;
     gap:8px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header {
+    transition:none;
   }
 }
 

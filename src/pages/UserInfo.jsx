@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../api/axios"; 
 import { message } from "antd";
@@ -50,6 +50,9 @@ const UserInfo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [isDepartmentsLoading, setIsDepartmentsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const isSavingRef = useRef(false);
+  const formCardRef = useRef(null);
 
   const filteredUniversities = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -93,6 +96,61 @@ const UserInfo = () => {
     };
   }, [form.selectedUniversityName]);
 
+  useEffect(() => {
+    let touchStartY = null;
+
+    const blurFocusedFormControl = () => {
+      const activeElement = document.activeElement;
+
+      if (
+        !(activeElement instanceof HTMLElement) ||
+        !formCardRef.current?.contains(activeElement) ||
+        !["INPUT", "TEXTAREA", "SELECT"].includes(activeElement.tagName)
+      ) {
+        return;
+      }
+
+      activeElement.blur();
+    };
+
+    const handleTouchStart = (event) => {
+      touchStartY = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchMove = (event) => {
+      const currentTouchY = event.touches[0]?.clientY;
+
+      if (typeof currentTouchY !== "number" || touchStartY === null) {
+        return;
+      }
+
+      if (Math.abs(currentTouchY - touchStartY) > 6) {
+        blurFocusedFormControl();
+      }
+    };
+
+    document.addEventListener("wheel", blurFocusedFormControl, {
+      passive: true,
+      capture: true,
+    });
+    document.addEventListener("touchstart", handleTouchStart, {
+      passive: true,
+      capture: true,
+    });
+    document.addEventListener("touchmove", handleTouchMove, {
+      passive: true,
+      capture: true,
+    });
+    window.addEventListener("scroll", blurFocusedFormControl, { passive: true });
+
+    return () => {
+      document.removeEventListener("wheel", blurFocusedFormControl, true);
+      document.removeEventListener("touchstart", handleTouchStart, true);
+      document.removeEventListener("touchmove", handleTouchMove, true);
+      window.removeEventListener("scroll", blurFocusedFormControl);
+    };
+  }, []);
+
   const handleSelectUniversity = (university) => {
     setFields({
       selectedUniversityName: university,
@@ -104,12 +162,17 @@ const UserInfo = () => {
 
   // 저장
   const handleSave = async () => {
+    if (isSavingRef.current) return;
+
     const token = localStorage.getItem("token");
     if (!token) {
       message.warning("로그인이 필요합니다.");
       navigate("/login");
       return;
     }
+
+    isSavingRef.current = true;
+    setIsSaving(true);
 
     try {
       const response = await axios.post("/userinfor/scholarship/save/", buildPayload(), {
@@ -132,13 +195,30 @@ const UserInfo = () => {
     } catch (error) {
       console.error("서버 오류 발생:", error);
       message.error(`서버 오류 발생: ${error.response?.data?.error || error.message}`);
+    } finally {
+      isSavingRef.current = false;
+      setIsSaving(false);
     }
+  };
+
+  const blurActiveField = () => {
+    const activeElement = document.activeElement;
+
+    if (
+      !(activeElement instanceof HTMLElement) ||
+      !formCardRef.current?.contains(activeElement) ||
+      !["INPUT", "TEXTAREA", "SELECT"].includes(activeElement.tagName)
+    ) {
+      return;
+    }
+
+    activeElement.blur();
   };
 
   return (
     <PageShell width="medium" className="user-info-shell">
       <PageTitle>장학 정보 입력</PageTitle>
-      <div className={cardClassName}>
+      <div className={cardClassName} ref={formCardRef}>
         {/* 이름 */}
         <div className={rowClassName}>
           <label className={labelClassName}>이름</label>
@@ -378,8 +458,14 @@ const UserInfo = () => {
 
         {/* 저장 버튼 */}
         <div className={rowClassName}>
-          <button type="button" className={saveButtonClassName} onClick={handleSave}>
-            저장하기
+          <button
+            type="button"
+            className={saveButtonClassName}
+            disabled={isSaving}
+            onPointerDown={blurActiveField}
+            onClick={handleSave}
+          >
+            {isSaving ? "저장 중..." : "저장하기"}
           </button>
         </div>
       </div>

@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
 import ModalShell from "./ModalShell";
 
+const primaryButtonClassName =
+  "h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-gray-900 text-white text-xs sm:text-sm font-semibold hover:bg-black hover:text-white disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2";
+
 export default function FindIdModal({
   onClose,
   idEmail,
@@ -44,7 +47,7 @@ export default function FindIdModal({
           type="button"
           onClick={sendIdCode}
           disabled={idSubmitting}
-          className="h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-[var(--color-primary)] text-white text-xs sm:text-sm hover:bg-[var(--color-secondary)] disabled:opacity-60"
+          className={primaryButtonClassName}
         >
           {idSubmitting ? "전송 중..." : "인증코드 보내기"}
         </button>
@@ -66,7 +69,7 @@ export default function FindIdModal({
             type="button"
             onClick={verifyIdCode}
             disabled={idSubmitting}
-            className="h-9 sm:h-10 px-3 sm:px-4 rounded-md border border-gray-300 text-xs sm:text-sm hover:bg-gray-50"
+            className={primaryButtonClassName}
           >
             {idSubmitting ? "확인 중..." : "코드 확인"}
           </button>
@@ -79,7 +82,7 @@ export default function FindIdModal({
           type="button"
           onClick={revealUsernames}
           disabled={idSubmitting || !idVerified}
-          className="h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-[var(--color-primary)] text-white text-xs sm:text-sm hover:bg-[var(--color-secondary)] disabled:opacity-60"
+          className={primaryButtonClassName}
         >
           {idSubmitting ? "조회 중..." : "아이디 보기"}
         </button>

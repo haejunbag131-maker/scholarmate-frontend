@@ -52,7 +52,7 @@ export default function CommunityToolbar({
       <div className="mx-auto w-full max-w-[var(--page-max-width)] p-0 text-white max-lg:max-w-[760px]">
         <div className="mb-5">
           <p className="mb-1.5 text-sm font-bold text-white/80">장학 정보 공유 공간</p>
-          <h1 className="m-0 text-[var(--page-title-size)] font-black leading-[var(--page-title-line-height)] tracking-normal">
+          <h1 className="m-0 text-[var(--page-title-size)] font-black leading-[var(--page-title-line-height)] tracking-normal max-md:text-[1.25rem] max-[360px]:text-[1.15rem]">
             ScholarMate 커뮤니티
           </h1>
         </div>

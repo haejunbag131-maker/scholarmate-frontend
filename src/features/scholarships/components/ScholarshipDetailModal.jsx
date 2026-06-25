@@ -54,6 +54,7 @@ export default function ScholarshipDetailModal({ scholarship, onClose }) {
           rel="noopener noreferrer"
           variant="primary"
           size="sm"
+          className="black-action-button"
         >
           홈페이지 이동
         </Button>

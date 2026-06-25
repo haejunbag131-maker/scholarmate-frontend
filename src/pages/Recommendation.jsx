@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { FaStar } from "react-icons/fa";
+import { FaExclamationCircle, FaStar } from "react-icons/fa";
 import {
   fetchRecommendations,
   fetchScholarshipWishlist,
@@ -165,10 +165,10 @@ export default function Recommendation() {
             <div
               className="mx-auto mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full"
               style={{
-                background: "color-mix(in srgb, var(--color-secondary) 12%, #fff)",
+                background: "color-mix(in srgb, #ef4444 12%, #fff)",
               }}
             >
-              <span className="text-lg text-[var(--color-primary)]">ℹ️</span>
+              <FaExclamationCircle className="h-5 w-5 text-red-500" aria-hidden="true" />
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">추천을 보기 전에</h2>
             <p className="text-gray-700">

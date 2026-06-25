@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "../../../api/axios";
 import ModalShell from "./ModalShell";
 
+const primaryButtonClassName =
+  "h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-gray-900 text-white text-xs sm:text-sm font-semibold hover:bg-black hover:text-white disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2";
+
 export default function ResetPwByCodeModal({ onClose, inputCls }) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -112,7 +115,7 @@ export default function ResetPwByCodeModal({ onClose, inputCls }) {
           type="button"
           onClick={sendCode}
           disabled={submitting || cooldown > 0}
-          className="h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-[var(--color-primary)] text-white text-xs sm:text-sm hover:bg-[var(--color-secondary)] disabled:opacity-60"
+          className={primaryButtonClassName}
         >
           {submitting ? "전송 중..." : cooldown ? `재전송 ${cooldown}s` : "인증코드 보내기"}
         </button>
@@ -125,7 +128,7 @@ export default function ResetPwByCodeModal({ onClose, inputCls }) {
           type="button"
           onClick={verifyCode}
           disabled={submitting}
-          className="mt-2 h-9 sm:h-10 px-3 sm:px-4 rounded-md border border-gray-300 text-xs sm:text-sm hover:bg-gray-50"
+          className={`mt-2 ${primaryButtonClassName}`}
         >
           {submitting ? "확인 중..." : "코드 확인"}
         </button>
@@ -158,7 +161,7 @@ export default function ResetPwByCodeModal({ onClose, inputCls }) {
           type="button"
           onClick={resetPassword}
           disabled={submitting || !verified}
-          className="h-9 sm:h-10 px-3 sm:px-4 rounded-md bg-[var(--color-primary)] text-white text-xs sm:text-sm hover:bg-[var(--color-secondary)] disabled:opacity-60"
+          className={primaryButtonClassName}
         >
           {submitting ? "변경 중..." : "비밀번호 변경"}
         </button>
