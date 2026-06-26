@@ -28,5 +28,6 @@ build/
 
 # Local QA reports and generated portfolio artifacts
 .portfolio-work/
+tmp/
 PORTFOLIO_*.md
 ScholarMate_*Portfolio*.pptx
