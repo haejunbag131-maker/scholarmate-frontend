@@ -26,6 +26,26 @@ const mimeTypes = {
   ".gif": "image/gif",
 };
 
+function optionalPublicFallback(requestUrl, method = "GET") {
+  if (method !== "GET") return null;
+
+  const url = new URL(requestUrl, "http://127.0.0.1");
+  if (url.pathname === "/api/community/posts/" || url.pathname === "/api/notices/") {
+    return { results: [] };
+  }
+
+  return null;
+}
+
+function sendJson(res, statusCode, body, headers = {}) {
+  res.writeHead(statusCode, {
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": "no-store",
+    ...headers,
+  });
+  res.end(JSON.stringify(body));
+}
+
 function isProxyPath(requestUrl) {
   return (
     requestUrl.startsWith("/api/") ||
@@ -35,8 +55,18 @@ function isProxyPath(requestUrl) {
 }
 
 function proxyRequest(req, res) {
+  const fallback = optionalPublicFallback(req.url || "", req.method);
   const target = new URL(req.url, backendOrigin);
   const transport = target.protocol === "https:" ? https : http;
+  let responded = false;
+
+  const sendFallback = () => {
+    if (!fallback || responded) return false;
+    responded = true;
+    sendJson(res, 200, fallback, { "x-scholarmate-api-fallback": "1" });
+    return true;
+  };
+
   const proxy = transport.request(
     {
       hostname: target.hostname,
@@ -49,14 +79,26 @@ function proxyRequest(req, res) {
       },
     },
     (proxyRes) => {
+      if ((proxyRes.statusCode || 502) >= 500 && sendFallback()) {
+        proxyRes.resume();
+        return;
+      }
+
+      responded = true;
       res.writeHead(proxyRes.statusCode || 502, proxyRes.headers);
       proxyRes.pipe(res);
     }
   );
 
   proxy.on("error", (error) => {
-    res.writeHead(502, { "content-type": "application/json" });
-    res.end(JSON.stringify({ error: error.message }));
+    if (responded) return;
+    if (sendFallback()) return;
+    responded = true;
+    sendJson(res, 502, { error: error.message });
+  });
+
+  proxy.setTimeout(5000, () => {
+    proxy.destroy(new Error("Proxy request timed out"));
   });
 
   req.pipe(proxy);
