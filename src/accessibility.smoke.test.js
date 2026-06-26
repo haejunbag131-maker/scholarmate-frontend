@@ -10,7 +10,7 @@ test("home hero images are decorative and keep loading priority hints", async ()
   const source = await readSource("./components/home/Slider.jsx");
 
   assert.match(source, /alt=""/);
-  assert.match(source, /fetchpriority: index === 0 \? "high" : "auto"/);
+  assert.match(source, /fetchPriority=\{index === 0 \? "high" : "auto"\}/);
   assert.match(source, /loading=\{index === 0 \? "eager" : "lazy"\}/);
 });
 

@@ -5,10 +5,17 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import sliderImage1 from "../../assets/img/home-hero-scholarships.webp";
 import sliderImage2 from "../../assets/img/home-hero-recommendation.webp";
 
+const AUTO_ROTATE_DELAY_MS = 18000;
+
 export default function SliderSection() {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const [loadedSlideIndexes, setLoadedSlideIndexes] = useState(() => new Set([0]));
+  const [isAutoPaused, setIsAutoPaused] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isDocumentHidden, setIsDocumentHidden] = useState(() =>
+    typeof document === "undefined" ? false : document.hidden
+  );
   const swipeRef = useRef({
     pointerId: null,
     startX: 0,
@@ -46,16 +53,35 @@ export default function SliderSection() {
   ];
 
   useEffect(() => {
-    const timerId = window.setInterval(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncMotionPreference = () => setPrefersReducedMotion(mediaQuery.matches);
+
+    syncMotionPreference();
+    mediaQuery.addEventListener("change", syncMotionPreference);
+    return () => mediaQuery.removeEventListener("change", syncMotionPreference);
+  }, []);
+
+  useEffect(() => {
+    const syncVisibility = () => setIsDocumentHidden(document.hidden);
+
+    syncVisibility();
+    document.addEventListener("visibilitychange", syncVisibility);
+    return () => document.removeEventListener("visibilitychange", syncVisibility);
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion || isDocumentHidden || isAutoPaused) return undefined;
+
+    const timerId = window.setTimeout(() => {
       setActiveIndex((current) => {
         const nextIndex = (current + 1) % slides.length;
         setLoadedSlideIndexes((loaded) => new Set(loaded).add(nextIndex));
         return nextIndex;
       });
-    }, 10000);
+    }, AUTO_ROTATE_DELAY_MS);
 
-    return () => window.clearInterval(timerId);
-  }, [slides.length]);
+    return () => window.clearTimeout(timerId);
+  }, [activeIndex, isAutoPaused, isDocumentHidden, prefersReducedMotion, slides.length]);
 
   const goToSlide = (nextIndex) => {
     const normalizedIndex = (nextIndex + slides.length) % slides.length;
@@ -102,10 +128,20 @@ export default function SliderSection() {
     };
   };
 
+  const handleBlurCapture = (event) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setIsAutoPaused(false);
+    }
+  };
+
   return (
     <section className="mx-auto w-full" aria-roledescription="carousel">
       <div
         className="relative h-[400px] touch-pan-y select-none overflow-hidden max-xl:h-[320px] max-md:h-[260px] max-[480px]:h-[220px]"
+        onMouseEnter={() => setIsAutoPaused(true)}
+        onMouseLeave={() => setIsAutoPaused(false)}
+        onFocusCapture={() => setIsAutoPaused(true)}
+        onBlurCapture={handleBlurCapture}
         onPointerDown={handlePointerDown}
         onPointerUp={finishSwipe}
         onPointerCancel={cancelSwipe}
@@ -130,7 +166,7 @@ export default function SliderSection() {
                 height={slide.height}
                 className="absolute inset-0 h-full w-full object-cover"
                 loading={index === 0 ? "eager" : "lazy"}
-                {...{ fetchpriority: index === 0 ? "high" : "auto" }}
+                fetchPriority={index === 0 ? "high" : "auto"}
                 decoding={index === 0 ? "sync" : "async"}
               />
             )}

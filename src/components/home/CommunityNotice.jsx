@@ -84,6 +84,7 @@ async function fetchHomeNotices() {
 
 const getErrorLabel = (error) => error?.response?.status || "FETCH_ERROR";
 const EMPTY_LIST = [];
+const EMPTY_NOTICES = { pinnedItem: null, latestItems: EMPTY_LIST };
 const Chevron = () => (
   <FaChevronRight className="mr-[8px] text-[#111] shrink-0" aria-hidden="true" />
 );
@@ -94,23 +95,29 @@ const CommunityNotice = () => {
   const communityQuery = useQuery({
     queryKey: queryKeys.home.communityLatest,
     queryFn: fetchCommunityLatest,
+    placeholderData: EMPTY_LIST,
+    retry: 0,
   });
   const popularQuery = useQuery({
     queryKey: queryKeys.home.communityPopular,
     queryFn: fetchCommunityPopular,
+    placeholderData: null,
+    retry: 0,
   });
   const noticeQuery = useQuery({
     queryKey: queryKeys.home.notices,
     queryFn: fetchHomeNotices,
+    placeholderData: EMPTY_NOTICES,
+    retry: 0,
   });
 
   const communityItems = communityQuery.data ?? EMPTY_LIST;
   const popularItem = popularQuery.data ?? null;
   const pinnedItem = noticeQuery.data?.pinnedItem ?? null;
   const latestItems = noticeQuery.data?.latestItems ?? EMPTY_LIST;
-  const communityLoading = communityQuery.isPending;
-  const popularLoading = popularQuery.isPending;
-  const noticeLoading = noticeQuery.isPending;
+  const communityLoading = communityQuery.isPending && !communityQuery.data;
+  const popularLoading = popularQuery.isPending && popularQuery.data === undefined;
+  const noticeLoading = noticeQuery.isPending && !noticeQuery.data;
   const communityError = communityQuery.isError ? getErrorLabel(communityQuery.error) : null;
   const noticeError = noticeQuery.isError ? getErrorLabel(noticeQuery.error) : null;
 

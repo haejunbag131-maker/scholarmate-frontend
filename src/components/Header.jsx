@@ -213,10 +213,11 @@ export default function Header() {
           <Link to="/" className="flex min-w-0 items-center gap-2" aria-label="ScholarMate 홈">
             <img
               src="/logo.svg"
-              alt="ScholarMate"
+              alt=""
               width="168"
               height="112"
               className="logo h-9 w-auto sm:h-10"
+              aria-hidden="true"
             />
             <span className="hidden whitespace-nowrap text-xl font-black tracking-normal text-[#0078BF] sm:inline xl:text-2xl">
               ScholarMate
