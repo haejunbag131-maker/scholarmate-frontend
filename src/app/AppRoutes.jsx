@@ -28,6 +28,11 @@ export default function AppRoutes() {
   const authChecked = useSelector(selectAuthChecked);
   const location = useLocation();
   const routeFallback = getRouteFallback(location.pathname);
+  const authenticatedDestination =
+    (typeof location.state?.from === "string" && location.state.from) ||
+    (typeof location.state?.fromProtected === "string" &&
+      location.state.fromProtected) ||
+    "/";
 
   return (
     <Routes>
@@ -84,7 +89,13 @@ export default function AppRoutes() {
             />
             <Route
               path="/login"
-              element={isLoggedIn ? <Navigate to="/" /> : <Login />}
+              element={
+                isLoggedIn ? (
+                  <Navigate to={authenticatedDestination} replace />
+                ) : (
+                  <Login />
+                )
+              }
             />
             <Route
               path="/register"

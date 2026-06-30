@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "node --test",
-    "test:e2e": "node scripts/qa/verify-production-e2e-a11y.cjs",
+    "test:e2e": "playwright test",
+    "test:e2e:a11y": "node scripts/qa/verify-production-e2e-a11y.cjs",
     "test:lighthouse": "node scripts/qa/run-lighthouse.cjs",
     "test:performance": "node scripts/qa/measure-production-with-api.cjs",
     "preview": "vite preview",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.61.1",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.4.0",

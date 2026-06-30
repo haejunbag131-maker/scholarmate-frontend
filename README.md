@@ -1,5 +1,7 @@
 # ScholarMate
 
+[![CI](https://github.com/haejunbag131-maker/scholarmate-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/haejunbag131-maker/scholarmate-frontend/actions/workflows/ci.yml)
+
 > 사용자의 학적, 지역, 소득, 관심 조건을 바탕으로 장학금을 탐색하고 추천받을 수 있는 장학금 추천 플랫폼입니다.
 
 ScholarMate는 장학금 정보를 찾고, 비교하고, 관심 목록에 저장하고, 마감일을 관리하는 과정을 하나의 흐름으로 묶은 서비스입니다.  
@@ -186,8 +188,15 @@ src/
 
 - 단위 테스트: 날짜 계산, 페이지네이션, 추천 이유 파싱, URL 정규화, 사용자 정보 payload 변환
 - 접근성 smoke test: 이미지 alt, 외부 링크 noopener, 로그인 autocomplete, 주요 landmark 확인
-- E2E/접근성 테스트: production build를 로컬 정적 서버에서 실행하고 Chrome DevTools Protocol과 axe-core로 검증
+- 핵심 흐름 E2E 테스트: Playwright와 API 모킹으로 로그인, 보호 페이지 복귀, 장학금 검색·상세·관심 등록 검증
+- E2E/접근성 smoke test: production build를 로컬 정적 서버에서 실행하고 Chrome DevTools Protocol과 axe-core로 검증
 - Lighthouse/성능 테스트: 홈 화면의 desktop/mobile 환경을 기준으로 성능, 접근성, SEO, Best Practices 측정
+
+```bash
+npx playwright install chromium  # 최초 1회
+npm run test:e2e       # Playwright 핵심 흐름
+npm run test:e2e:a11y  # production build 접근성 smoke test
+```
 
 ## 화면 흐름
 
