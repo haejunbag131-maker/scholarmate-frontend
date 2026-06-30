@@ -9,6 +9,24 @@ import {
   setLoggedIn,
 } from "../features/auth/authSlice";
 
+let bootstrapRefreshPromise = null;
+
+function refreshBootstrapSession(refreshToken) {
+  if (!bootstrapRefreshPromise) {
+    bootstrapRefreshPromise = api
+      .post(
+        "/auth/jwt/refresh/",
+        { refresh: refreshToken },
+        { skipAuthRedirect: true }
+      )
+      .finally(() => {
+        bootstrapRefreshPromise = null;
+      });
+  }
+
+  return bootstrapRefreshPromise;
+}
+
 export default function useAuthBootstrap() {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -31,11 +49,7 @@ export default function useAuthBootstrap() {
 
       if (token && refreshToken && autoLogin) {
         try {
-          const { data } = await api.post(
-            "/auth/jwt/refresh/",
-            { refresh: refreshToken },
-            { skipAuthRedirect: true }
-          );
+          const { data } = await refreshBootstrapSession(refreshToken);
           if (data?.access) {
             localStorage.setItem("token", data.access);
             if (!cancelled) dispatch(loginSucceeded());
