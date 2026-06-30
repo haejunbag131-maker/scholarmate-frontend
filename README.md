@@ -188,7 +188,7 @@ src/
 
 - 단위 테스트: 날짜 계산, 페이지네이션, 추천 이유 파싱, URL 정규화, 사용자 정보 payload 변환
 - 접근성 smoke test: 이미지 alt, 외부 링크 noopener, 로그인 autocomplete, 주요 landmark 확인
-- 핵심 흐름 E2E 테스트: Playwright와 API 모킹으로 로그인, 보호 페이지 복귀, 장학금 검색·상세·관심 등록, 만료 토큰 갱신·실패 처리 검증
+- 핵심 흐름 E2E 테스트: Playwright와 API 모킹으로 로그인, 보호 페이지 복귀, 장학금 검색·상세·관심 등록, 맞춤 추천·선별 이유, 만료 토큰 갱신·실패 처리 검증
 - E2E/접근성 smoke test: production build를 로컬 정적 서버에서 실행하고 Chrome DevTools Protocol과 axe-core로 검증
 - Lighthouse/성능 테스트: 홈 화면의 desktop/mobile 환경을 기준으로 성능, 접근성, SEO, Best Practices 측정
 
