@@ -9,10 +9,9 @@ ScholarMate는 장학금 정보를 찾고, 비교하고, 관심 목록에 저장
 
 ## Links
 
-- 배포 URL:
-- GitHub Repository:
+- 배포 URL: [https://scholarmate-fe.vercel.app/](https://scholarmate-fe.vercel.app/)
 - 담당 역할: Frontend
-- 개발 기간:
+- 개발 기간: 2025.04 - 2025.11
 - 팀 구성: Frontend / Backend
 
 ## Summary
@@ -84,7 +83,7 @@ ScholarMate는 장학금 정보를 찾고, 비교하고, 관심 목록에 저장
 - 게시글 목록, 검색, 카테고리, 인기순/최신순 정렬
 - 게시글 작성, 수정, 삭제, 좋아요, 북마크, 공유
 - 댓글, 대댓글, 답글 편집 UI
-- 1:1 대화 목록, 메시지 전송, 읽음 처리
+- 1:1 대화 목록, 메시지 전송, 미읽음 수 표시, 대화 진입 시 즉시 읽음 처리
 
 ### 공지와 홈
 
@@ -103,7 +102,7 @@ ScholarMate는 장학금 정보를 찾고, 비교하고, 관심 목록에 저장
 | Client State | Redux Toolkit, React Redux |
 | API | Axios |
 | UI | CSS, Tailwind CSS, Ant Design, React Icons |
-| Test/QA | Node test runner, ESLint, axe-core, Lighthouse |
+| Test/QA | Node test runner, Playwright, ESLint, axe-core, Lighthouse |
 | Deploy | Vercel, Vite production build |
 
 ## 시스템 아키텍처
@@ -188,7 +187,7 @@ src/
 
 - 단위 테스트: 날짜 계산, 페이지네이션, 추천 이유 파싱, URL 정규화, 사용자 정보 payload 변환
 - 접근성 smoke test: 이미지 alt, 외부 링크 noopener, 로그인 autocomplete, 주요 landmark 확인
-- 핵심 흐름 E2E 테스트: Playwright와 API 모킹으로 로그인, 보호 페이지 복귀, 장학금 검색·상세·관심 등록, 맞춤 추천·선별 이유, 만료 토큰 갱신·실패 처리 검증
+- 핵심 흐름 E2E 테스트: Playwright와 API 모킹으로 로그인, 보호 페이지 복귀, 장학금 검색·상세·관심 등록, 맞춤 추천·선별 이유, 만료 토큰 갱신·실패 처리, 메시지 미읽음 집계·즉시 읽음 처리 검증
 - E2E/접근성 smoke test: production build를 로컬 정적 서버에서 실행하고 Chrome DevTools Protocol과 axe-core로 검증
 - Lighthouse/성능 테스트: 홈 화면의 desktop/mobile 환경을 기준으로 성능, 접근성, SEO, Best Practices 측정
 
@@ -232,9 +231,10 @@ npm run dev
 npm test
 npm run lint
 npm run build
+npm run test:e2e
 ```
 
-최종 확인 기준으로 위 명령어가 정상 통과했습니다.
+최종 확인 기준으로 위 명령어가 정상 통과했으며, `main` 브랜치 push와 pull request에서 GitHub Actions CI가 동일한 검증을 자동 실행합니다.
 
 ## 트러블슈팅 및 개선 경험
 
