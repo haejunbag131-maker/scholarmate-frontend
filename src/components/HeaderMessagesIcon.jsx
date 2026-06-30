@@ -3,6 +3,11 @@ import { useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { selectIsLoggedIn } from "../features/auth/authSlice";
+import {
+  CONVERSATION_READ_EVENT,
+  dedupeConversations,
+  getConversationUnreadCount,
+} from "../features/messages/utils/conversations";
 
 function EnvelopeIcon({ className = "w-6 h-6" }) {
   return (
@@ -36,6 +41,7 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
   const [me, setMe] = useState({ id: null, username: null });
   const [notice, setNotice] = useState("");
   const timerRef = useRef(null);
+  const unreadByConversationRef = useRef(new Map());
   const wrapRef = useRef(null);
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -84,18 +90,28 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
         params: { page_size: 10, ordering: "-updated_at" },
         skipAuthRedirect: true,
       });
-      const list = Array.isArray(data) ? data : data?.results ?? [];
-      const unread = list.reduce(
-        (sum, c) => sum + (c.unread_count ?? c.unread ?? 0),
+      const rawList = Array.isArray(data) ? data : data?.results ?? [];
+      const list = dedupeConversations(rawList);
+      const unreadByConversation = new Map(
+        list.map((conversation) => [
+          String(conversation.id),
+          getConversationUnreadCount(conversation),
+        ])
+      );
+      unreadByConversationRef.current = unreadByConversation;
+      const unread = [...unreadByConversation.values()].reduce(
+        (sum, conversationUnread) => sum + conversationUnread,
         0
       );
       setCount(unread);
 
       setPreview(
         list.slice(0, 5).map((c) => {
-          let names = Array.isArray(c.other_usernames)
-            ? c.other_usernames
-            : null;
+          let names = c.partner?.username
+            ? [c.partner.username]
+            : Array.isArray(c.other_usernames)
+              ? c.other_usernames
+              : null;
 
           if (!names) {
             const participants = Array.isArray(c.participants)
@@ -114,8 +130,13 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
           return {
             id: c.id,
             other: (names || []).join(", "),
-            last: c.last_message?.content ?? c.last_message?.body ?? "",
-            at: c.updated_at,
+            last:
+              c.latest_message ??
+              c.last_message?.content ??
+              c.last_message?.body ??
+              "",
+            at: c.latest_time ?? c.updated_at ?? c.created_at,
+            unread: getConversationUnreadCount(c),
           };
         })
       );
@@ -123,6 +144,22 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
       /* 조용히 무시 */
     }
   }, [isLoggedIn, me.id, me.username]);
+
+  const clearConversationUnread = useCallback((conversationId) => {
+    const key = String(conversationId);
+    const unread = unreadByConversationRef.current.get(key) ?? 0;
+    if (unread <= 0) return;
+
+    unreadByConversationRef.current.set(key, 0);
+    setCount((current) => Math.max(0, current - unread));
+    setPreview((current) =>
+      current.map((conversation) =>
+        String(conversation.id) === key
+          ? { ...conversation, unread: 0 }
+          : conversation
+      )
+    );
+  }, []);
 
   // 최초 + 주기적 동기화
   useEffect(() => {
@@ -145,8 +182,24 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
   }, [me.id, me.username, sync]);
 
   useEffect(() => {
-    if (pathname.startsWith("/messages")) sync();
+    if (pathname === "/messages") sync();
   }, [pathname, sync]);
+
+  useEffect(() => {
+    const handleConversationRead = (event) => {
+      const conversationId = event.detail?.conversationId;
+      if (conversationId !== null && conversationId !== undefined) {
+        clearConversationUnread(conversationId);
+      }
+    };
+
+    window.addEventListener(CONVERSATION_READ_EVENT, handleConversationRead);
+    return () =>
+      window.removeEventListener(
+        CONVERSATION_READ_EVENT,
+        handleConversationRead
+      );
+  }, [clearConversationUnread]);
 
   // 외부 클릭 닫기
   useEffect(() => {
@@ -236,21 +289,25 @@ export default function HeaderMessagesIcon({ intervalMs = 60000 }) {
                 </li>
               )}
               {preview.map((c) => (
-                <li
-                  key={c.id}
-                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => {
-                    setOpen(false);
-                    navigate(`/messages/${c.id}`);
-                  }}
-                >
-                  <div className="text-sm font-medium truncate">
-                    {c.other || "알 수 없음"}
-                  </div>
-                  <div className="text-xs text-gray-500 truncate">{c.last}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {c.at ? new Date(c.at).toLocaleString() : ""}
-                  </div>
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    className="w-full px-4 py-3 text-left hover:bg-gray-50"
+                    aria-label={`${c.other || "알 수 없음"}님과의 쪽지 열기`}
+                    onClick={() => {
+                      clearConversationUnread(c.id);
+                      setOpen(false);
+                      navigate(`/messages/${c.id}`);
+                    }}
+                  >
+                    <div className="text-sm font-medium truncate">
+                      {c.other || "알 수 없음"}
+                    </div>
+                    <div className="text-xs text-gray-500 truncate">{c.last}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {c.at ? new Date(c.at).toLocaleString() : ""}
+                    </div>
+                  </button>
                 </li>
               ))}
             </ul>

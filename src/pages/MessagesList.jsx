@@ -4,6 +4,10 @@ import api from "../api/axios";
 import PageShell from "../shared/components/PageShell";
 import PageTitle from "../shared/components/PageTitle";
 import { SkeletonList } from "../shared/components/Skeleton";
+import {
+  dedupeConversations,
+  getConversationUnreadCount,
+} from "../features/messages/utils/conversations";
 
 import {
   Card,
@@ -27,7 +31,7 @@ export default function MessagesList() {
         params: { page_size: 50, ordering: "-latest_time" },
       });
       const list = Array.isArray(data) ? data : data?.results ?? [];
-      setItems(list);
+      setItems(dedupeConversations(list));
     } catch (e) {
       console.error(e);
       antdMessage.error("쪽지 목록을 불러오지 못했습니다.");
@@ -74,7 +78,7 @@ export default function MessagesList() {
               const at = c.latest_time
                 ? new Date(c.latest_time).toLocaleString()
                 : "";
-              const unread = c.unread_count ?? 0;
+              const unread = getConversationUnreadCount(c);
 
               return (
                 <li

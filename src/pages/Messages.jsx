@@ -13,6 +13,7 @@ import api from "../api/axios";
 import PageShell from "../shared/components/PageShell";
 import PageTitle from "../shared/components/PageTitle";
 import { SkeletonList } from "../shared/components/Skeleton";
+import { notifyConversationRead } from "../features/messages/utils/conversations";
 
 function parseJwt(token) {
   try {
@@ -402,6 +403,7 @@ export default function Messages() {
     if (!conversationId) return;
     try {
       await api.post(`/community/conversations/${conversationId}/mark_read/`);
+      notifyConversationRead(conversationId);
       setMsgs((prev) => {
         let changed = false;
         const next = prev.map((m) => {
