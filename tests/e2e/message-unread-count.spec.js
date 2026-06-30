@@ -16,7 +16,7 @@ const conversation = {
   partner: { id: 1, username: "sender" },
   latest_message: "세 번째 쪽지",
   latest_time: "2026-06-30T09:00:00Z",
-  unread_count: 6,
+  unread_count: 3,
   participant_count: 2,
   created_at: "2026-06-30T08:00:00Z",
 };
@@ -30,7 +30,7 @@ const incomingMessages = [1, 2, 3].map((id) => ({
   is_read: false,
 }));
 
-test("헤더 미읽음 수를 실제 메시지 수로 표시하고 대화 진입 즉시 제거한다", async ({
+test("헤더 미읽음 수를 서버 집계값으로 표시하고 대화 진입 즉시 제거한다", async ({
   page,
 }) => {
   const api = await mockMessageApi(page);

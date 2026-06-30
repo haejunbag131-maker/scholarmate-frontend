@@ -7,20 +7,9 @@ const toNonNegativeInteger = (value) => {
 };
 
 export function getConversationUnreadCount(conversation) {
-  const rawCount = toNonNegativeInteger(
+  return toNonNegativeInteger(
     conversation?.unread_count ?? conversation?.unread
   );
-  const participantCount = toNonNegativeInteger(
-    conversation?.participant_count
-  );
-
-  // The current API annotation joins messages and participants, so a 1:1
-  // conversation reports each unread message once per participant.
-  if (participantCount > 1 && rawCount % participantCount === 0) {
-    return rawCount / participantCount;
-  }
-
-  return rawCount;
 }
 
 export function dedupeConversations(conversations) {
